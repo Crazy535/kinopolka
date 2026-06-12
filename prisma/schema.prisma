@@ -1,0 +1,9 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url не задан — Prisma client использует DATABASE_URL из env (Transaction Pooler)
+}

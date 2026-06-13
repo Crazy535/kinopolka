@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { signIn, signOut } from 'next-auth/react'
-import { LogIn, LogOut, User } from 'lucide-react'
+import { LogIn, LogOut, User, Bookmark } from 'lucide-react'
 
 interface UserData {
   name?: string | null
@@ -78,6 +78,14 @@ export function UserMenu({ user }: Props) {
           >
             <User className="h-4 w-4" />
             Профиль
+          </Link>
+          <Link
+            href="/watchlist"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+          >
+            <Bookmark className="h-4 w-4" />
+            Вотчлист
           </Link>
           <button
             onClick={() => { setOpen(false); signOut() }}

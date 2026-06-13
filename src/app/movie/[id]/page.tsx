@@ -6,6 +6,8 @@ import { getMovieDetailsEnriched } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
 import { CastRow } from '@/components/movie-detail/cast-row'
+import { WatchlistButton } from '@/components/movie-detail/watchlist-button'
+import { StarRating } from '@/components/movie-detail/star-rating'
 
 export const revalidate = 86400
 
@@ -108,6 +110,16 @@ export default async function MoviePage({ params }: MoviePageProps) {
         </div>
 
         <div className="mt-6 flex flex-col gap-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <WatchlistButton
+              tmdbId={movieId}
+              mediaType="movie"
+              title={movie.title}
+              posterPath={movie.poster_path}
+            />
+            <StarRating tmdbId={movieId} mediaType="movie" />
+          </div>
+
           {movie.overview && (
             <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
               {movie.overview}

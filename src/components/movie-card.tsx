@@ -55,16 +55,16 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <article className="group flex flex-col rounded-lg overflow-hidden bg-card border border-border hover:bg-surface-hover transition-colors">
+    <article className="group flex flex-col rounded-xl overflow-hidden bg-card border border-border hover:-translate-y-0.5 hover:shadow-xl hover:border-white/[0.15] transition-all duration-200">
       <Link href={detailHref} className="block">
-        <div className="relative aspect-[2/3] w-full bg-muted">
+        <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
           {posterUrl ? (
             <Image
               src={posterUrl}
               alt={title}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               priority={priority}
             />
           ) : (

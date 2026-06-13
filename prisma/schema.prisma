@@ -18,11 +18,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  watchlist     WatchlistItem[]
-  ratings       Rating[]
-  tasteProfile  TasteProfile?
+  accounts        Account[]
+  sessions        Session[]
+  watchlist       WatchlistItem[]
+  ratings         Rating[]
+  tasteProfile    TasteProfile?
+  hostedRooms     PartnerRoom[] @relation("HostRooms")
+  guestRooms      PartnerRoom[] @relation("GuestRooms")
 
   @@map("users")
 }
@@ -100,6 +102,26 @@ model Rating {
   @@unique([userId, tmdbId, mediaType])
   @@index([userId])
   @@map("ratings")
+}
+
+// Partner Mode — комната для совместного подбора фильмов
+model PartnerRoom {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  hostId        String
+  guestId       String?
+  status        String   @default("waiting") // "waiting" | "active" | "done"
+  hostGenreIds  Int[]
+  guestGenreIds Int[]
+  resultIds     Int[]    // TMDB movie IDs from intersection
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+
+  host  User  @relation("HostRooms", fields: [hostId], references: [id], onDelete: Cascade)
+  guest User? @relation("GuestRooms", fields: [guestId], references: [id], onDelete: SetNull)
+
+  @@index([hostId])
+  @@map("partner_rooms")
 }
 
 // Taste Profile — результат Onboarding (выбранные постеры → жанры)

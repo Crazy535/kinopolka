@@ -27,10 +27,10 @@ const ACTIONS = [
     icon: Users,
     label: 'Вечер с партнёром',
     description: 'Выбор на двоих',
-    href: null,
-    className: 'bg-secondary text-secondary-foreground opacity-50 cursor-not-allowed',
+    href: '/partner',
+    className: 'bg-secondary hover:bg-secondary/80 text-secondary-foreground',
   },
-] as const
+]
 
 const TILE_BASE =
   'flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-6 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
@@ -48,30 +48,17 @@ export function HeroSection() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        {ACTIONS.map(({ icon: Icon, label, description, href, className }) =>
-          href ? (
-            <Link
-              key={label}
-              href={href}
-              className={`${TILE_BASE} ${className}`}
-            >
-              <Icon className="size-7 shrink-0" />
-              <span className="text-sm font-semibold leading-tight">{label}</span>
-              <span className="text-xs opacity-70">{description}</span>
-            </Link>
-          ) : (
-            <div
-              key={label}
-              role="button"
-              aria-disabled="true"
-              className={`${TILE_BASE} ${className}`}
-            >
-              <Icon className="size-7 shrink-0" />
-              <span className="text-sm font-semibold leading-tight">{label}</span>
-              <span className="text-xs opacity-70">{description}</span>
-            </div>
-          )
-        )}
+        {ACTIONS.map(({ icon: Icon, label, description, href, className }) => (
+          <Link
+            key={label}
+            href={href}
+            className={`${TILE_BASE} ${className}`}
+          >
+            <Icon className="size-7 shrink-0" />
+            <span className="text-sm font-semibold leading-tight">{label}</span>
+            <span className="text-xs opacity-70">{description}</span>
+          </Link>
+        ))}
       </div>
     </section>
   )

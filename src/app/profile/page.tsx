@@ -57,58 +57,77 @@ export default async function ProfilePage() {
 
   return (
     <div className="pb-12">
-      <div className="mb-8 flex items-center gap-5">
-        <div className="relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-2 ring-border">
+      {/* User header */}
+      <div className="mb-10 flex items-center gap-5">
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border">
           {user.image ? (
             <Image
               src={user.image}
               alt={user.name ?? 'Аватар'}
               fill
-              sizes="80px"
+              sizes="64px"
               className="object-cover"
             />
           ) : (
             <div className="flex size-full items-center justify-center">
-              <User className="size-8 text-muted-foreground" />
+              <User className="size-7 text-muted-foreground" />
             </div>
           )}
         </div>
 
         <div>
-          <h1 className="text-xl font-bold sm:text-2xl">{user.name ?? 'Пользователь'}</h1>
-          <p className="text-sm text-muted-foreground">{user.email}</p>
+          <h1 className="font-heading text-2xl font-bold tracking-[-0.02em] sm:text-3xl">
+            {user.name ?? 'Пользователь'}
+          </h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">{user.email}</p>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatCard
-          icon={<Bookmark className="size-5 text-primary" />}
-          label="В вотчлисте"
-          value={watchlistCount}
+      {/* Stats — inline horizontal, not hero-metric cards */}
+      <div className="mb-8 flex flex-wrap items-center gap-6 border-y border-border py-4">
+        <Link
           href="/watchlist"
-        />
-        <StatCard
-          icon={<Star className="size-5 text-yellow-400" />}
-          label="Оценено"
-          value={ratingsCount}
-        />
-        <StatCard
-          icon={<Film className="size-5 text-muted-foreground" />}
-          label="Жанров в профиле"
-          value={tasteProfile?.genreIds.length ?? 0}
-        />
+          className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <Bookmark className="size-4 text-primary" />
+          <span>
+            <strong className="font-bold text-foreground">{watchlistCount}</strong>
+            &nbsp;в вотчлисте
+          </span>
+        </Link>
+
+        <span className="h-4 w-px bg-border" aria-hidden />
+
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Star className="size-4 text-gold" />
+          <span>
+            <strong className="font-bold text-foreground">{ratingsCount}</strong>
+            &nbsp;оценено
+          </span>
+        </div>
+
+        <span className="h-4 w-px bg-border" aria-hidden />
+
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Film className="size-4 text-muted-foreground" />
+          <span>
+            <strong className="font-bold text-foreground">{tasteProfile?.genreIds.length ?? 0}</strong>
+            &nbsp;жанров в профиле
+          </span>
+        </div>
       </div>
 
-      {/* Taste */}
+      {/* Taste genres */}
       {topGenres.length > 0 && (
-        <div className="mb-8">
-          <h2 className="mb-3 text-base font-semibold">Ваш вкус</h2>
+        <div className="mb-10">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            Ваш вкус
+          </h2>
           <div className="flex flex-wrap gap-2">
             {topGenres.map((name) => (
               <span
                 key={name}
-                className="rounded-full border border-border bg-muted px-3 py-1 text-sm"
+                className="rounded-md border border-border bg-muted px-3 py-1 text-sm font-medium"
               >
                 {name}
               </span>
@@ -121,49 +140,17 @@ export default async function ProfilePage() {
       <div className="flex flex-col gap-2 sm:flex-row">
         <Link
           href="/watchlist"
-          className="rounded-xl border border-border px-5 py-2.5 text-center text-sm font-medium hover:bg-muted transition-colors"
+          className="rounded-lg border border-border px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted"
         >
           Мой вотчлист
         </Link>
         <Link
           href="/onboarding"
-          className="rounded-xl border border-border px-5 py-2.5 text-center text-sm font-medium hover:bg-muted transition-colors"
+          className="rounded-lg border border-border px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted"
         >
           Обновить вкусы
         </Link>
       </div>
     </div>
   )
-}
-
-function StatCard({
-  icon,
-  label,
-  value,
-  href,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: number
-  href?: string
-}) {
-  const content = (
-    <div className="flex flex-col gap-1 rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="text-xs text-muted-foreground">{label}</span>
-      </div>
-      <span className="text-2xl font-bold">{value}</span>
-    </div>
-  )
-
-  if (href) {
-    return (
-      <Link href={href} className="hover:opacity-80 transition-opacity">
-        {content}
-      </Link>
-    )
-  }
-
-  return content
 }

@@ -11,7 +11,7 @@ import { OnboardingBanner } from '@/components/onboarding-banner'
 
 function MovieGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
       {Array.from({ length: 10 }).map((_, i) => (
         <MovieCardSkeleton key={i} />
       ))}
@@ -45,7 +45,7 @@ export default async function HomePage() {
       )}
 
       <section>
-        <h2 className="mb-4 text-xl font-semibold tracking-tight">В тренде сейчас</h2>
+        <h2 className="mb-5 text-lg font-bold tracking-tight">В тренде сейчас</h2>
         <Suspense fallback={<MovieGridSkeleton />}>
           <MovieGrid />
         </Suspense>

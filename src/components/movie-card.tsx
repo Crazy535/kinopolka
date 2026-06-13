@@ -55,70 +55,83 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <article className="group flex flex-col rounded-xl overflow-hidden bg-card border border-border hover:-translate-y-0.5 hover:shadow-xl hover:border-white/[0.15] transition-all duration-200">
-      <Link href={detailHref} className="block">
-        <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
-          {posterUrl ? (
-            <Image
-              src={posterUrl}
-              alt={title}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              priority={priority}
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">
-              Нет постера
-            </div>
-          )}
+    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
+      {/* Poster image */}
+      {posterUrl ? (
+        <Image
+          src={posterUrl}
+          alt={title}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-[1.04]"
+          priority={priority}
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+          <span className="text-xs text-muted-foreground">Нет постера</span>
         </div>
+      )}
 
-        <div className="flex flex-col gap-1 px-3 pt-3">
-          <h3 className="text-sm font-medium leading-tight line-clamp-2">{title}</h3>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground">{year}</span>
-            {movie.vote_count > 0 && (
-              <span className={`font-semibold ${ratingClass}`}>
-                ★ {movie.vote_average.toFixed(1)}
-              </span>
-            )}
-          </div>
-        </div>
+      {/* Persistent gradient overlay — title always readable */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+
+      {/* Main navigation link (covers full card) */}
+      <Link href={detailHref} className="absolute inset-0 z-10">
+        <span className="sr-only">{title}</span>
       </Link>
 
-      <div className="flex items-center gap-1.5 min-h-6 px-3 pb-3 pt-1.5">
-        {topProviders.length > 0 ? (
-          <a
-            href={providers!.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5"
-            aria-label="Где смотреть"
-          >
-            {topProviders.map((provider) => (
-              <Image
-                key={provider.provider_id}
-                src={getProviderLogoUrl(provider.logo_path)}
-                alt={provider.provider_name}
-                width={24}
-                height={24}
-                className="rounded-sm"
-                title={provider.provider_name}
-              />
-            ))}
-          </a>
-        ) : (
-          <a
-            href={fallbackLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Найти онлайн →
-          </a>
-        )}
+      {/* Info — sits on the gradient, pointer-events-none so link remains clickable */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 p-3 pointer-events-none">
+        <h3 className="text-[13px] font-semibold leading-tight text-white line-clamp-2">
+          {title}
+        </h3>
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-[11px] text-white/55">{year}</span>
+          {movie.vote_count > 0 && (
+            <span className={`text-[11px] font-bold ${ratingClass}`}>
+              ★&nbsp;{movie.vote_average.toFixed(1)}
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Provider logos — above main link (z-30), independently clickable */}
+      {topProviders.length > 0 ? (
+        <a
+          href={providers!.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-2.5 right-2.5 z-30 flex items-center gap-1"
+          aria-label="Где смотреть"
+        >
+          {topProviders.map((provider) => (
+            <Image
+              key={provider.provider_id}
+              src={getProviderLogoUrl(provider.logo_path)}
+              alt={provider.provider_name}
+              width={18}
+              height={18}
+              className="rounded-[3px] opacity-90 shadow-sm"
+              title={provider.provider_name}
+            />
+          ))}
+        </a>
+      ) : (
+        <a
+          href={fallbackLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-2.5 right-2.5 z-30 text-[10px] text-white/45 transition-colors hover:text-white/80"
+        >
+          Найти&nbsp;→
+        </a>
+      )}
+
+      {/* Hover ring — decorative top layer */}
+      <div
+        className="absolute inset-0 z-40 rounded-lg ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-white/12 pointer-events-none"
+        aria-hidden
+      />
     </article>
   )
 }

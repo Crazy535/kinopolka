@@ -27,8 +27,8 @@ export function QuizResults({ results, isLoading, error, onReset, userType = 'an
   if (isLoading) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-bold">Подбираем...</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <h2 className="mb-6 font-heading text-2xl font-bold">Подбираем…</h2>
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
@@ -39,12 +39,12 @@ export function QuizResults({ results, isLoading, error, onReset, userType = 'an
 
   if (error) {
     return (
-      <div className="py-12 text-center">
+      <div className="py-16 text-center">
         <p className="mb-4 text-muted-foreground">{error}</p>
         <button
           type="button"
           onClick={onReset}
-          className="text-sm font-medium underline underline-offset-4 hover:text-primary"
+          className="rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
         >
           Попробовать снова
         </button>
@@ -54,12 +54,12 @@ export function QuizResults({ results, isLoading, error, onReset, userType = 'an
 
   if (results.length === 0) {
     return (
-      <div className="py-12 text-center">
+      <div className="py-16 text-center">
         <p className="mb-4 text-muted-foreground">Ничего не нашлось. Попробуй другой жанр.</p>
         <button
           type="button"
           onClick={onReset}
-          className="text-sm font-medium underline underline-offset-4 hover:text-primary"
+          className="rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
         >
           Начать заново
         </button>
@@ -69,24 +69,25 @@ export function QuizResults({ results, isLoading, error, onReset, userType = 'an
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Вот что посмотреть</h2>
+          <h2 className="text-xl font-bold">Вот что посмотреть</h2>
           {ttwDuration !== null && (
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Подобрали за {ttwDuration.toFixed(1)} сек
+              Подобрали за&nbsp;
+              <span className="font-semibold text-primary">{ttwDuration.toFixed(1)}&nbsp;сек</span>
             </p>
           )}
         </div>
         <button
           type="button"
           onClick={onReset}
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="shrink-0 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          Начать заново
+          Заново
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
         {results.map(({ movie, providers }, i) => (
           <MovieCard
             key={movie.id}

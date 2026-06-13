@@ -60,71 +60,71 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-5">
       {ttwDuration !== null && (
-        <p className="text-sm text-muted-foreground">
-          Подобрали за{' '}
-          <span className="font-semibold text-foreground">{ttwDuration.toFixed(1)} сек</span>
+        <p className="text-xs text-muted-foreground">
+          Подобрали за&nbsp;
+          <span className="font-semibold text-gold">{ttwDuration.toFixed(1)}&nbsp;сек</span>
         </p>
       )}
 
-      <div className="flex w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg sm:max-w-md">
-        <div className="relative aspect-[2/3] w-full bg-muted">
+      {/* Card — poster-first, info overlaid */}
+      <div className="relative w-full max-w-[280px] overflow-hidden rounded-lg bg-muted shadow-2xl sm:max-w-xs">
+        <div className="relative aspect-[2/3] w-full">
           {posterUrl ? (
             <Image
               src={posterUrl}
               alt={title}
               fill
-              sizes="(max-width: 640px) 100vw, 448px"
+              sizes="(max-width: 640px) 80vw, 320px"
               className="object-cover"
               priority
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+            <div className="absolute inset-0 flex items-center justify-center bg-muted text-xs text-muted-foreground">
               Нет постера
+            </div>
+          )}
+          {/* Gradient — heavier at bottom for info overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+          {/* Rating badge */}
+          {movie.vote_count > 0 && (
+            <div className={`absolute right-3 top-3 rounded-md bg-black/50 px-2 py-1 text-xs font-bold backdrop-blur-sm ${ratingClass}`}>
+              ★&nbsp;{movie.vote_average.toFixed(1)}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-3 p-5">
-          <div>
-            <h2 className="text-xl font-bold leading-tight">{title}</h2>
-            <div className="mt-1 flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">{year}</span>
-              {movie.vote_count > 0 && (
-                <span className={`font-semibold ${ratingClass}`}>
-                  ★ {movie.vote_average.toFixed(1)}
-                </span>
-              )}
-            </div>
-          </div>
+        {/* Info overlay on gradient */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h2 className="text-base font-bold leading-tight text-white">{title}</h2>
+          <p className="mt-0.5 text-xs text-white/60">{year}</p>
 
           {movie.overview && (
-            <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
+            <p className="mt-2 text-xs leading-relaxed text-white/55 line-clamp-3">
               {movie.overview}
             </p>
           )}
 
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Где смотреть
-            </p>
+          {/* Providers */}
+          <div className="mt-3">
             {topProviders.length > 0 ? (
               <a
                 href={providers!.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2"
-                aria-label="Открыть страницу просмотра"
+                className="flex items-center gap-1.5"
+                aria-label="Где смотреть"
               >
                 {topProviders.map((p) => (
                   <Image
                     key={p.provider_id}
                     src={getProviderLogoUrl(p.logo_path)}
                     alt={p.provider_name}
-                    width={32}
-                    height={32}
-                    className="rounded-md"
+                    width={28}
+                    height={28}
+                    className="rounded-md shadow-sm"
                     title={p.provider_name}
                   />
                 ))}
@@ -134,27 +134,28 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
                 href={fallbackLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-xs text-white/50 transition-colors hover:text-white/80"
               >
-                Найти онлайн →
+                Найти онлайн&nbsp;→
               </a>
             )}
           </div>
 
           <Link
             href={detailHref}
-            className="mt-1 text-center text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline transition-colors"
+            className="mt-3 block text-xs text-white/45 transition-colors hover:text-white/80"
           >
-            Подробнее о фильме
+            Подробнее о фильме&nbsp;→
           </Link>
         </div>
       </div>
 
+      {/* Actions */}
       <div className="flex flex-col items-center gap-3 sm:flex-row">
         <button
           type="button"
           onClick={onRespin}
-          className="flex items-center gap-2 rounded-xl bg-roulette px-6 py-3 text-sm font-semibold text-roulette-foreground transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-bold text-gold-foreground transition-all duration-200 hover:opacity-90 hover:shadow-[0_4px_16px_oklch(0.80_0.13_80_/_0.30)]"
         >
           <RefreshCw className="size-4" />
           Перекрутить
@@ -162,7 +163,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
         <button
           type="button"
           onClick={onChangeMood}
-          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline transition-colors"
+          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           Сменить настроение
         </button>

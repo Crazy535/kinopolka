@@ -4,108 +4,85 @@ import Link from 'next/link'
 import { Film, Tv, Shuffle, Users } from 'lucide-react'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 
-const ACTIONS = [
-  {
-    icon: Film,
-    label: 'Подобрать фильм',
-    description: 'Квиз за 30 сек',
-    href: '/quiz?start=movie',
-    isRoulette: false,
-  },
-  {
-    icon: Tv,
-    label: 'Подобрать сериал',
-    description: 'Квиз за 30 сек',
-    href: '/quiz?start=tv',
-    isRoulette: false,
-  },
-  {
-    icon: Shuffle,
-    label: 'Кинорулетка',
-    description: '1 клик — 1 фильм',
-    href: '/roulette',
-    isRoulette: true,
-  },
-  {
-    icon: Users,
-    label: 'Вечер с партнёром',
-    description: 'Выбор на двоих',
-    href: '/partner',
-    isRoulette: false,
-  },
-]
+const EXPO_OUT: [number, number, number, number] = [0.19, 1, 0.22, 1]
 
-const TILE_BASE =
-  'flex h-full flex-col items-center justify-center gap-2 rounded-xl px-4 py-6 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+const containerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.10, delayChildren: 0.05 },
+  },
+}
 
-const headingVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0, 0, 1] },
+    transition: { duration: 0.65, ease: EXPO_OUT },
   },
 }
 
-const tileVariants: Variants = {
-  hidden: { opacity: 0, y: 10, scale: 0.98 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      delay: i * 0.07,
-      ease: [0.25, 0, 0, 1],
-    },
-  }),
-}
-
 export function HeroSection() {
-  const prefersReducedMotion = useReducedMotion()
+  const reduced = useReducedMotion()
+
+  const motionProps = reduced
+    ? {}
+    : { variants: containerVariants, initial: 'hidden', animate: 'visible' }
+
+  const childProps = reduced ? {} : { variants: itemVariants }
 
   return (
-    <section className="py-10 sm:py-14">
-      <motion.div
-        className="mb-10 text-center"
-        variants={prefersReducedMotion ? undefined : headingVariants}
-        initial={prefersReducedMotion ? undefined : 'hidden'}
-        animate={prefersReducedMotion ? undefined : 'visible'}
-      >
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          Что посмотреть сегодня?
-        </h1>
-        <p className="mt-3 text-base text-muted-foreground sm:text-lg">
-          Подберём фильм или сериал за 30 секунд
-        </p>
-      </motion.div>
+    <section className="py-12 sm:py-16 lg:py-20">
+      <motion.div className="flex flex-col gap-8 sm:gap-10" {...motionProps}>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        {ACTIONS.map(({ icon: Icon, label, description, href, isRoulette }, i) => (
-          <motion.div
-            key={label}
-            custom={i}
-            variants={prefersReducedMotion ? undefined : tileVariants}
-            initial={prefersReducedMotion ? undefined : 'hidden'}
-            animate={prefersReducedMotion ? undefined : 'visible'}
-            whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
-            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+        {/* Headline */}
+        <motion.div className="flex flex-col gap-3" {...childProps}>
+          <h1 className="font-heading text-[2.8rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-6xl lg:text-7xl">
+            Что смотрим<br className="hidden sm:block" /> сегодня?
+          </h1>
+          <p className="text-base text-muted-foreground sm:text-lg" style={{ maxWidth: '38ch' }}>
+            Квиз за 30&nbsp;секунд&nbsp;— и фильм найден
+          </p>
+        </motion.div>
+
+        {/* Primary CTAs */}
+        <motion.div className="flex flex-col gap-3 sm:flex-row" {...childProps}>
+          <Link
+            href="/quiz?start=movie"
+            className="group flex items-center justify-center gap-2.5 rounded-lg bg-primary px-7 py-4 text-[15px] font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-[0_4px_20px_oklch(0.58_0.22_18_/_0.35)] sm:flex-1"
           >
-            <Link
-              href={href}
-              className={`${TILE_BASE} ${
-                isRoulette
-                  ? 'bg-roulette text-roulette-foreground hover:opacity-90'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-              } transition-opacity`}
-            >
-              <Icon className="size-7 shrink-0" />
-              <span className="text-sm font-semibold leading-tight">{label}</span>
-              <span className="text-xs opacity-70">{description}</span>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
+            <Film className="size-5 shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5" />
+            Подобрать фильм
+          </Link>
+          <Link
+            href="/quiz?start=tv"
+            className="group flex items-center justify-center gap-2.5 rounded-lg bg-primary px-7 py-4 text-[15px] font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-[0_4px_20px_oklch(0.58_0.22_18_/_0.35)] sm:flex-1"
+          >
+            <Tv className="size-5 shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5" />
+            Подобрать сериал
+          </Link>
+        </motion.div>
+
+        {/* Secondary actions */}
+        <motion.div className="flex items-center gap-5" {...childProps}>
+          <Link
+            href="/roulette"
+            className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-gold"
+          >
+            <Shuffle className="size-4" />
+            Кинорулетка
+          </Link>
+          <span className="h-3.5 w-px bg-border" aria-hidden />
+          <Link
+            href="/partner"
+            className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground"
+          >
+            <Users className="size-4" />
+            Вечер с партнёром
+          </Link>
+        </motion.div>
+
+      </motion.div>
     </section>
   )
 }

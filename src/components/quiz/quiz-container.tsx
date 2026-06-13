@@ -15,9 +15,9 @@ interface QuizContainerProps {
 }
 
 const STEP_VARIANTS = {
-  initial: { opacity: 0, x: 40 },
+  initial: { opacity: 0, x: 32 },
   animate: { opacity: 1, x: 0 },
-  exit:    { opacity: 0, x: -40 },
+  exit:    { opacity: 0, x: -32 },
 }
 
 export function QuizContainer({ initialType, isAuthenticated = false }: QuizContainerProps) {
@@ -131,16 +131,21 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
 
   return (
     <div>
-      <div className="mb-8">
-        <div className="mb-2 flex justify-between text-xs text-muted-foreground">
-          <span>Шаг {step + 1} из {totalSteps}</span>
+      {/* Segmented progress bar */}
+      <div className="mb-10">
+        <div className="flex gap-1.5 mb-3">
+          {Array.from({ length: totalSteps }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${
+                i <= step ? 'bg-primary' : 'bg-border'
+              }`}
+            />
+          ))}
         </div>
-        <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-primary transition-all duration-300"
-            style={{ width: `${(step / totalSteps) * 100}%` }}
-          />
-        </div>
+        <p className="text-xs text-muted-foreground">
+          Шаг {step + 1} из {totalSteps}
+        </p>
       </div>
 
       <AnimatePresence mode="wait">
@@ -150,7 +155,7 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={{ duration: 0.18, ease: 'easeOut' }}
+          transition={{ duration: 0.20, ease: [0.19, 1, 0.22, 1] }}
         >
           <QuizStep
             question={current.question}

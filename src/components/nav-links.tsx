@@ -14,30 +14,25 @@ export function NavLinks() {
   const pathname = usePathname()
 
   return (
-    <nav aria-label="Основная навигация" className="hidden sm:flex items-center gap-1">
+    <nav aria-label="Основная навигация" className="hidden sm:flex items-center gap-0.5">
       {NAV_ITEMS.map(({ label, href }) => {
         const isActive = pathname === href || pathname.startsWith(href + '/')
         return (
           <Link
             key={href}
             href={href}
-            className="relative px-3 py-1.5 text-sm font-medium transition-colors rounded-lg"
-            style={{ color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)' }}
-            onMouseEnter={(e) => {
-              if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--foreground)'
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--muted-foreground)'
-            }}
+            className={`relative px-3 py-1.5 text-sm font-medium transition-colors duration-150 rounded-md ${
+              isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
           >
+            <span className="relative z-10">{label}</span>
             {isActive && (
               <motion.span
-                layoutId="nav-active-bg"
-                className="absolute inset-0 rounded-lg bg-white/[0.07]"
-                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                layoutId="nav-indicator"
+                className="absolute bottom-0 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-primary"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
-            <span className="relative z-10">{label}</span>
           </Link>
         )
       })}

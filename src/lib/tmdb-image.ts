@@ -19,3 +19,11 @@ export function getBackdropUrl(
 export function getProviderLogoUrl(logoPath: string): string {
   return `${IMAGE_BASE_URL}/w92${logoPath}`
 }
+
+export function getProfileUrl(
+  profilePath: string | null,
+  size: 'w45' | 'w185' = 'w185'
+): string | null {
+  if (!profilePath) return null
+  return `${IMAGE_BASE_URL}/${size}${profilePath}`
+}

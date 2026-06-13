@@ -44,6 +44,12 @@ export interface TMDBMovieDetails extends Omit<TMDBMovie, 'genre_ids'> {
   spoken_languages: TMDBSpokenLanguage[]
 }
 
+export interface TMDBCreatedBy {
+  id: number
+  name: string
+  profile_path: string | null
+}
+
 export interface TMDBTVShowDetails extends Omit<TMDBTVShow, 'genre_ids'> {
   number_of_seasons: number
   number_of_episodes: number
@@ -53,6 +59,7 @@ export interface TMDBTVShowDetails extends Omit<TMDBTVShow, 'genre_ids'> {
   genres: TMDBGenre[]
   networks: TMDBNetwork[]
   production_countries: TMDBProductionCountry[]
+  created_by: TMDBCreatedBy[]
 }
 
 export interface TMDBGenre {
@@ -119,7 +126,11 @@ export interface TMDBDiscoverMovieParams {
   "vote_count.gte"?: number
   "with_runtime.lte"?: number
   "with_runtime.gte"?: number
+  "primary_release_date.gte"?: string
+  "primary_release_date.lte"?: string
   with_original_language?: string
+  with_cast?: string
+  with_crew?: string
   region?: string
   watch_region?: string
   with_watch_providers?: string
@@ -133,7 +144,13 @@ export interface TMDBDiscoverTVParams {
   without_genres?: string
   "vote_average.gte"?: number
   "vote_count.gte"?: number
+  "with_runtime.lte"?: number
+  "with_runtime.gte"?: number
+  "first_air_date.gte"?: string
+  "first_air_date.lte"?: string
   with_original_language?: string
+  with_cast?: string
+  with_crew?: string
 }
 
 export interface TMDBCast {

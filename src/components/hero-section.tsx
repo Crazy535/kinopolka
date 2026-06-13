@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Film, Tv, Shuffle, Users } from 'lucide-react'
 
 const ACTIONS = [
@@ -5,27 +6,34 @@ const ACTIONS = [
     icon: Film,
     label: 'Подобрать фильм',
     description: 'Квиз за 30 сек',
+    href: '/quiz?start=movie',
     className: 'bg-secondary hover:bg-secondary/80 text-secondary-foreground',
   },
   {
     icon: Tv,
     label: 'Подобрать сериал',
     description: 'Квиз за 30 сек',
+    href: '/quiz?start=tv',
     className: 'bg-secondary hover:bg-secondary/80 text-secondary-foreground',
   },
   {
     icon: Shuffle,
     label: 'Кинорулетка',
     description: '1 клик — 1 фильм',
-    className: 'bg-roulette hover:bg-roulette/90 text-roulette-foreground',
+    href: null,
+    className: 'bg-roulette text-roulette-foreground opacity-50 cursor-not-allowed',
   },
   {
     icon: Users,
     label: 'Вечер с партнёром',
     description: 'Выбор на двоих',
-    className: 'bg-secondary hover:bg-secondary/80 text-secondary-foreground',
+    href: null,
+    className: 'bg-secondary text-secondary-foreground opacity-50 cursor-not-allowed',
   },
 ] as const
+
+const TILE_BASE =
+  'flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-6 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
 export function HeroSection() {
   return (
@@ -40,17 +48,30 @@ export function HeroSection() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        {ACTIONS.map(({ icon: Icon, label, description, className }) => (
-          <button
-            key={label}
-            type="button"
-            className={`flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-6 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${className}`}
-          >
-            <Icon className="size-7 shrink-0" />
-            <span className="text-sm font-semibold leading-tight">{label}</span>
-            <span className="text-xs opacity-70">{description}</span>
-          </button>
-        ))}
+        {ACTIONS.map(({ icon: Icon, label, description, href, className }) =>
+          href ? (
+            <Link
+              key={label}
+              href={href}
+              className={`${TILE_BASE} ${className}`}
+            >
+              <Icon className="size-7 shrink-0" />
+              <span className="text-sm font-semibold leading-tight">{label}</span>
+              <span className="text-xs opacity-70">{description}</span>
+            </Link>
+          ) : (
+            <div
+              key={label}
+              role="button"
+              aria-disabled="true"
+              className={`${TILE_BASE} ${className}`}
+            >
+              <Icon className="size-7 shrink-0" />
+              <span className="text-sm font-semibold leading-tight">{label}</span>
+              <span className="text-xs opacity-70">{description}</span>
+            </div>
+          )
+        )}
       </div>
     </section>
   )

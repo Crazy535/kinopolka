@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb'
+import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
 import type { TMDBMovie, TMDBTVShow, WatchProvider, WatchProvidersByType } from '@/types/tmdb'
 
 type MovieLike = TMDBMovie | TMDBTVShow
@@ -38,9 +38,10 @@ function getTopProviders(providers: WatchProvidersByType | null): WatchProvider[
 interface MovieCardProps {
   movie: MovieLike
   providers: WatchProvidersByType | null
+  priority?: boolean
 }
 
-export function MovieCard({ movie, providers }: MovieCardProps) {
+export function MovieCard({ movie, providers, priority = false }: MovieCardProps) {
   const title = getTitle(movie)
   const year = getYear(movie)
   const posterUrl = getPosterUrl(movie.poster_path, 'w342')
@@ -60,6 +61,7 @@ export function MovieCard({ movie, providers }: MovieCardProps) {
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             className="object-cover"
+            priority={priority}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">

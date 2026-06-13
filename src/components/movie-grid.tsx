@@ -17,7 +17,7 @@ export async function MovieGrid({ limit = 10 }: MovieGridProps) {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
       {movies.map((movie, i) => {
         const providers = providerResults[i]?.results?.['RU'] ?? null
-        return <MovieCard key={movie.id} movie={movie} providers={providers} />
+        return <MovieCard key={movie.id} movie={movie} providers={providers} priority={i === 0} />
       })}
     </div>
   )

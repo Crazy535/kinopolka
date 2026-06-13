@@ -3,12 +3,13 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { auth } from '@/auth'
-import { getTVShowDetailsEnriched } from '@/lib/tmdb'
+import { getTVShowDetailsEnriched, getTVRecommendations } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
 import { CastRow } from '@/components/movie-detail/cast-row'
 import { WatchlistButton } from '@/components/movie-detail/watchlist-button'
 import { StarRating } from '@/components/movie-detail/star-rating'
+import { RelatedSection } from '@/components/movie-detail/related-section'
 
 export const revalidate = 86400
 
@@ -22,9 +23,12 @@ export default async function TVPage({ params }: TVPageProps) {
   const tvId = Number(id)
   if (!tvId || isNaN(tvId)) notFound()
 
-  let show
+  let show, recommendations
   try {
-    show = await getTVShowDetailsEnriched(tvId)
+    ;[show, recommendations] = await Promise.all([
+      getTVShowDetailsEnriched(tvId),
+      getTVRecommendations(tvId),
+    ])
   } catch {
     notFound()
   }
@@ -33,12 +37,15 @@ export default async function TVPage({ params }: TVPageProps) {
   const posterUrl = getPosterUrl(show.poster_path, 'w500')
   const providers = show['watch/providers']?.results?.['RU'] ?? null
   const cast = show.credits?.cast ?? []
+  const crew = show.credits?.crew ?? []
   const year = show.first_air_date ? show.first_air_date.slice(0, 4) : '—'
+
+  const creator = show.created_by?.[0] ?? null
 
   return (
     <div>
       {backdropUrl && (
-        <div className="relative -mx-4 mb-8 h-48 sm:h-64 md:h-80">
+        <div className="relative -mx-4 mb-8 h-48 sm:h-64 md:h-80 lg:h-96">
           <Image
             src={backdropUrl}
             alt={show.name}
@@ -54,7 +61,7 @@ export default async function TVPage({ params }: TVPageProps) {
       <div className="pb-12">
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
           На главную
@@ -86,7 +93,11 @@ export default async function TVPage({ params }: TVPageProps) {
               {show.number_of_seasons && (
                 <span className="text-muted-foreground">
                   {show.number_of_seasons}{' '}
-                  {show.number_of_seasons === 1 ? 'сезон' : show.number_of_seasons < 5 ? 'сезона' : 'сезонов'}
+                  {show.number_of_seasons === 1
+                    ? 'сезон'
+                    : show.number_of_seasons < 5
+                      ? 'сезона'
+                      : 'сезонов'}
                 </span>
               )}
               {show.vote_count > 0 && (
@@ -132,7 +143,18 @@ export default async function TVPage({ params }: TVPageProps) {
 
           <WatchProvidersBlock providers={providers} title={show.name} userType={userType} />
 
-          {cast.length > 0 && <CastRow cast={cast} />}
+          {(cast.length > 0 || creator) && (
+            <CastRow
+              cast={cast}
+              crew={
+                creator
+                  ? [{ id: creator.id, name: creator.name, job: 'Director', department: 'Directing', profile_path: creator.profile_path }]
+                  : crew
+              }
+            />
+          )}
+
+          <RelatedSection items={recommendations.results} mediaType="tv" />
         </div>
       </div>
     </div>

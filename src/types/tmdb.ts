@@ -198,3 +198,35 @@ export interface TMDBTVShowDetailsEnriched extends TMDBTVShowDetails {
   credits: TMDBCredits
   'watch/providers': WatchProvidersResult
 }
+
+export interface TMDBPersonDetails {
+  id: number
+  name: string
+  biography: string
+  birthday: string | null
+  deathday: string | null
+  place_of_birth: string | null
+  profile_path: string | null
+  known_for_department: string
+  gender: number
+  popularity: number
+}
+
+export interface TMDBPersonCastCredit {
+  id: number
+  title?: string
+  name?: string
+  character: string
+  poster_path: string | null
+  vote_average: number
+  vote_count: number
+  media_type: 'movie' | 'tv'
+  release_date?: string
+  first_air_date?: string
+  popularity: number
+}
+
+export interface TMDBPersonCombinedCredits {
+  cast: TMDBPersonCastCredit[]
+  crew: TMDBPersonCastCredit[]
+}

@@ -55,7 +55,7 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
+    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-shadow duration-300 hover:shadow-[0_6px_28px_var(--color-card-glow)]">
       {/* Poster image */}
       {posterUrl ? (
         <Image

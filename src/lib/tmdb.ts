@@ -11,6 +11,8 @@ import type {
   TMDBDiscoverMovieParams,
   TMDBDiscoverTVParams,
   TMDBPersonSearchResponse,
+  TMDBPersonDetails,
+  TMDBPersonCombinedCredits,
 } from '@/types/tmdb'
 
 const BASE_URL = 'https://api.themoviedb.org/3'
@@ -127,6 +129,22 @@ export async function getOnboardingPosters(): Promise<TMDBMovieListResponse['res
   return [...page1.results, ...page2.results]
     .filter((m) => !!m.poster_path)
     .slice(0, 40)
+}
+
+export async function getPersonDetails(id: number): Promise<TMDBPersonDetails> {
+  return tmdbFetch<TMDBPersonDetails>(`/person/${id}`, {}, 86400)
+}
+
+export async function getPersonCombinedCredits(id: number): Promise<TMDBPersonCombinedCredits> {
+  return tmdbFetch<TMDBPersonCombinedCredits>(`/person/${id}/combined_credits`, {}, 86400)
+}
+
+export async function getMovieRecommendations(id: number): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>(`/movie/${id}/recommendations`, {}, 86400)
+}
+
+export async function getTVRecommendations(id: number): Promise<TMDBTVListResponse> {
+  return tmdbFetch<TMDBTVListResponse>(`/tv/${id}/recommendations`, {}, 86400)
 }
 
 export { getPosterUrl, getBackdropUrl, getProviderLogoUrl } from './tmdb-image'

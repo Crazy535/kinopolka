@@ -3,12 +3,13 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { auth } from '@/auth'
-import { getMovieDetailsEnriched } from '@/lib/tmdb'
+import { getMovieDetailsEnriched, getMovieRecommendations } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
 import { CastRow } from '@/components/movie-detail/cast-row'
 import { WatchlistButton } from '@/components/movie-detail/watchlist-button'
 import { StarRating } from '@/components/movie-detail/star-rating'
+import { RelatedSection } from '@/components/movie-detail/related-section'
 
 export const revalidate = 86400
 
@@ -22,18 +23,21 @@ export default async function MoviePage({ params }: MoviePageProps) {
   const movieId = Number(id)
   if (!movieId || isNaN(movieId)) notFound()
 
-  let movie
+  let movie, recommendations
   try {
-    movie = await getMovieDetailsEnriched(movieId)
+    ;[movie, recommendations] = await Promise.all([
+      getMovieDetailsEnriched(movieId),
+      getMovieRecommendations(movieId),
+    ])
   } catch {
     notFound()
   }
-
 
   const backdropUrl = getBackdropUrl(movie.backdrop_path, 'w1280')
   const posterUrl = getPosterUrl(movie.poster_path, 'w500')
   const providers = movie['watch/providers']?.results?.['RU'] ?? null
   const cast = movie.credits?.cast ?? []
+  const crew = movie.credits?.crew ?? []
   const year = movie.release_date ? movie.release_date.slice(0, 4) : '—'
   const runtime = movie.runtime
     ? `${Math.floor(movie.runtime / 60)} ч ${movie.runtime % 60} мин`
@@ -42,7 +46,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
   return (
     <div>
       {backdropUrl && (
-        <div className="relative -mx-4 mb-8 h-48 sm:h-64 md:h-80">
+        <div className="relative -mx-4 mb-8 h-48 sm:h-64 md:h-80 lg:h-96">
           <Image
             src={backdropUrl}
             alt={movie.title}
@@ -58,7 +62,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
       <div className="pb-12">
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
           На главную
@@ -131,7 +135,9 @@ export default async function MoviePage({ params }: MoviePageProps) {
 
           <WatchProvidersBlock providers={providers} title={movie.title} userType={userType} />
 
-          {cast.length > 0 && <CastRow cast={cast} />}
+          {cast.length > 0 && <CastRow cast={cast} crew={crew} />}
+
+          <RelatedSection items={recommendations.results} mediaType="movie" />
         </div>
       </div>
     </div>

@@ -51,6 +51,7 @@
   --color-surface-hover: var(--surface-hover);
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
+  --color-card-glow: var(--card-glow);
 }
 
 /* Light (fallback — dark class always applied in practice) */
@@ -92,6 +93,7 @@
   --surface-hover: oklch(0.88 0.010 265);
   --gold: oklch(0.78 0.13 80);
   --gold-foreground: oklch(0.12 0 0);
+  --card-glow: oklch(0.58 0.22 18 / 0.20);
 }
 
 /* Cinema Dark — the real theme (dark class is hardcoded on <html>) */
@@ -132,6 +134,7 @@
   --surface-hover: oklch(0.18 0.018 265);
   --gold: oklch(0.80 0.13 80);
   --gold-foreground: oklch(0.10 0 0);
+  --card-glow: oklch(0.58 0.22 18 / 0.28);
 }
 
 @layer base {

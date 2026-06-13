@@ -3,6 +3,8 @@ import 'server-only'
 import type {
   TMDBMovieDetails,
   TMDBTVShowDetails,
+  TMDBMovieDetailsEnriched,
+  TMDBTVShowDetailsEnriched,
   TMDBMovieListResponse,
   TMDBTVListResponse,
   WatchProvidersResult,
@@ -60,6 +62,22 @@ export async function getMovieDetails(id: number): Promise<TMDBMovieDetails> {
 
 export async function getTVShowDetails(id: number): Promise<TMDBTVShowDetails> {
   return tmdbFetch<TMDBTVShowDetails>(`/tv/${id}`, {}, 86400)
+}
+
+export async function getMovieDetailsEnriched(id: number): Promise<TMDBMovieDetailsEnriched> {
+  return tmdbFetch<TMDBMovieDetailsEnriched>(
+    `/movie/${id}`,
+    { append_to_response: 'credits,watch/providers' },
+    86400
+  )
+}
+
+export async function getTVShowDetailsEnriched(id: number): Promise<TMDBTVShowDetailsEnriched> {
+  return tmdbFetch<TMDBTVShowDetailsEnriched>(
+    `/tv/${id}`,
+    { append_to_response: 'credits,watch/providers' },
+    86400
+  )
 }
 
 export async function getMovieWatchProviders(

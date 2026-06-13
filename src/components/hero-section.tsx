@@ -20,8 +20,8 @@ const ACTIONS = [
     icon: Shuffle,
     label: 'Кинорулетка',
     description: '1 клик — 1 фильм',
-    href: null,
-    className: 'bg-roulette text-roulette-foreground opacity-50 cursor-not-allowed',
+    href: '/roulette',
+    className: 'bg-roulette text-roulette-foreground hover:opacity-90',
   },
   {
     icon: Users,

@@ -135,3 +135,34 @@ export interface TMDBDiscoverTVParams {
   "vote_count.gte"?: number
   with_original_language?: string
 }
+
+export interface TMDBCast {
+  id: number
+  name: string
+  character: string
+  profile_path: string | null
+  order: number
+}
+
+export interface TMDBCrew {
+  id: number
+  name: string
+  job: string
+  department: string
+  profile_path: string | null
+}
+
+export interface TMDBCredits {
+  cast: TMDBCast[]
+  crew: TMDBCrew[]
+}
+
+export interface TMDBMovieDetailsEnriched extends TMDBMovieDetails {
+  credits: TMDBCredits
+  'watch/providers': WatchProvidersResult
+}
+
+export interface TMDBTVShowDetailsEnriched extends TMDBTVShowDetails {
+  credits: TMDBCredits
+  'watch/providers': WatchProvidersResult
+}

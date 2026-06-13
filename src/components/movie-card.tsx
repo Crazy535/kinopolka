@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
 import type { TMDBMovie, TMDBTVShow, WatchProvider, WatchProvidersByType } from '@/types/tmdb'
 
@@ -50,41 +51,52 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
   const fallbackLink =
     providers?.link ??
     `https://www.google.com/search?q=${encodeURIComponent(`${title} смотреть онлайн`)}`
+  const isMovie = 'title' in movie
+  const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
     <article className="group flex flex-col rounded-lg overflow-hidden bg-card border border-border hover:bg-surface-hover transition-colors">
-      <div className="relative aspect-[2/3] w-full bg-muted">
-        {posterUrl ? (
-          <Image
-            src={posterUrl}
-            alt={title}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className="object-cover"
-            priority={priority}
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">
-            Нет постера
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1.5 p-3">
-        <h3 className="text-sm font-medium leading-tight line-clamp-2">{title}</h3>
-
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-muted-foreground">{year}</span>
-          {movie.vote_count > 0 && (
-            <span className={`font-semibold ${ratingClass}`}>
-              ★ {movie.vote_average.toFixed(1)}
-            </span>
+      <Link href={detailHref} className="block">
+        <div className="relative aspect-[2/3] w-full bg-muted">
+          {posterUrl ? (
+            <Image
+              src={posterUrl}
+              alt={title}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              className="object-cover"
+              priority={priority}
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">
+              Нет постера
+            </div>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 min-h-6">
-          {topProviders.length > 0 ? (
-            topProviders.map((provider) => (
+        <div className="flex flex-col gap-1 px-3 pt-3">
+          <h3 className="text-sm font-medium leading-tight line-clamp-2">{title}</h3>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-muted-foreground">{year}</span>
+            {movie.vote_count > 0 && (
+              <span className={`font-semibold ${ratingClass}`}>
+                ★ {movie.vote_average.toFixed(1)}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      <div className="flex items-center gap-1.5 min-h-6 px-3 pb-3 pt-1.5">
+        {topProviders.length > 0 ? (
+          <a
+            href={providers!.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5"
+            aria-label="Где смотреть"
+          >
+            {topProviders.map((provider) => (
               <Image
                 key={provider.provider_id}
                 src={getProviderLogoUrl(provider.logo_path)}
@@ -94,18 +106,18 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
                 className="rounded-sm"
                 title={provider.provider_name}
               />
-            ))
-          ) : (
-            <a
-              href={fallbackLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Найти онлайн →
-            </a>
-          )}
-        </div>
+            ))}
+          </a>
+        ) : (
+          <a
+            href={fallbackLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Найти онлайн →
+          </a>
+        )}
       </div>
     </article>
   )

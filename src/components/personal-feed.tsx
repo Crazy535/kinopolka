@@ -1,16 +1,14 @@
 import { prisma } from '@/lib/db'
 import { discoverMovies, getMovieWatchProviders } from '@/lib/tmdb'
-import { MovieCard } from '@/components/movie-card'
+import { FeedMovieCard } from '@/components/feed-movie-card'
 import type { RecommendationItem } from '@/types/quiz'
 
 interface Props {
   userId: string
 }
 
-async function getPersonalItems(userId: string): Promise<RecommendationItem[]> {
-  const profile = await prisma.tasteProfile.findUnique({
-    where: { userId },
-  })
+async function getGenreItems(userId: string): Promise<RecommendationItem[]> {
+  const profile = await prisma.tasteProfile.findUnique({ where: { userId } })
   if (!profile || profile.genreIds.length === 0) return []
 
   const topGenres = profile.genreIds.slice(0, 3).join(',')
@@ -37,18 +35,80 @@ async function getPersonalItems(userId: string): Promise<RecommendationItem[]> {
   }))
 }
 
+async function getPeopleItems(userId: string): Promise<{ items: RecommendationItem[]; personNames: string[] }> {
+  const people = await prisma.favoritePerson.findMany({ where: { userId } })
+  if (people.length === 0) return { items: [], personNames: [] }
+
+  const actors = people.filter((p) => p.role === 'actor').map((p) => p.tmdbId)
+  const directors = people.filter((p) => p.role === 'director').map((p) => p.tmdbId)
+
+  const params: Parameters<typeof discoverMovies>[0] = {
+    sort_by: 'popularity.desc',
+    'vote_count.gte': 20,
+    'vote_average.gte': 5.5,
+  }
+  if (actors.length > 0) params.with_cast = actors.slice(0, 4).join('|')
+  if (directors.length > 0) params.with_crew = directors.slice(0, 2).join('|')
+
+  const data = await discoverMovies(params)
+  const candidates = data.results.slice(0, 5)
+
+  const providerResults = await Promise.all(
+    candidates.map((m) => getMovieWatchProviders(m.id).catch(() => null))
+  )
+
+  const items = candidates.map((movie, i) => ({
+    movie,
+    providers: providerResults[i]?.results?.['RU'] ?? null,
+  }))
+
+  const personNames = people.slice(0, 3).map((p) => p.name)
+  return { items, personNames }
+}
+
 export async function PersonalFeed({ userId }: Props) {
-  const items = await getPersonalItems(userId)
-  if (items.length === 0) return null
+  const [genreItems, { items: peopleItems, personNames }] = await Promise.all([
+    getGenreItems(userId),
+    getPeopleItems(userId),
+  ])
+
+  if (genreItems.length === 0 && peopleItems.length === 0) return null
 
   return (
-    <section className="mb-10">
-      <h2 className="mb-4 text-xl font-semibold tracking-tight">Для тебя</h2>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-        {items.map((item) => (
-          <MovieCard key={item.movie.id} movie={item.movie} providers={item.providers} />
-        ))}
-      </div>
-    </section>
+    <div className="mb-10 space-y-8">
+      {/* People-based section */}
+      {peopleItems.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-lg font-bold tracking-tight">
+            С {personNames.join(', ')}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {peopleItems.map((item) => (
+              <FeedMovieCard
+                key={item.movie.id}
+                movie={item.movie}
+                providers={item.providers}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Genre-based section */}
+      {genreItems.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-lg font-bold tracking-tight">Для тебя</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {genreItems.map((item) => (
+              <FeedMovieCard
+                key={item.movie.id}
+                movie={item.movie}
+                providers={item.providers}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
   )
 }

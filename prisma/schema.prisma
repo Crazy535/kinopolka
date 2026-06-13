@@ -24,6 +24,7 @@ model User {
   watchlist       WatchlistItem[]
   ratings         Rating[]
   tasteProfile    TasteProfile?
+  favoritePersons FavoritePerson[]
   hostedRooms     PartnerRoom[] @relation("HostRooms")
   guestRooms      PartnerRoom[] @relation("GuestRooms")
 
@@ -123,6 +124,23 @@ model PartnerRoom {
 
   @@index([hostId])
   @@map("partner_rooms")
+}
+
+// Favorite Person — выбранные актёры/режиссёры на шаге 2 онбординга
+model FavoritePerson {
+  id          String   @id @default(cuid())
+  userId      String
+  tmdbId      Int
+  name        String
+  role        String   // "actor" | "director"
+  profilePath String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tmdbId])
+  @@index([userId])
+  @@map("favorite_persons")
 }
 
 // Taste Profile — результат Onboarding (выбранные постеры → жанры)

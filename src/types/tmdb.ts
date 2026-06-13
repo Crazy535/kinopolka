@@ -116,6 +116,21 @@ export interface TMDBPaginatedResponse<T> {
 export type TMDBMovieListResponse = TMDBPaginatedResponse<TMDBMovie>
 export type TMDBTVListResponse = TMDBPaginatedResponse<TMDBTVShow>
 
+export interface TMDBPersonResult {
+  id: number
+  name: string
+  profile_path: string | null
+  known_for_department: string
+  popularity: number
+}
+
+export interface TMDBPersonSearchResponse {
+  page: number
+  results: TMDBPersonResult[]
+  total_pages: number
+  total_results: number
+}
+
 export interface TMDBDiscoverMovieParams {
   language?: string
   page?: number

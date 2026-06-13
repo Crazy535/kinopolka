@@ -9,11 +9,25 @@ interface SelectedMovie {
   genre_ids: number[]
 }
 
+interface SelectedPerson {
+  tmdbId: number
+  name: string
+  role: 'actor' | 'director'
+  profilePath: string | null
+}
+
 export async function saveTasteProfile(selected: SelectedMovie[]) {
+  await completeOnboarding(selected, [])
+}
+
+export async function completeOnboarding(
+  selected: SelectedMovie[],
+  people: SelectedPerson[]
+) {
   const session = await auth()
   if (!session?.user?.id) throw new Error('Unauthorized')
+  const userId = session.user.id
 
-  // Aggregate genre_ids by frequency → take top genres
   const genreCount = new Map<number, number>()
   for (const movie of selected) {
     for (const gid of movie.genre_ids) {
@@ -29,10 +43,23 @@ export async function saveTasteProfile(selected: SelectedMovie[]) {
   const movieIds = selected.map((m) => m.id)
 
   await prisma.tasteProfile.upsert({
-    where: { userId: session.user.id },
-    create: { userId: session.user.id, genreIds, movieIds },
+    where: { userId },
+    create: { userId, genreIds, movieIds },
     update: { genreIds, movieIds, updatedAt: new Date() },
   })
+
+  if (people.length > 0) {
+    await prisma.favoritePerson.deleteMany({ where: { userId } })
+    await prisma.favoritePerson.createMany({
+      data: people.map((p) => ({
+        userId,
+        tmdbId: p.tmdbId,
+        name: p.name,
+        role: p.role,
+        profilePath: p.profilePath,
+      })),
+    })
+  }
 
   redirect('/')
 }

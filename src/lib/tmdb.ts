@@ -10,6 +10,7 @@ import type {
   WatchProvidersResult,
   TMDBDiscoverMovieParams,
   TMDBDiscoverTVParams,
+  TMDBPersonSearchResponse,
 } from '@/types/tmdb'
 
 const BASE_URL = 'https://api.themoviedb.org/3'
@@ -112,6 +113,10 @@ export async function discoverTVShows(
       .map(([k, v]) => [k, String(v)])
   )
   return tmdbFetch<TMDBTVListResponse>('/discover/tv', stringParams)
+}
+
+export async function searchPersons(query: string): Promise<TMDBPersonSearchResponse> {
+  return tmdbFetch<TMDBPersonSearchResponse>('/search/person', { query }, 0)
 }
 
 export async function getOnboardingPosters(): Promise<TMDBMovieListResponse['results']> {

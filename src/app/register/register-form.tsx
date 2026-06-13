@@ -16,19 +16,24 @@ export function RegisterForm() {
     setError(null)
     setLoading(true)
 
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name, password }),
-    })
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name, password }),
+      })
 
-    const data = await res.json()
-    setLoading(false)
+      const data = await res.json().catch(() => ({}))
 
-    if (!res.ok) {
-      setError(data.error ?? 'Ошибка регистрации')
-    } else {
-      setSuccess(true)
+      if (!res.ok) {
+        setError(data.error ?? 'Ошибка регистрации')
+      } else {
+        setSuccess(true)
+      }
+    } catch {
+      setError('Ошибка соединения. Попробуйте снова.')
+    } finally {
+      setLoading(false)
     }
   }
 

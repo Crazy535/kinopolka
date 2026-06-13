@@ -32,7 +32,12 @@ export async function POST(request: NextRequest) {
   })
 
   const baseUrl = new URL(request.url).origin
-  await sendVerificationEmail(email, token, baseUrl)
+  try {
+    await sendVerificationEmail(email, token, baseUrl)
+  } catch (err) {
+    console.error('[register] email send failed:', err)
+    // Registration still succeeds — user can request resend later
+  }
 
   return NextResponse.json({ success: true }, { status: 201 })
 }

@@ -35,7 +35,6 @@ export const metadata: Metadata = {
     description: "Подберём фильм или сериал за 30 секунд. Квиз, рулетка, совместный выбор.",
     url: "https://kinopolka.vercel.app",
     siteName: "Кинополка",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Кинополка" }],
     locale: "ru_RU",
     type: "website",
   },
@@ -43,7 +42,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Кинополка — что посмотреть сегодня?",
     description: "Подберём фильм или сериал за 30 секунд",
-    images: ["/og.png"],
   },
 };
 

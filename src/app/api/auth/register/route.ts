@@ -6,8 +6,7 @@ import { sendVerificationEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { email, password, name } = body
+    const { email, password, name } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email и пароль обязательны' }, { status: 400 })
@@ -42,8 +41,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    console.error('[register] handler error:', message)
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('[register] handler error:', err)
+    return NextResponse.json({ error: 'Ошибка сервера. Попробуйте позже.' }, { status: 500 })
   }
 }

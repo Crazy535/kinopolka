@@ -1,19 +1,28 @@
 'use client'
 
+import { useEffect } from 'react'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { useQuizStore } from '@/stores/quiz-store'
 import type { RecommendationItem } from '@/types/quiz'
+import { trackQuizCompleted } from '@/lib/analytics'
 
 interface QuizResultsProps {
   results: RecommendationItem[]
   isLoading: boolean
   error: string | null
   onReset: () => void
+  userType?: 'anon' | 'auth'
 }
 
-export function QuizResults({ results, isLoading, error, onReset }: QuizResultsProps) {
+export function QuizResults({ results, isLoading, error, onReset, userType = 'anon' }: QuizResultsProps) {
   const ttwDuration = useQuizStore((s) => s.ttwDuration)
+
+  useEffect(() => {
+    if (results.length > 0) {
+      trackQuizCompleted(results.length, userType)
+    }
+  }, [results.length, userType])
 
   if (isLoading) {
     return (

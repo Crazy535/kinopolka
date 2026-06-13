@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { auth } from '@/auth'
 import { getMovieDetailsEnriched } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
@@ -16,7 +17,8 @@ interface MoviePageProps {
 }
 
 export default async function MoviePage({ params }: MoviePageProps) {
-  const { id } = await params
+  const [{ id }, session] = await Promise.all([params, auth()])
+  const userType = session ? 'auth' : 'anon'
   const movieId = Number(id)
   if (!movieId || isNaN(movieId)) notFound()
 
@@ -26,6 +28,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
   } catch {
     notFound()
   }
+
 
   const backdropUrl = getBackdropUrl(movie.backdrop_path, 'w1280')
   const posterUrl = getPosterUrl(movie.poster_path, 'w500')
@@ -126,7 +129,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
             </p>
           )}
 
-          <WatchProvidersBlock providers={providers} title={movie.title} />
+          <WatchProvidersBlock providers={providers} title={movie.title} userType={userType} />
 
           {cast.length > 0 && <CastRow cast={cast} />}
         </div>

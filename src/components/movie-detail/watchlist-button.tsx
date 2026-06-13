@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import { Bookmark } from 'lucide-react'
 import { toggleWatchlist } from '@/actions/watchlist'
+import { trackTTWCompleted } from '@/lib/analytics'
 
 interface WatchlistButtonProps {
   tmdbId: number
@@ -30,6 +31,9 @@ export function WatchlistButton({ tmdbId, mediaType, title, posterPath }: Watchl
     startTransition(async () => {
       try {
         const result = await toggleWatchlist({ tmdbId, mediaType, title, posterPath })
+        if (result.inWatchlist && !inWatchlist) {
+          trackTTWCompleted('auth', 'watchlist')
+        }
         setInWatchlist(result.inWatchlist)
       } catch {
         // Not authenticated — silently ignore, button stays in current state

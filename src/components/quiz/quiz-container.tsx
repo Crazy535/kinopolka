@@ -7,9 +7,11 @@ import { QuizStep } from './quiz-step'
 import { QuizResults } from './quiz-results'
 import { MOODS, RUNTIMES } from '@/types/quiz'
 import type { ContentType, RuntimeOption, RecommendationItem } from '@/types/quiz'
+import { trackTTWStart, trackQuizStep } from '@/lib/analytics'
 
 interface QuizContainerProps {
   initialType?: ContentType
+  isAuthenticated?: boolean
 }
 
 const STEP_VARIANTS = {
@@ -18,7 +20,8 @@ const STEP_VARIANTS = {
   exit:    { opacity: 0, x: -40 },
 }
 
-export function QuizContainer({ initialType }: QuizContainerProps) {
+export function QuizContainer({ initialType, isAuthenticated = false }: QuizContainerProps) {
+  const userType = isAuthenticated ? 'auth' : 'anon'
   const {
     step, type, moodIndex,
     setType, setMood, setRuntime,
@@ -64,12 +67,15 @@ export function QuizContainer({ initialType }: QuizContainerProps) {
   function handleTypeSelect(value: string) {
     startTTW()
     setType(value as ContentType)
+    trackTTWStart(userType, '/quiz')
+    trackQuizStep(1, userType)
   }
 
   function handleMoodSelect(value: string) {
     const idx = parseInt(value, 10)
     const resolvedType = type!
     setMood(idx)
+    trackQuizStep(2, userType)
     if (resolvedType === 'tv') {
       setLoading(true)
       void fetchRecommendations(resolvedType, idx)
@@ -79,6 +85,7 @@ export function QuizContainer({ initialType }: QuizContainerProps) {
   function handleRuntimeSelect(value: string) {
     setLoading(true)
     setRuntime(value as RuntimeOption)
+    trackQuizStep(3, userType)
     void fetchRecommendations(type!, moodIndex!, value)
   }
 
@@ -115,6 +122,7 @@ export function QuizContainer({ initialType }: QuizContainerProps) {
         isLoading={isLoading}
         error={error}
         onReset={reset}
+        userType={userType}
       />
     )
   }

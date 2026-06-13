@@ -1,6 +1,9 @@
+'use client'
+
 import Image from 'next/image'
 import { getProviderLogoUrl } from '@/lib/tmdb-image'
 import type { WatchProvidersByType, WatchProvider } from '@/types/tmdb'
+import { trackTTWCompleted } from '@/lib/analytics'
 
 function getTopProviders(providers: WatchProvidersByType | null): WatchProvider[] {
   if (!providers) return []
@@ -21,9 +24,10 @@ function getTopProviders(providers: WatchProvidersByType | null): WatchProvider[
 interface WatchProvidersBlockProps {
   providers: WatchProvidersByType | null
   title: string
+  userType?: 'anon' | 'auth'
 }
 
-export function WatchProvidersBlock({ providers, title }: WatchProvidersBlockProps) {
+export function WatchProvidersBlock({ providers, title, userType = 'anon' }: WatchProvidersBlockProps) {
   const topProviders = getTopProviders(providers)
   const fallbackLink = `https://www.google.com/search?q=${encodeURIComponent(`${title} смотреть онлайн`)}`
 
@@ -39,6 +43,7 @@ export function WatchProvidersBlock({ providers, title }: WatchProvidersBlockPro
           rel="noopener noreferrer"
           className="flex flex-wrap gap-3"
           aria-label="Открыть страницу просмотра"
+          onClick={() => trackTTWCompleted(userType, 'provider')}
         >
           {topProviders.map((p) => (
             <div key={p.provider_id} className="flex flex-col items-center gap-1">
@@ -62,6 +67,7 @@ export function WatchProvidersBlock({ providers, title }: WatchProvidersBlockPro
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          onClick={() => trackTTWCompleted(userType, 'provider')}
         >
           Найти онлайн →
         </a>

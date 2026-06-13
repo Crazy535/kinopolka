@@ -1,8 +1,11 @@
+import { auth } from '@/auth'
 import { RouletteContainer } from '@/components/roulette/roulette-container'
 
 export const dynamic = 'force-dynamic'
 
-export default function RoulettePage() {
+export default async function RoulettePage() {
+  const session = await auth()
+
   return (
     <main className="py-8 sm:py-12">
       <div className="mb-8 text-center">
@@ -11,7 +14,7 @@ export default function RoulettePage() {
           Один вопрос — один фильм
         </p>
       </div>
-      <RouletteContainer />
+      <RouletteContainer isAuthenticated={!!session} />
     </main>
   )
 }

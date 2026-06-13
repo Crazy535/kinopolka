@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { auth } from '@/auth'
 import { UserMenu } from '@/components/user-menu'
+import { SearchBar } from '@/components/search-bar'
 
 export async function Header() {
   const session = await auth()
@@ -14,7 +15,10 @@ export async function Header() {
         >
           Кинополка
         </Link>
-        <UserMenu user={session?.user ?? null} />
+        <div className="flex items-center gap-1">
+          <SearchBar />
+          <UserMenu user={session?.user ?? null} />
+        </div>
       </div>
     </header>
   )

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { auth } from '@/auth'
 import { getTVShowDetailsEnriched } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
@@ -16,7 +17,8 @@ interface TVPageProps {
 }
 
 export default async function TVPage({ params }: TVPageProps) {
-  const { id } = await params
+  const [{ id }, session] = await Promise.all([params, auth()])
+  const userType = session ? 'auth' : 'anon'
   const tvId = Number(id)
   if (!tvId || isNaN(tvId)) notFound()
 
@@ -128,7 +130,7 @@ export default async function TVPage({ params }: TVPageProps) {
             </p>
           )}
 
-          <WatchProvidersBlock providers={providers} title={show.name} />
+          <WatchProvidersBlock providers={providers} title={show.name} userType={userType} />
 
           {cast.length > 0 && <CastRow cast={cast} />}
         </div>

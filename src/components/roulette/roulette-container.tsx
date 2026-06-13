@@ -6,6 +6,7 @@ import { MOODS } from '@/types/quiz'
 import { useRouletteStore } from '@/stores/roulette-store'
 import { RouletteResult } from './roulette-result'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
+import { trackRouletteSpun } from '@/lib/analytics'
 
 const SLIDE = {
   initial: { opacity: 0, y: 16 },
@@ -14,9 +15,14 @@ const SLIDE = {
   transition: { duration: 0.2 },
 }
 
-export function RouletteContainer() {
+interface RouletteContainerProps {
+  isAuthenticated?: boolean
+}
+
+export function RouletteContainer({ isAuthenticated = false }: RouletteContainerProps) {
   const { moodIndex, result, isLoading, error, setMood, spin, reset } = useRouletteStore()
   const ttwDuration = useRouletteStore((s) => s.ttwDuration)
+  const userType = isAuthenticated ? 'auth' : 'anon'
 
   const selectedMood = moodIndex !== null ? MOODS[moodIndex] : null
 
@@ -24,12 +30,14 @@ export function RouletteContainer() {
     if (moodIndex === null) return
     const mood = MOODS[moodIndex]
     spin(mood.movieGenreId)
+    trackRouletteSpun(userType)
   }
 
   function handleRespin() {
     if (moodIndex === null) return
     const mood = MOODS[moodIndex]
     spin(mood.movieGenreId)
+    trackRouletteSpun(userType)
   }
 
   function handleChangeMood() {

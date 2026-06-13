@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GenrePicker } from './genre-picker'
+import { trackPartnerRoomCreated } from '@/lib/analytics'
 
 interface Props {
   hasTasteProfile: boolean
@@ -26,6 +27,7 @@ export function PartnerCreateRoom({ hasTasteProfile, genreIds }: Props) {
       })
       if (!res.ok) throw new Error('Failed to create room')
       const { code } = await res.json()
+      trackPartnerRoomCreated()
       router.push(`/partner/${code}`)
     } catch {
       setError('Не удалось создать комнату. Попробуйте ещё раз.')

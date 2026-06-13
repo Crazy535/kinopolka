@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Auth UI (unauthenticated)', () => {
-  test('header shows "Войти" button for anonymous user', async ({ page }) => {
+  test('header shows "Войти" link for anonymous user', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('button', { name: /войти/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /войти/i })).toBeVisible()
   })
 
   test('homepage does not show personal feed for anonymous user', async ({ page }) => {
@@ -23,12 +23,12 @@ test.describe('Auth UI (unauthenticated)', () => {
 })
 
 test.describe('Auth API', () => {
-  test('/api/auth/providers returns JSON with google provider', async ({ page }) => {
+  test('/api/auth/providers returns JSON with credentials provider', async ({ page }) => {
     const res = await page.request.get('/api/auth/providers')
     expect(res.status()).toBe(200)
     const json = await res.json()
-    expect(json).toHaveProperty('google')
-    expect(json.google.id).toBe('google')
+    expect(json).toHaveProperty('credentials')
+    expect(json.credentials.id).toBe('credentials')
   })
 
   test('/api/auth/session returns empty session for anonymous', async ({ page }) => {

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { signIn, signOut } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 import { LogIn, LogOut, User, Bookmark } from 'lucide-react'
 
 interface UserData {
@@ -32,13 +32,13 @@ export function UserMenu({ user }: Props) {
 
   if (!user) {
     return (
-      <button
-        onClick={() => signIn('google')}
+      <Link
+        href="/login"
         className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
       >
         <LogIn className="h-3.5 w-3.5" />
         Войти
-      </button>
+      </Link>
     )
   }
 

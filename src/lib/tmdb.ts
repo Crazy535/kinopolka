@@ -114,4 +114,14 @@ export async function discoverTVShows(
   return tmdbFetch<TMDBTVListResponse>('/discover/tv', stringParams)
 }
 
+export async function getOnboardingPosters(): Promise<TMDBMovieListResponse['results']> {
+  const [page1, page2] = await Promise.all([
+    tmdbFetch<TMDBMovieListResponse>('/movie/popular', { page: '1' }, 86400),
+    tmdbFetch<TMDBMovieListResponse>('/movie/popular', { page: '2' }, 86400),
+  ])
+  return [...page1.results, ...page2.results]
+    .filter((m) => !!m.poster_path)
+    .slice(0, 40)
+}
+
 export { getPosterUrl, getBackdropUrl, getProviderLogoUrl } from './tmdb-image'

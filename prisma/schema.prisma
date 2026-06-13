@@ -5,5 +5,113 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url не задан — Prisma client использует DATABASE_URL из env (Transaction Pooler)
+}
+
+// ─── Auth.js v5 required models ───────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  watchlist     WatchlistItem[]
+  ratings       Rating[]
+  tasteProfile  TasteProfile?
+
+  @@map("users")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── Kinopolka domain models ──────────────────────────────────────────────────
+
+model WatchlistItem {
+  id          String   @id @default(cuid())
+  userId      String
+  tmdbId      Int
+  mediaType   String   // "movie" | "tv"
+  title       String
+  posterPath  String?
+  addedAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tmdbId, mediaType])
+  @@index([userId])
+  @@map("watchlist_items")
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  tmdbId    Int
+  mediaType String   // "movie" | "tv"
+  score     Int      // 1–5
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tmdbId, mediaType])
+  @@index([userId])
+  @@map("ratings")
+}
+
+// Taste Profile — результат Onboarding (выбранные постеры → жанры)
+model TasteProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  genreIds     Int[]    // выбранные genre_id из TMDB
+  movieIds     Int[]    // tmdbId постеров, которые выбрал пользователь
+  completedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("taste_profiles")
 }

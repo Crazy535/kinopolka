@@ -25,7 +25,7 @@ export function ModeCard({ href, icon: Icon, title, description, from, to, index
     >
       <Link href={href} className="group block h-full">
         <motion.div
-          className="relative flex h-full min-h-[120px] flex-col justify-between overflow-hidden rounded-xl p-5 sm:min-h-[140px] sm:p-6"
+          className="relative flex h-full min-h-[80px] flex-col justify-between overflow-hidden rounded-xl p-4 sm:min-h-[140px] sm:p-6"
           style={{ background: `linear-gradient(145deg, ${from}, ${to})` }}
           whileHover={{ scale: 1.02, y: -4 }}
           transition={{ duration: 0.22, ease: EXPO_OUT }}

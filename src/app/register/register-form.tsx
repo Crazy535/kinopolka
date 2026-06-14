@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Logo } from '@/components/logo'
 
 export function RegisterForm() {
   const [email, setEmail] = useState('')
@@ -39,13 +40,13 @@ export function RegisterForm() {
 
   if (success) {
     return (
-      <div className="w-full max-w-sm text-center space-y-4">
+      <div className="w-full max-w-sm space-y-4 rounded-2xl border border-border/40 bg-card/60 p-8 text-center shadow-xl backdrop-blur-xl">
         <h1 className="text-2xl font-bold">Проверьте почту</h1>
         <p className="text-muted-foreground">
           Мы отправили письмо на <strong>{email}</strong>.<br />
           Перейдите по ссылке в письме, чтобы подтвердить email.
         </p>
-        <Link href="/login" className="text-primary hover:underline text-sm">
+        <Link href="/login" className="text-sm text-primary hover:underline">
           Уже подтвердили? Войти
         </Link>
       </div>
@@ -53,44 +54,45 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="w-full max-w-sm space-y-6">
-      <div className="text-center">
+    <div className="w-full max-w-sm space-y-6 rounded-2xl border border-border/40 bg-card/60 p-8 shadow-xl backdrop-blur-xl">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Logo />
         <h1 className="text-2xl font-bold">Регистрация</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Имя (необязательно)</label>
+          <label className="mb-1 block text-sm font-medium">Имя (необязательно)</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 ring-primary/50"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none ring-primary/50 focus:ring-2"
             placeholder="Ваше имя"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className="mb-1 block text-sm font-medium">Почта</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 ring-primary/50"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none ring-primary/50 focus:ring-2"
             placeholder="you@example.com"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Пароль</label>
+          <label className="mb-1 block text-sm font-medium">Пароль</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 ring-primary/50"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none ring-primary/50 focus:ring-2"
             placeholder="Не менее 8 символов"
           />
         </div>
@@ -100,7 +102,7 @@ export function RegisterForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+          className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? 'Создаём аккаунт...' : 'Создать аккаунт'}
         </button>

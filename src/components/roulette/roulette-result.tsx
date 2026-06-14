@@ -55,12 +55,11 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
   const fallbackLink =
     providers?.link ??
     `https://www.google.com/search?q=${encodeURIComponent(`${title} смотреть онлайн`)}`
-
   const isMovie = 'title' in movie
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <div className="flex flex-col items-center gap-5">
+    <div className="flex w-full flex-col items-center gap-5">
       {ttwDuration !== null && (
         <p className="text-xs text-muted-foreground">
           Подобрали за&nbsp;
@@ -68,8 +67,8 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
         </p>
       )}
 
-      {/* Card — poster-first, info overlaid */}
-      <div className="relative w-full max-w-[280px] overflow-hidden rounded-lg bg-muted shadow-2xl sm:max-w-xs">
+      {/* Mobile — vertical card with gradient overlay */}
+      <div className="relative w-full max-w-[280px] overflow-hidden rounded-lg bg-muted shadow-2xl sm:max-w-xs lg:hidden">
         <div className="relative aspect-[2/3] w-full">
           {posterUrl ? (
             <Image
@@ -85,29 +84,19 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
               Нет постера
             </div>
           )}
-          {/* Gradient — heavier at bottom for info overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-
-          {/* Rating badge */}
           {movie.vote_count > 0 && (
             <div className={`absolute right-3 top-3 rounded-md bg-black/50 px-2 py-1 text-xs font-bold backdrop-blur-sm ${ratingClass}`}>
               ★&nbsp;{movie.vote_average.toFixed(1)}
             </div>
           )}
         </div>
-
-        {/* Info overlay on gradient */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="absolute bottom-0 inset-x-0 p-4">
           <h2 className="text-base font-bold leading-tight text-white">{title}</h2>
           <p className="mt-0.5 text-xs text-white/60">{year}</p>
-
           {movie.overview && (
-            <p className="mt-2 text-xs leading-relaxed text-white/55 line-clamp-3">
-              {movie.overview}
-            </p>
+            <p className="mt-2 text-xs leading-relaxed text-white/55 line-clamp-3">{movie.overview}</p>
           )}
-
-          {/* Providers */}
           <div className="mt-3">
             {topProviders.length > 0 ? (
               <a
@@ -140,13 +129,82 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
               </a>
             )}
           </div>
-
-          <Link
-            href={detailHref}
-            className="mt-3 block text-xs text-white/45 transition-colors hover:text-white/80"
-          >
-            Подробнее о фильме&nbsp;→
+          <Link href={detailHref} className="mt-3 block text-xs text-white/45 transition-colors hover:text-white/80">
+            Подробнее&nbsp;→
           </Link>
+        </div>
+      </div>
+
+      {/* Desktop — horizontal card */}
+      <div className="hidden w-full max-w-2xl overflow-hidden rounded-xl bg-card shadow-2xl lg:flex">
+        {/* Poster */}
+        <div className="relative h-[320px] w-[200px] flex-shrink-0">
+          {posterUrl ? (
+            <Image
+              src={posterUrl}
+              alt={title}
+              fill
+              sizes="200px"
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+              Нет постера
+            </div>
+          )}
+        </div>
+
+        {/* Info panel */}
+        <div className="flex flex-1 flex-col justify-between p-6">
+          <div className="flex flex-col gap-1.5">
+            {movie.vote_count > 0 && (
+              <span className={`text-sm font-bold ${ratingClass}`}>
+                ★&nbsp;{movie.vote_average.toFixed(1)}
+              </span>
+            )}
+            <h2 className="font-heading text-2xl font-bold leading-tight tracking-[-0.02em]">{title}</h2>
+            <p className="text-sm text-muted-foreground">{year}</p>
+            {movie.overview && (
+              <p className="mt-2 text-sm leading-relaxed text-foreground/75 line-clamp-5">{movie.overview}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3 pt-4">
+            {topProviders.length > 0 ? (
+              <a
+                href={providers!.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+                aria-label="Где смотреть"
+              >
+                {topProviders.map((p) => (
+                  <Image
+                    key={p.provider_id}
+                    src={getProviderLogoUrl(p.logo_path)}
+                    alt={p.provider_name}
+                    width={36}
+                    height={36}
+                    className="rounded-lg shadow-sm"
+                    title={p.provider_name}
+                  />
+                ))}
+              </a>
+            ) : (
+              <a
+                href={fallbackLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Найти онлайн&nbsp;→
+              </a>
+            )}
+            <Link href={detailHref} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+              Подробнее о фильме&nbsp;→
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -23,7 +23,7 @@ function GridSkeleton() {
 function RowSkeleton() {
   return (
     <div className="space-y-10">
-      {Array.from({ length: 4 }).map((_, i) => (
+      {Array.from({ length: 3 }).map((_, i) => (
         <section key={i}>
           <div className="mb-4 h-6 w-40 animate-pulse rounded bg-muted" />
           <div className="flex gap-3 overflow-hidden">

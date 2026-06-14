@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders } from '@/lib/tmdb'
 import { FeedMovieCard } from '@/components/feed-movie-card'
+import { PersonalFeedSearch } from '@/components/personal-feed-search'
 import { calcMatchScore } from '@/lib/match-score'
 import type { RecommendationItem } from '@/types/quiz'
 
@@ -117,6 +118,12 @@ export async function PersonalFeed({ userId }: Props) {
 
   return (
     <div className="mb-10 space-y-8">
+      {/* Header + search */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-bold tracking-tight">Ваша лента</h2>
+        <PersonalFeedSearch />
+      </div>
+
       {/* People-based section */}
       {peopleItems.length > 0 && (
         <section>

@@ -156,20 +156,28 @@ export async function searchMulti(query: string, page = 1): Promise<TMDBSearchMu
   )
 }
 
-export async function getTopRatedMovies(): Promise<TMDBMovieListResponse> {
-  return tmdbFetch<TMDBMovieListResponse>('/movie/top_rated')
+export async function getTopRatedMovies(page = 1): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>('/movie/top_rated', page > 1 ? { page: String(page) } : {})
 }
 
-export async function getNowPlayingMovies(): Promise<TMDBMovieListResponse> {
-  return tmdbFetch<TMDBMovieListResponse>('/movie/now_playing')
+export async function getNowPlayingMovies(page = 1): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>('/movie/now_playing', page > 1 ? { page: String(page) } : {})
 }
 
-export async function getUpcomingMovies(): Promise<TMDBMovieListResponse> {
-  return tmdbFetch<TMDBMovieListResponse>('/movie/upcoming')
+export async function getUpcomingMovies(page = 1): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>('/movie/upcoming', page > 1 ? { page: String(page) } : {})
 }
 
-export async function getTopRatedTVShows(): Promise<TMDBTVListResponse> {
-  return tmdbFetch<TMDBTVListResponse>('/tv/top_rated')
+export async function getTopRatedTVShows(page = 1): Promise<TMDBTVListResponse> {
+  return tmdbFetch<TMDBTVListResponse>('/tv/top_rated', page > 1 ? { page: String(page) } : {})
+}
+
+export async function getPopularMovies(page = 1): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>('/movie/popular', page > 1 ? { page: String(page) } : {})
+}
+
+export async function getPopularTVShows(page = 1): Promise<TMDBTVListResponse> {
+  return tmdbFetch<TMDBTVListResponse>('/tv/popular', page > 1 ? { page: String(page) } : {})
 }
 
 export { getPosterUrl, getBackdropUrl, getProviderLogoUrl } from './tmdb-image'

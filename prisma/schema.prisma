@@ -144,6 +144,17 @@ model FavoritePerson {
   @@map("favorite_persons")
 }
 
+// Shared Result — публичный шеринг результатов квиза
+model SharedResult {
+  id        String   @id @default(cuid())
+  movieIds  Int[]
+  mediaType String   @default("movie")
+  params    Json
+  createdAt DateTime @default(now())
+
+  @@map("shared_results")
+}
+
 // Taste Profile — результат Onboarding (выбранные постеры → жанры)
 model TasteProfile {
   id           String   @id @default(cuid())

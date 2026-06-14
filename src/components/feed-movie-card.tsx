@@ -23,9 +23,10 @@ interface FeedMovieCardProps {
   movie: MovieLike
   providers: WatchProvidersByType | null
   reason?: string
+  matchScore?: number
 }
 
-export function FeedMovieCard({ movie, providers, reason }: FeedMovieCardProps) {
+export function FeedMovieCard({ movie, providers, reason, matchScore }: FeedMovieCardProps) {
   const title = getTitle(movie)
   const year = getYear(movie)
   const posterUrl = getPosterUrl(movie.poster_path, 'w185')
@@ -93,7 +94,7 @@ export function FeedMovieCard({ movie, providers, reason }: FeedMovieCardProps) 
           )}
         </div>
 
-        {/* Year + genres */}
+        {/* Year + genres + match score */}
         <div className="flex items-center flex-wrap gap-1.5">
           <span className="text-xs text-muted-foreground">{year}</span>
           {genreNames.map((name) => (
@@ -104,6 +105,17 @@ export function FeedMovieCard({ movie, providers, reason }: FeedMovieCardProps) 
               {name}
             </span>
           ))}
+          {typeof matchScore === 'number' && matchScore >= 60 && (
+            <span
+              className={`inline-flex items-center rounded px-1.5 py-[2px] text-[10px] font-bold leading-none ${
+                matchScore >= 80
+                  ? 'bg-emerald-500/15 text-emerald-400'
+                  : 'bg-amber-500/15 text-amber-400'
+              }`}
+            >
+              {matchScore}%
+            </span>
+          )}
         </div>
 
         {/* Overview */}

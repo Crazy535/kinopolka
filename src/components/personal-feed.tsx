@@ -1,15 +1,20 @@
 import { prisma } from '@/lib/db'
 import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders } from '@/lib/tmdb'
 import { FeedMovieCard } from '@/components/feed-movie-card'
+import { calcMatchScore } from '@/lib/match-score'
 import type { RecommendationItem } from '@/types/quiz'
 
 interface Props {
   userId: string
 }
 
-async function getGenreItems(userId: string): Promise<RecommendationItem[]> {
-  const profile = await prisma.tasteProfile.findUnique({ where: { userId } })
-  if (!profile || profile.genreIds.length === 0) return []
+interface TasteProfile {
+  genreIds: number[]
+  movieIds: number[]
+}
+
+async function getGenreItems(profile: TasteProfile): Promise<RecommendationItem[]> {
+  if (profile.genreIds.length === 0) return []
 
   const topGenres = profile.genreIds.slice(0, 3).join(',')
   const page = Math.floor(Math.random() * 3) + 1
@@ -35,9 +40,8 @@ async function getGenreItems(userId: string): Promise<RecommendationItem[]> {
   }))
 }
 
-async function getTVItems(userId: string): Promise<RecommendationItem[]> {
-  const profile = await prisma.tasteProfile.findUnique({ where: { userId } })
-  if (!profile || profile.genreIds.length === 0) return []
+async function getTVItems(profile: TasteProfile): Promise<RecommendationItem[]> {
+  if (profile.genreIds.length === 0) return []
 
   const topGenres = profile.genreIds.slice(0, 3).join(',')
   const page = Math.floor(Math.random() * 3) + 1
@@ -94,13 +98,22 @@ async function getPeopleItems(userId: string): Promise<{ items: RecommendationIt
 }
 
 export async function PersonalFeed({ userId }: Props) {
+  const profile = await prisma.tasteProfile.findUnique({
+    where: { userId },
+    select: { genreIds: true, movieIds: true },
+  })
+
+  const tasteProfile: TasteProfile = profile ?? { genreIds: [], movieIds: [] }
+
   const [genreItems, tvItems, { items: peopleItems, personNames }] = await Promise.all([
-    getGenreItems(userId),
-    getTVItems(userId),
+    getGenreItems(tasteProfile),
+    getTVItems(tasteProfile),
     getPeopleItems(userId),
   ])
 
   if (genreItems.length === 0 && tvItems.length === 0 && peopleItems.length === 0) return null
+
+  const userGenreIds = tasteProfile.genreIds
 
   return (
     <div className="mb-10 space-y-8">
@@ -111,13 +124,19 @@ export async function PersonalFeed({ userId }: Props) {
             С {personNames.join(', ')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {peopleItems.map((item) => (
-              <FeedMovieCard
-                key={item.movie.id}
-                movie={item.movie}
-                providers={item.providers}
-              />
-            ))}
+            {peopleItems.map((item) => {
+              const matchScore = userGenreIds.length > 0
+                ? (calcMatchScore(item.movie.genre_ids, userGenreIds) ?? undefined)
+                : undefined
+              return (
+                <FeedMovieCard
+                  key={item.movie.id}
+                  movie={item.movie}
+                  providers={item.providers}
+                  matchScore={matchScore}
+                />
+              )
+            })}
           </div>
         </section>
       )}
@@ -127,13 +146,19 @@ export async function PersonalFeed({ userId }: Props) {
         <section>
           <h2 className="mb-4 text-lg font-bold tracking-tight">Для тебя</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {genreItems.map((item) => (
-              <FeedMovieCard
-                key={item.movie.id}
-                movie={item.movie}
-                providers={item.providers}
-              />
-            ))}
+            {genreItems.map((item) => {
+              const matchScore = userGenreIds.length > 0
+                ? (calcMatchScore(item.movie.genre_ids, userGenreIds) ?? undefined)
+                : undefined
+              return (
+                <FeedMovieCard
+                  key={item.movie.id}
+                  movie={item.movie}
+                  providers={item.providers}
+                  matchScore={matchScore}
+                />
+              )
+            })}
           </div>
         </section>
       )}
@@ -143,13 +168,19 @@ export async function PersonalFeed({ userId }: Props) {
         <section>
           <h2 className="mb-4 text-lg font-bold tracking-tight">Сериалы для тебя</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {tvItems.map((item) => (
-              <FeedMovieCard
-                key={item.movie.id}
-                movie={item.movie}
-                providers={item.providers}
-              />
-            ))}
+            {tvItems.map((item) => {
+              const matchScore = userGenreIds.length > 0
+                ? (calcMatchScore(item.movie.genre_ids, userGenreIds) ?? undefined)
+                : undefined
+              return (
+                <FeedMovieCard
+                  key={item.movie.id}
+                  movie={item.movie}
+                  providers={item.providers}
+                  matchScore={matchScore}
+                />
+              )
+            })}
           </div>
         </section>
       )}

@@ -40,9 +40,10 @@ interface MovieCardProps {
   movie: MovieLike
   providers: WatchProvidersByType | null
   priority?: boolean
+  matchScore?: number
 }
 
-export function MovieCard({ movie, providers, priority = false }: MovieCardProps) {
+export function MovieCard({ movie, providers, priority = false, matchScore }: MovieCardProps) {
   const title = getTitle(movie)
   const year = getYear(movie)
   const posterUrl = getPosterUrl(movie.poster_path, 'w342')
@@ -74,6 +75,21 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
 
       {/* Persistent gradient overlay — title always readable */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+
+      {/* % Match badge */}
+      {typeof matchScore === 'number' && matchScore >= 60 && (
+        <div className="absolute top-2 left-2 z-30 pointer-events-none">
+          <span
+            className={`inline-flex items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none backdrop-blur-sm shadow-sm ${
+              matchScore >= 80
+                ? 'bg-emerald-500/85 text-white'
+                : 'bg-amber-500/85 text-white'
+            }`}
+          >
+            {matchScore}%
+          </span>
+        </div>
+      )}
 
       {/* Main navigation link (covers full card) */}
       <Link href={detailHref} className="absolute inset-0 z-10">

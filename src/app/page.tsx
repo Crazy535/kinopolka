@@ -43,14 +43,16 @@ export default async function HomePage() {
   const session = await auth()
   const userId = session?.user?.id
 
-  let hasTasteProfile = false
+  let userGenreIds: number[] = []
   if (userId) {
     const profile = await prisma.tasteProfile.findUnique({
       where: { userId },
-      select: { id: true },
+      select: { genreIds: true },
     })
-    hasTasteProfile = !!profile
+    userGenreIds = profile?.genreIds ?? []
   }
+
+  const hasTasteProfile = userGenreIds.length > 0
 
   return (
     <>
@@ -67,12 +69,12 @@ export default async function HomePage() {
       <section className="mb-10">
         <h2 className="mb-5 text-lg font-bold tracking-tight">В тренде сейчас</h2>
         <Suspense fallback={<GridSkeleton />}>
-          <MovieGrid />
+          <MovieGrid userGenreIds={userGenreIds.length > 0 ? userGenreIds : undefined} />
         </Suspense>
       </section>
 
       <Suspense fallback={<RowSkeleton />}>
-        <CategoriesSection />
+        <CategoriesSection userGenreIds={userGenreIds.length > 0 ? userGenreIds : undefined} />
       </Suspense>
     </>
   )

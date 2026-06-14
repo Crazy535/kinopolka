@@ -132,8 +132,11 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
   return (
     <div>
       {/* Segmented progress bar */}
-      <div className="mb-10">
-        <div className="flex gap-1.5 mb-3">
+      <div className="mb-10 flex flex-col gap-1">
+        <p className="text-xs text-muted-foreground">
+          Шаг {step + 1} из {totalSteps}
+        </p>
+        <div className="flex gap-1.5">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div
               key={i}
@@ -143,9 +146,6 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
             />
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Шаг {step + 1} из {totalSteps}
-        </p>
       </div>
 
       <AnimatePresence mode="wait">

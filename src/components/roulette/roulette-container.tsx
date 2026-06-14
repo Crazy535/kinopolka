@@ -110,13 +110,14 @@ export function RouletteContainer({ isAuthenticated = false }: RouletteContainer
               type="button"
               onClick={handleSpin}
               disabled={moodIndex === null}
-              className="flex w-full items-center justify-center gap-2.5 rounded-lg bg-gold py-4 text-[15px] font-bold text-gold-foreground transition-all duration-200 disabled:opacity-30 hover:opacity-90 hover:shadow-[0_4px_20px_oklch(0.80_0.13_80_/_0.30)] active:scale-[0.99]"
+              className="flex w-full items-center justify-center gap-2.5 rounded-lg bg-gold py-4 text-[15px] font-bold text-gold-foreground transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 hover:opacity-90 hover:shadow-[0_4px_20px_oklch(0.80_0.13_80_/_0.30)] active:scale-[0.99]"
             >
               <Shuffle className="size-4" />
-              {selectedMood
-                ? `Найти ${selectedMood.label.toLowerCase()} фильм`
-                : 'Выберите настроение'}
+              Крутить рулетку
             </button>
+            {moodIndex === null && (
+              <p className="text-center text-xs text-muted-foreground">↑ Выберите настроение выше</p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

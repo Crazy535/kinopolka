@@ -71,7 +71,8 @@ export function QuizResults({ results, isLoading, error, onReset, userType = 'an
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold">Вот что посмотреть</h2>
+          <h2 className="font-heading text-2xl font-bold tracking-[-0.02em]">Вот что посмотреть</h2>
+          <p className="text-xs text-muted-foreground">{results.length} {results.length === 1 ? 'вариант' : results.length < 5 ? 'варианта' : 'вариантов'}</p>
           {ttwDuration !== null && (
             <p className="mt-0.5 text-xs text-muted-foreground">
               Подобрали за&nbsp;

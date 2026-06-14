@@ -8,7 +8,7 @@ interface PersonBioProps {
 
 export function PersonBio({ biography }: PersonBioProps) {
   const [expanded, setExpanded] = useState(false)
-  const isLong = biography.length > 420
+  const isLong = biography.length > 300
 
   return (
     <div className="mb-8">
@@ -24,8 +24,9 @@ export function PersonBio({ biography }: PersonBioProps) {
       </p>
       {isLong && (
         <button
+          type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-2 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+          className="mt-2 text-sm font-semibold text-primary underline-offset-2 transition-colors hover:underline hover:text-primary/80"
         >
           {expanded ? 'Свернуть' : 'Читать далее'}
         </button>

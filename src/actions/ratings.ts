@@ -2,6 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
+import { updateTasteFromRating } from '@/lib/taste-learning'
 
 interface RatingInput {
   tmdbId: number
@@ -33,6 +34,12 @@ export async function setRating(input: RatingInput) {
       score: input.score,
     },
   })
+
+  try {
+    await updateTasteFromRating(userId, input.tmdbId, input.mediaType, input.score)
+  } catch {
+    // taste update is best-effort, never blocks the rating save
+  }
 
   return { score: input.score }
 }

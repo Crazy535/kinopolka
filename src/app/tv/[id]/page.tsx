@@ -3,13 +3,15 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { auth } from '@/auth'
-import { getTVShowDetailsEnriched, getTVRecommendations } from '@/lib/tmdb'
+import { getTVShowDetailsEnriched, getTVRecommendations, getTVVideos } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
 import { CastRow } from '@/components/movie-detail/cast-row'
 import { WatchlistButton } from '@/components/movie-detail/watchlist-button'
 import { StarRating } from '@/components/movie-detail/star-rating'
 import { RelatedSection } from '@/components/movie-detail/related-section'
+import { TrailerButton } from '@/components/movie-detail/trailer-button'
+import { OverviewSection } from '@/components/movie-detail/overview-section'
 
 export const revalidate = 86400
 
@@ -23,15 +25,20 @@ export default async function TVPage({ params }: TVPageProps) {
   const tvId = Number(id)
   if (!tvId || isNaN(tvId)) notFound()
 
-  let show, recommendations
+  let show, recommendations, videos
   try {
-    ;[show, recommendations] = await Promise.all([
+    ;[show, recommendations, videos] = await Promise.all([
       getTVShowDetailsEnriched(tvId),
       getTVRecommendations(tvId),
+      getTVVideos(tvId),
     ])
   } catch {
     notFound()
   }
+
+  const trailer = videos.results.find(
+    (v) => v.type === 'Trailer' && v.site === 'YouTube' && v.official
+  ) ?? videos.results.find((v) => v.type === 'Trailer' && v.site === 'YouTube')
 
   const backdropUrl = getBackdropUrl(show.backdrop_path, 'w1280')
   const posterUrl = getPosterUrl(show.poster_path, 'w500')
@@ -132,13 +139,21 @@ export default async function TVPage({ params }: TVPageProps) {
               title={show.name}
               posterPath={show.poster_path}
             />
+            {trailer && <TrailerButton trailerKey={trailer.key} title={show.name} />}
             <StarRating tmdbId={tvId} mediaType="tv" />
           </div>
 
-          {show.overview && (
-            <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
-              {show.overview}
-            </p>
+          {(show.overview || show.tagline || show.production_countries?.length) && (
+            <OverviewSection
+              overview={show.overview}
+              tagline={show.tagline}
+              countries={show.production_countries}
+              episodeInfo={
+                show.number_of_seasons
+                  ? `${show.number_of_seasons} ${show.number_of_seasons === 1 ? 'сезон' : show.number_of_seasons < 5 ? 'сезона' : 'сезонов'}${show.number_of_episodes ? `, ${show.number_of_episodes} эп.` : ''}`
+                  : undefined
+              }
+            />
           )}
 
           <WatchProvidersBlock providers={providers} title={show.name} userType={userType} />

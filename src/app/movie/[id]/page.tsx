@@ -3,13 +3,15 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { auth } from '@/auth'
-import { getMovieDetailsEnriched, getMovieRecommendations } from '@/lib/tmdb'
+import { getMovieDetailsEnriched, getMovieRecommendations, getMovieVideos } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
 import { CastRow } from '@/components/movie-detail/cast-row'
 import { WatchlistButton } from '@/components/movie-detail/watchlist-button'
 import { StarRating } from '@/components/movie-detail/star-rating'
 import { RelatedSection } from '@/components/movie-detail/related-section'
+import { TrailerButton } from '@/components/movie-detail/trailer-button'
+import { OverviewSection } from '@/components/movie-detail/overview-section'
 
 export const revalidate = 86400
 
@@ -23,15 +25,20 @@ export default async function MoviePage({ params }: MoviePageProps) {
   const movieId = Number(id)
   if (!movieId || isNaN(movieId)) notFound()
 
-  let movie, recommendations
+  let movie, recommendations, videos
   try {
-    ;[movie, recommendations] = await Promise.all([
+    ;[movie, recommendations, videos] = await Promise.all([
       getMovieDetailsEnriched(movieId),
       getMovieRecommendations(movieId),
+      getMovieVideos(movieId),
     ])
   } catch {
     notFound()
   }
+
+  const trailer = videos.results.find(
+    (v) => v.type === 'Trailer' && v.site === 'YouTube' && v.official
+  ) ?? videos.results.find((v) => v.type === 'Trailer' && v.site === 'YouTube')
 
   const backdropUrl = getBackdropUrl(movie.backdrop_path, 'w1280')
   const posterUrl = getPosterUrl(movie.poster_path, 'w500')
@@ -124,13 +131,16 @@ export default async function MoviePage({ params }: MoviePageProps) {
               title={movie.title}
               posterPath={movie.poster_path}
             />
+            {trailer && <TrailerButton trailerKey={trailer.key} title={movie.title} />}
             <StarRating tmdbId={movieId} mediaType="movie" />
           </div>
 
-          {movie.overview && (
-            <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
-              {movie.overview}
-            </p>
+          {(movie.overview || movie.tagline || movie.production_countries?.length) && (
+            <OverviewSection
+              overview={movie.overview}
+              tagline={movie.tagline}
+              countries={movie.production_countries}
+            />
           )}
 
           <WatchProvidersBlock providers={providers} title={movie.title} userType={userType} />

@@ -23,7 +23,7 @@ const STEP_VARIANTS = {
 export function QuizContainer({ initialType, isAuthenticated = false }: QuizContainerProps) {
   const userType = isAuthenticated ? 'auth' : 'anon'
   const {
-    step, type, moodIndex,
+    step, type, moodIndex, runtime,
     setType, setMood, setRuntime,
     setResults, setLoading, setError,
     reset, startTTW, stopTTW,
@@ -89,6 +89,11 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
     void fetchRecommendations(type!, moodIndex!, value)
   }
 
+  function handleRefresh() {
+    setLoading(true)
+    void fetchRecommendations(type!, moodIndex!, runtime ?? undefined)
+  }
+
   const typeOptions = [
     { value: 'movie', label: 'Фильм',   emoji: '🎬' },
     { value: 'tv',    label: 'Сериал',  emoji: '📺' },
@@ -122,6 +127,7 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
         isLoading={isLoading}
         error={error}
         onReset={reset}
+        onRefresh={handleRefresh}
         userType={userType}
       />
     )

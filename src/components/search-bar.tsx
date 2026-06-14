@@ -173,7 +173,7 @@ export function SearchBar() {
                   )
                 })}
               </ul>
-              <div className="border-t border-border px-3 py-2">
+              <div className="flex items-center justify-between border-t border-border px-3 py-2">
                 <Link
                   href={`/search?q=${encodeURIComponent(query.trim())}`}
                   onClick={handleClose}
@@ -181,6 +181,13 @@ export function SearchBar() {
                 >
                   <Search className="size-3" />
                   Все результаты по «{query}» →
+                </Link>
+                <Link
+                  href="/search"
+                  onClick={handleClose}
+                  className="text-xs text-muted-foreground/70 transition-colors hover:text-foreground"
+                >
+                  Фильтры
                 </Link>
               </div>
             </>

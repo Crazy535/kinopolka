@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Check, Link2, Send } from 'lucide-react'
+import { Check, Link2, RefreshCw, Send } from 'lucide-react'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { useQuizStore } from '@/stores/quiz-store'
@@ -13,12 +13,13 @@ interface QuizResultsProps {
   isLoading: boolean
   error: string | null
   onReset: () => void
+  onRefresh?: () => void
   userType?: 'anon' | 'auth'
 }
 
 type CopyState = 'idle' | 'loading' | 'copied'
 
-export function QuizResults({ results, isLoading, error, onReset, userType = 'anon' }: QuizResultsProps) {
+export function QuizResults({ results, isLoading, error, onReset, onRefresh, userType = 'anon' }: QuizResultsProps) {
   const ttwDuration = useQuizStore((s) => s.ttwDuration)
   const type = useQuizStore((s) => s.type)
   const [copyState, setCopyState] = useState<CopyState>('idle')
@@ -179,6 +180,19 @@ export function QuizResults({ results, isLoading, error, onReset, userType = 'an
               </>
             )}
           </button>
+
+          {/* Refresh results */}
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              title="Другие варианты"
+              className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Другие варианты</span>
+            </button>
+          )}
 
           {/* Reset */}
           <button

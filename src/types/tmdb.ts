@@ -231,6 +231,21 @@ export interface TMDBPersonCombinedCredits {
   crew: TMDBPersonCastCredit[]
 }
 
+export interface TMDBVideo {
+  id: string
+  key: string
+  name: string
+  site: string
+  type: string
+  official: boolean
+  published_at: string
+}
+
+export interface TMDBVideosResponse {
+  id: number
+  results: TMDBVideo[]
+}
+
 export interface TMDBSearchMultiItem {
   id: number
   media_type: 'movie' | 'tv'

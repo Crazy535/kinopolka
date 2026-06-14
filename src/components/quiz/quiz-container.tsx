@@ -130,7 +130,7 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
   const current = questions[step]
 
   return (
-    <div>
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col justify-center">
       {/* Segmented progress bar */}
       <div className="mb-10 flex flex-col gap-1">
         <p className="text-xs text-muted-foreground">
@@ -161,6 +161,7 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
             question={current.question}
             options={current.options}
             onSelect={current.onSelect}
+            columns={step === 0 ? 1 : 2}
           />
         </motion.div>
       </AnimatePresence>

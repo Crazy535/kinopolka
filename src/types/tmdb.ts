@@ -230,3 +230,25 @@ export interface TMDBPersonCombinedCredits {
   cast: TMDBPersonCastCredit[]
   crew: TMDBPersonCastCredit[]
 }
+
+export interface TMDBSearchMultiItem {
+  id: number
+  media_type: 'movie' | 'tv'
+  title?: string
+  name?: string
+  poster_path: string | null
+  backdrop_path: string | null
+  release_date?: string
+  first_air_date?: string
+  vote_average: number
+  vote_count: number
+  overview: string
+  genre_ids: number[]
+}
+
+export interface TMDBSearchMultiResponse {
+  results: TMDBSearchMultiItem[]
+  total_results: number
+  total_pages: number
+  page: number
+}

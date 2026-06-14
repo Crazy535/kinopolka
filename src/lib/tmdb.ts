@@ -13,6 +13,7 @@ import type {
   TMDBPersonSearchResponse,
   TMDBPersonDetails,
   TMDBPersonCombinedCredits,
+  TMDBSearchMultiResponse,
 } from '@/types/tmdb'
 
 const BASE_URL = 'https://api.themoviedb.org/3'
@@ -145,6 +146,14 @@ export async function getMovieRecommendations(id: number): Promise<TMDBMovieList
 
 export async function getTVRecommendations(id: number): Promise<TMDBTVListResponse> {
   return tmdbFetch<TMDBTVListResponse>(`/tv/${id}/recommendations`, {}, 86400)
+}
+
+export async function searchMulti(query: string, page = 1): Promise<TMDBSearchMultiResponse> {
+  return tmdbFetch<TMDBSearchMultiResponse>(
+    '/search/multi',
+    { query, include_adult: 'false', page: String(page) },
+    60
+  )
 }
 
 export { getPosterUrl, getBackdropUrl, getProviderLogoUrl } from './tmdb-image'

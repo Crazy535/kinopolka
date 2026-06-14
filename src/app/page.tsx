@@ -8,12 +8,32 @@ import { MovieGrid } from '@/components/movie-grid'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { PersonalFeed } from '@/components/personal-feed'
 import { OnboardingBanner } from '@/components/onboarding-banner'
+import { CategoriesSection } from '@/components/home/categories-section'
 
-function MovieGridSkeleton() {
+function GridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
       {Array.from({ length: 10 }).map((_, i) => (
         <MovieCardSkeleton key={i} />
+      ))}
+    </div>
+  )
+}
+
+function RowSkeleton() {
+  return (
+    <div className="space-y-10">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <section key={i}>
+          <div className="mb-4 h-6 w-40 animate-pulse rounded bg-muted" />
+          <div className="flex gap-3 overflow-hidden">
+            {Array.from({ length: 6 }).map((_, j) => (
+              <div key={j} className="w-36 shrink-0 sm:w-40">
+                <MovieCardSkeleton />
+              </div>
+            ))}
+          </div>
+        </section>
       ))}
     </div>
   )
@@ -39,17 +59,21 @@ export default async function HomePage() {
       {userId && !hasTasteProfile && <OnboardingBanner />}
 
       {userId && hasTasteProfile && (
-        <Suspense fallback={<MovieGridSkeleton />}>
+        <Suspense fallback={<GridSkeleton />}>
           <PersonalFeed userId={userId} />
         </Suspense>
       )}
 
-      <section>
+      <section className="mb-10">
         <h2 className="mb-5 text-lg font-bold tracking-tight">В тренде сейчас</h2>
-        <Suspense fallback={<MovieGridSkeleton />}>
+        <Suspense fallback={<GridSkeleton />}>
           <MovieGrid />
         </Suspense>
       </section>
+
+      <Suspense fallback={<RowSkeleton />}>
+        <CategoriesSection />
+      </Suspense>
     </>
   )
 }

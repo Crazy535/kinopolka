@@ -15,7 +15,7 @@ function getTitle(item: ContentItem): string {
 }
 
 export function RelatedSection({ items, mediaType }: RelatedSectionProps) {
-  const top = items.filter((i) => i.poster_path && i.vote_count > 10).slice(0, 6)
+  const top = items.filter((i) => i.poster_path && i.vote_count > 10).slice(0, 8)
   if (top.length === 0) return null
 
   return (
@@ -23,26 +23,26 @@ export function RelatedSection({ items, mediaType }: RelatedSectionProps) {
       <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Похожее
       </p>
-      <div className="flex gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
+      <div className="flex gap-4 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {top.map((item) => {
           const title = getTitle(item)
           const href = `/${mediaType}/${item.id}`
-          const posterUrl = getPosterUrl(item.poster_path, 'w185')
+          const posterUrl = getPosterUrl(item.poster_path, 'w342')
 
           return (
             <Link key={item.id} href={href} className="group shrink-0">
-              <div className="relative aspect-[2/3] w-24 overflow-hidden rounded-lg bg-muted">
+              <div className="relative aspect-[2/3] w-36 overflow-hidden rounded-lg bg-muted">
                 {posterUrl && (
                   <Image
                     src={posterUrl}
                     alt={title}
                     fill
-                    sizes="96px"
+                    sizes="144px"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 )}
               </div>
-              <p className="mt-1.5 w-24 line-clamp-2 text-[11px] font-medium leading-tight text-foreground/80">
+              <p className="mt-2 w-36 line-clamp-2 text-xs font-medium leading-snug text-foreground/80">
                 {title}
               </p>
             </Link>

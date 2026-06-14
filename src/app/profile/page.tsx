@@ -1,9 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { User, Bookmark, Star, Film } from 'lucide-react'
+import { User, Bookmark, Star, Film, Eye } from 'lucide-react'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
+import { getPosterUrl } from '@/lib/tmdb-image'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,16 +38,27 @@ const GENRE_NAMES: Record<number, string> = {
   10768: 'Война и политика',
 }
 
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+}
+
 export default async function ProfilePage() {
   const session = await auth()
   if (!session?.user?.id) redirect('/')
 
   const userId = session.user.id
 
-  const [watchlistCount, ratingsCount, tasteProfile] = await Promise.all([
-    prisma.watchlistItem.count({ where: { userId } }),
+  const [watchlistCount, watchedCount, ratingsCount, tasteProfile, watchedItems] = await Promise.all([
+    prisma.watchlistItem.count({ where: { userId, watchedAt: null } }),
+    prisma.watchlistItem.count({ where: { userId, watchedAt: { not: null } } }),
     prisma.rating.count({ where: { userId } }),
     prisma.tasteProfile.findUnique({ where: { userId } }),
+    prisma.watchlistItem.findMany({
+      where: { userId, watchedAt: { not: null } },
+      orderBy: { watchedAt: 'desc' },
+      take: 12,
+      select: { id: true, tmdbId: true, mediaType: true, title: true, posterPath: true, watchedAt: true },
+    }),
   ])
 
   const topGenres = (tasteProfile?.genreIds ?? [])
@@ -83,8 +95,8 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      {/* Stats — inline horizontal, not hero-metric cards */}
-      <div className="mb-8 flex flex-wrap items-center gap-6 border-y border-border py-4">
+      {/* Stats */}
+      <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-y border-border py-4">
         <Link
           href="/watchlist"
           className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -93,6 +105,19 @@ export default async function ProfilePage() {
           <span>
             <strong className="font-bold text-foreground">{watchlistCount}</strong>
             &nbsp;в вотчлисте
+          </span>
+        </Link>
+
+        <span className="h-4 w-px bg-border" aria-hidden />
+
+        <Link
+          href="/watchlist?tab=watched"
+          className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <Eye className="size-4 text-emerald-500" />
+          <span>
+            <strong className="font-bold text-foreground">{watchedCount}</strong>
+            &nbsp;просмотрено
           </span>
         </Link>
 
@@ -132,6 +157,52 @@ export default async function ProfilePage() {
                 {name}
               </span>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recently watched */}
+      {watchedItems.length > 0 && (
+        <div className="mb-10">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold tracking-tight">Недавно просмотрено</h2>
+            <Link
+              href="/watchlist?tab=watched"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Все&nbsp;→
+            </Link>
+          </div>
+          <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-6">
+            {watchedItems.slice(0, 12).map((item) => {
+              const href = `/${item.mediaType}/${item.tmdbId}`
+              const posterUrl = item.posterPath ? getPosterUrl(item.posterPath, 'w185') : null
+              return (
+                <Link key={item.id} href={href} className="group">
+                  <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
+                    {posterUrl ? (
+                      <Image
+                        src={posterUrl}
+                        alt={item.title}
+                        fill
+                        sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 16vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center p-1">
+                        <span className="text-center text-[10px] text-muted-foreground">{item.title}</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  </div>
+                  {item.watchedAt && (
+                    <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                      {formatDate(item.watchedAt)}
+                    </p>
+                  )}
+                </Link>
+              )
+            })}
           </div>
         </div>
       )}

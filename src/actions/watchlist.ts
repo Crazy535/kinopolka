@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 
@@ -55,4 +56,28 @@ export async function getWatchlistStatus(
     },
   })
   return { inWatchlist: !!item }
+}
+
+export async function markAsWatched(id: string) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error('Unauthorized')
+
+  await prisma.watchlistItem.update({
+    where: { id, userId: session.user.id },
+    data: { watchedAt: new Date() },
+  })
+
+  revalidatePath('/watchlist')
+}
+
+export async function unmarkAsWatched(id: string) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error('Unauthorized')
+
+  await prisma.watchlistItem.update({
+    where: { id, userId: session.user.id },
+    data: { watchedAt: null },
+  })
+
+  revalidatePath('/watchlist')
 }

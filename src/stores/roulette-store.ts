@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { RecommendationItem } from '@/types/quiz'
 
 interface RouletteState {
+  contentType: 'movie' | 'tv' | null
   moodIndex: number | null
   result: RecommendationItem | null
   isLoading: boolean
@@ -10,14 +11,16 @@ interface RouletteState {
   ttwDuration: number | null
   seenIds: number[]
 
+  setContentType: (type: 'movie' | 'tv') => void
   setMood: (index: number) => void
-  spin: (genreId: number) => Promise<void>
+  spin: (genreId: number, contentType: 'movie' | 'tv') => Promise<void>
   reset: () => void
   startTTW: () => void
   stopTTW: () => void
 }
 
 const initialState = {
+  contentType: null as 'movie' | 'tv' | null,
   moodIndex: null as number | null,
   result: null as RecommendationItem | null,
   isLoading: false,
@@ -30,9 +33,12 @@ const initialState = {
 export const useRouletteStore = create<RouletteState>((set, get) => ({
   ...initialState,
 
+  setContentType: (contentType) =>
+    set({ contentType, moodIndex: null, seenIds: [], result: null, error: null }),
+
   setMood: (moodIndex) => set({ moodIndex }),
 
-  spin: async (genreId: number) => {
+  spin: async (genreId: number, contentType: 'movie' | 'tv') => {
     set({ isLoading: true, error: null, result: null })
     get().startTTW()
 
@@ -42,15 +48,15 @@ export const useRouletteStore = create<RouletteState>((set, get) => ({
         ? `&exclude_ids=${seenIds.join(',')}`
         : ''
 
-      const res = await fetch(`/api/roulette?genre_id=${genreId}${excludeParam}`)
+      const res = await fetch(`/api/roulette?genre_id=${genreId}&type=${contentType}${excludeParam}`)
       if (!res.ok) throw new Error('Failed to fetch roulette result')
       const data = await res.json() as { item: RecommendationItem }
 
-      const newMovieId = data.item.movie.id
+      const newId = data.item.movie.id
       set({
         result: data.item,
         isLoading: false,
-        seenIds: [...seenIds, newMovieId],
+        seenIds: [...seenIds, newId],
       })
       get().stopTTW()
     } catch (err) {

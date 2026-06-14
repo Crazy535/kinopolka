@@ -130,7 +130,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
             )}
           </div>
           <Link href={detailHref} className="mt-3 block text-xs text-white/45 transition-colors hover:text-white/80">
-            Подробнее&nbsp;→
+            {isMovie ? 'Подробнее о фильме' : 'Подробнее о сериале'}&nbsp;→
           </Link>
         </div>
       </div>
@@ -202,7 +202,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
               </a>
             )}
             <Link href={detailHref} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-              Подробнее о фильме&nbsp;→
+              {isMovie ? 'Подробнее о фильме' : 'Подробнее о сериале'}&nbsp;→
             </Link>
           </div>
         </div>

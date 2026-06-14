@@ -76,13 +76,14 @@ model VerificationToken {
 // ─── Kinopolka domain models ──────────────────────────────────────────────────
 
 model WatchlistItem {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   tmdbId      Int
-  mediaType   String   // "movie" | "tv"
+  mediaType   String    // "movie" | "tv"
   title       String
   posterPath  String?
-  addedAt     DateTime @default(now())
+  addedAt     DateTime  @default(now())
+  watchedAt   DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

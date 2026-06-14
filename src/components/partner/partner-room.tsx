@@ -118,8 +118,8 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
       return (
         <div>
           <div className="mb-8 text-center">
-            <div className="inline-block w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-slate-300">Загружаем результаты...</p>
+            <div className="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-muted-foreground">Загружаем результаты...</p>
           </div>
           <PartnerResultsSkeleton />
         </div>
@@ -139,24 +139,24 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
     return (
       <div className="flex flex-col items-center gap-8 text-center">
         <div>
-          <div className="inline-block w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mb-4" />
-          <h2 className="text-2xl font-bold text-white">Ожидаем партнёра...</h2>
-          <p className="mt-2 text-slate-400">Отправьте ссылку другу, чтобы начать подбор</p>
+          <div className="inline-block w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+          <h2 className="text-2xl font-bold">Ожидаем партнёра...</h2>
+          <p className="mt-2 text-muted-foreground">Отправьте ссылку другу, чтобы начать подбор</p>
         </div>
 
-        <div className="w-full max-w-md bg-slate-800/60 border border-slate-700 rounded-xl p-4">
-          <p className="text-xs text-slate-400 mb-2">Ссылка для партнёра</p>
+        <div className="w-full max-w-md rounded-xl border border-border bg-card p-4">
+          <p className="mb-2 text-xs text-muted-foreground">Ссылка для партнёра</p>
           <div className="flex items-center gap-2">
-            <span className="flex-1 text-sm text-slate-200 truncate font-mono">{inviteUrl}</span>
+            <span className="flex-1 truncate font-mono text-sm text-foreground">{inviteUrl}</span>
             <button
               onClick={copyLink}
-              className="shrink-0 px-3 py-1.5 text-xs bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-all"
+              className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs text-primary-foreground transition-all hover:bg-primary/90"
             >
               {copied ? 'Скопировано!' : 'Копировать'}
             </button>
           </div>
-          <p className="mt-3 text-xs text-slate-500 text-center">
-            Код комнаты: <span className="font-mono text-slate-300 tracking-widest">{code}</span>
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            Код комнаты: <span className="font-mono tracking-widest text-foreground">{code}</span>
           </p>
         </div>
       </div>
@@ -169,9 +169,9 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
   if (guestAlreadyJoined) {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
-        <div className="inline-block w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-        <h2 className="text-2xl font-bold text-white">Подбираем фильмы...</h2>
-        <p className="text-slate-400">Ещё секунда</p>
+        <div className="inline-block w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <h2 className="text-2xl font-bold">Подбираем фильмы...</h2>
+        <p className="text-muted-foreground">Ещё секунда</p>
       </div>
     )
   }
@@ -180,17 +180,17 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div>
-        <h2 className="text-2xl font-bold text-white">
+        <h2 className="text-2xl font-bold">
           Вечер с{room.host?.name ? ` ${room.host.name}` : ' партнёром'}
         </h2>
-        <p className="mt-2 text-slate-400">Выберите свои предпочтения, чтобы найти общий фильм</p>
+        <p className="mt-2 text-muted-foreground">Выберите свои предпочтения, чтобы найти общий фильм</p>
       </div>
 
       {hasTasteProfile ? (
         <button
           onClick={() => handleJoin()}
           disabled={joining}
-          className="px-8 py-3 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-all"
+          className="rounded-xl bg-primary px-8 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
         >
           {joining ? 'Подбираем...' : 'Присоединиться'}
         </button>

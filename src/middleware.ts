@@ -4,7 +4,7 @@ const PROTECTED = ['/profile', '/watchlist', '/partner']
 
 // Optimistic check: verifies session cookie exists without hitting the DB.
 // Actual auth enforcement happens in Server Components via auth().
-export default function proxy(req: NextRequest) {
+export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   const isProtected = PROTECTED.some((p) => pathname.startsWith(p))

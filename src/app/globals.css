@@ -155,6 +155,35 @@
   }
 }
 
+/* ─── Shimmer — skeleton loading animation ─── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* ─── Reveal — staggered section entrance ─── */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      oklch(1 0 0 / 0.04) 0%,
+      oklch(1 0 0 / 0.11) 40%,
+      oklch(1 0 0 / 0.04) 80%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.9s ease-in-out infinite;
+  }
+
+  .animate-reveal {
+    animation: reveal-up 0.6s cubic-bezier(0.19, 1, 0.22, 1) both;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

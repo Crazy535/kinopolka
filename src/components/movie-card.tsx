@@ -55,7 +55,7 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-shadow duration-300 hover:shadow-[0_6px_28px_var(--color-card-glow)]">
+    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-1 hover:shadow-[0_12px_36px_var(--color-card-glow)]">
       {/* Poster image */}
       {posterUrl ? (
         <Image
@@ -127,9 +127,9 @@ export function MovieCard({ movie, providers, priority = false }: MovieCardProps
         </a>
       )}
 
-      {/* Hover ring — decorative top layer */}
+      {/* Hover ring + top crimson edge glow */}
       <div
-        className="absolute inset-0 z-40 rounded-lg ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-white/12 pointer-events-none"
+        className="absolute inset-0 z-40 rounded-lg ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-primary/25 pointer-events-none"
         aria-hidden
       />
     </article>

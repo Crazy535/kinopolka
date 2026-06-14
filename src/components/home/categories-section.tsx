@@ -1,4 +1,9 @@
-import { getTrendingTVShows, discoverMovies } from '@/lib/tmdb'
+import {
+  getTrendingTVShows,
+  getTopRatedMovies,
+  getNowPlayingMovies,
+  getUpcomingMovies,
+} from '@/lib/tmdb'
 import { MovieCard } from '@/components/movie-card'
 import { calcMatchScore } from '@/lib/match-score'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
@@ -31,18 +36,18 @@ function CategoryRow({ title, items, userGenreIds }: CategoryRowProps) {
 }
 
 export async function CategoriesSection({ userGenreIds }: { userGenreIds?: number[] }) {
-  const [tvTrending, comedies, scifi, thrillers] = await Promise.all([
+  const [tvTrending, topRated, nowPlaying, upcoming] = await Promise.all([
     getTrendingTVShows('week'),
-    discoverMovies({ sort_by: 'popularity.desc', with_genres: '35', 'vote_count.gte': 100 }),
-    discoverMovies({ sort_by: 'popularity.desc', with_genres: '878', 'vote_count.gte': 100 }),
-    discoverMovies({ sort_by: 'popularity.desc', with_genres: '53,27', 'vote_count.gte': 80 }),
+    getTopRatedMovies(),
+    getNowPlayingMovies(),
+    getUpcomingMovies(),
   ])
 
   const sections: { title: string; items: (TMDBMovie | TMDBTVShow)[] }[] = [
     { title: 'Трендовые сериалы', items: tvTrending.results.slice(0, 10) },
-    { title: 'Комедии', items: comedies.results.slice(0, 10) },
-    { title: 'Фантастика', items: scifi.results.slice(0, 10) },
-    { title: 'Триллеры и ужасы', items: thrillers.results.slice(0, 10) },
+    { title: 'Топ-рейтинг', items: topRated.results.slice(0, 10) },
+    { title: 'Сейчас в кино', items: nowPlaying.results.slice(0, 10) },
+    { title: 'Скоро в кино', items: upcoming.results.slice(0, 10) },
   ]
 
   return (

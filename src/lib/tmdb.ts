@@ -156,4 +156,20 @@ export async function searchMulti(query: string, page = 1): Promise<TMDBSearchMu
   )
 }
 
+export async function getTopRatedMovies(): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>('/movie/top_rated')
+}
+
+export async function getNowPlayingMovies(): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>('/movie/now_playing')
+}
+
+export async function getUpcomingMovies(): Promise<TMDBMovieListResponse> {
+  return tmdbFetch<TMDBMovieListResponse>('/movie/upcoming')
+}
+
+export async function getTopRatedTVShows(): Promise<TMDBTVListResponse> {
+  return tmdbFetch<TMDBTVListResponse>('/tv/top_rated')
+}
+
 export { getPosterUrl, getBackdropUrl, getProviderLogoUrl } from './tmdb-image'

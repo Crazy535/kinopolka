@@ -7,14 +7,9 @@ export default async function RoulettePage() {
   const session = await auth()
 
   return (
-    <main className="py-8 sm:py-12">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Кинорулетка</h1>
-        <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-          Один вопрос — один фильм
-        </p>
-      </div>
+    <div>
+      <h1 className="sr-only">Кинорулетка</h1>
       <RouletteContainer isAuthenticated={!!session} />
-    </main>
+    </div>
   )
 }

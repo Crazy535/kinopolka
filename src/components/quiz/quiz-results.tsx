@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Check, Link2, RefreshCw, Send } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Check, Link2, MoreHorizontal, RefreshCw, RotateCcw, Send } from 'lucide-react'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { useQuizStore } from '@/stores/quiz-store'
@@ -24,6 +24,18 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
   const type = useQuizStore((s) => s.type)
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    if (menuOpen) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpen])
 
   useEffect(() => {
     if (results.length > 0) {
@@ -149,59 +161,68 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          {/* Telegram share */}
-          <button
-            type="button"
-            onClick={() => void handleTelegram()}
-            title="Поделиться в Telegram"
-            className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-[#2CA5E0]/60 hover:text-[#2CA5E0]"
-          >
-            <Send className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Telegram</span>
-          </button>
-
-          {/* Copy link */}
-          <button
-            type="button"
-            onClick={() => void handleShare()}
-            disabled={copyState === 'loading'}
-            title="Скопировать ссылку"
-            className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {copyState === 'copied' ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-green-500" />
-                <span className="hidden sm:inline text-green-500">Скопировано</span>
-              </>
-            ) : (
-              <>
-                <Link2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Поделиться</span>
-              </>
+          {/* ⋯ secondary actions */}
+          <div ref={menuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              title="Ещё действия"
+              className="flex items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-md border border-border bg-popover py-1 shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => { void handleTelegram(); setMenuOpen(false) }}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                >
+                  <Send className="h-3.5 w-3.5 text-[#2CA5E0]" />
+                  Telegram
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { void handleShare(); setMenuOpen(false) }}
+                  disabled={copyState === 'loading'}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted disabled:opacity-60"
+                >
+                  {copyState === 'copied' ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-green-500" />
+                      <span className="text-green-500">Скопировано</span>
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="h-3.5 w-3.5" />
+                      Поделиться
+                    </>
+                  )}
+                </button>
+                <div className="my-1 border-t border-border" />
+                <button
+                  type="button"
+                  onClick={() => { onReset(); setMenuOpen(false) }}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Заново
+                </button>
+              </div>
             )}
-          </button>
+          </div>
 
-          {/* Refresh results */}
+          {/* Primary action */}
           {onRefresh && (
             <button
               type="button"
               onClick={onRefresh}
-              title="Другие варианты"
-              className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+              className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Другие варианты</span>
+              Другие варианты
             </button>
           )}
-
-          {/* Reset */}
-          <button
-            type="button"
-            onClick={onReset}
-            className="rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Заново
-          </button>
         </div>
       </div>
 

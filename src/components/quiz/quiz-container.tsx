@@ -32,7 +32,11 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
 
   useEffect(() => {
     reset()
-    if (initialType) setType(initialType)
+    if (initialType) {
+      setType(initialType)
+      startTTW()
+      trackTTWStart(userType, '/quiz')
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -136,7 +140,7 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
   const current = questions[step]
 
   return (
-    <div className="flex min-h-[calc(100vh-5rem)] flex-col justify-center">
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col pt-6 sm:pt-12">
       {/* Segmented progress bar */}
       <div className="mb-10 flex flex-col gap-1">
         <p className="text-xs text-muted-foreground">

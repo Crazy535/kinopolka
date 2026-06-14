@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display, Geist_Mono } from "next/font/google";
+import { auth } from "@/auth";
 import { Header } from "@/components/header";
 import { BottomNav } from "@/components/bottom-nav";
 import { PHProvider } from "@/components/posthog-provider";
@@ -38,19 +39,22 @@ export const metadata: Metadata = {
     siteName: "Кинополка",
     locale: "ru_RU",
     type: "website",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Кинополка" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Кинополка — что посмотреть сегодня?",
     description: "Подберём фильм или сериал за 30 секунд",
+    images: ["/opengraph-image"],
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html
       lang="ru"
@@ -62,7 +66,7 @@ export default function RootLayout({
           <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 pb-24 sm:px-6 md:pb-8">
             {children}
           </main>
-          <BottomNav />
+          <BottomNav isAuthenticated={!!session} />
         </PHProvider>
       </body>
     </html>

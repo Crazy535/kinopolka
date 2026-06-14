@@ -56,7 +56,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-1 hover:shadow-[0_12px_36px_var(--color-card-glow)]">
+    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-1 hover:shadow-[0_12px_36px_var(--color-card-glow)] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-background">
       {/* Poster image */}
       {posterUrl ? (
         <Image
@@ -92,7 +92,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
       )}
 
       {/* Main navigation link (covers full card) */}
-      <Link href={detailHref} className="absolute inset-0 z-10">
+      <Link href={detailHref} className="absolute inset-0 z-10 focus-visible:outline-none">
         <span className="sr-only">{title}</span>
       </Link>
 
@@ -137,7 +137,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
           href={fallbackLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-2.5 right-2.5 z-30 text-[10px] text-white/45 transition-colors hover:text-white/80"
+          className="absolute bottom-2.5 right-2.5 z-30 text-[10px] text-white/65 transition-colors hover:text-white/90"
         >
           Найти&nbsp;→
         </a>

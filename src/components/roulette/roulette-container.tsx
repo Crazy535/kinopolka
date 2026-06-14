@@ -6,7 +6,7 @@ import { MOODS } from '@/types/quiz'
 import { useRouletteStore } from '@/stores/roulette-store'
 import { RouletteResult } from './roulette-result'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
-import { trackRouletteSpun } from '@/lib/analytics'
+import { trackRouletteSpun, trackTTWStart } from '@/lib/analytics'
 
 const EXPO_OUT: [number, number, number, number] = [0.19, 1, 0.22, 1]
 
@@ -33,6 +33,7 @@ export function RouletteContainer({ isAuthenticated = false }: RouletteContainer
     if (moodIndex === null || contentType === null) return
     const mood = MOODS[moodIndex]
     const genreId = contentType === 'tv' ? mood.tvGenreId : mood.movieGenreId
+    trackTTWStart(userType, '/roulette')
     spin(genreId, contentType)
     trackRouletteSpun(userType)
   }

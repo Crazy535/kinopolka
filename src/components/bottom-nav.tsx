@@ -2,17 +2,29 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Film, Shuffle, Users } from 'lucide-react'
+import { Home, Film, Shuffle, Users, Bookmark } from 'lucide-react'
 
-const NAV_ITEMS = [
+const ANON_ITEMS = [
   { href: '/',         icon: Home,    label: 'Главная',  exact: true  },
   { href: '/quiz',     icon: Film,    label: 'Квиз',     exact: false },
   { href: '/roulette', icon: Shuffle, label: 'Рулетка',  exact: false },
   { href: '/partner',  icon: Users,   label: 'Партнёр',  exact: false },
 ] as const
 
-export function BottomNav() {
+const AUTH_ITEMS = [
+  { href: '/',          icon: Home,     label: 'Главная',  exact: true  },
+  { href: '/quiz',      icon: Film,     label: 'Квиз',     exact: false },
+  { href: '/roulette',  icon: Shuffle,  label: 'Рулетка',  exact: false },
+  { href: '/watchlist', icon: Bookmark, label: 'Список',   exact: false },
+] as const
+
+interface BottomNavProps {
+  isAuthenticated?: boolean
+}
+
+export function BottomNav({ isAuthenticated = false }: BottomNavProps) {
   const pathname = usePathname()
+  const items = isAuthenticated ? AUTH_ITEMS : ANON_ITEMS
 
   function isActive(href: string, exact: boolean) {
     return exact ? pathname === href : pathname.startsWith(href)
@@ -21,7 +33,7 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur-md md:hidden">
       <div className="flex h-16 items-stretch">
-        {NAV_ITEMS.map(({ href, icon: Icon, label, exact }) => {
+        {items.map(({ href, icon: Icon, label, exact }) => {
           const active = isActive(href, exact)
           return (
             <Link

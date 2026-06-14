@@ -77,12 +77,12 @@ export default async function MoviePage({ params }: MoviePageProps) {
 
         <div className="flex gap-5 sm:gap-8">
           {posterUrl && (
-            <div className="relative hidden aspect-[2/3] w-36 shrink-0 overflow-hidden rounded-xl sm:block">
+            <div className="relative aspect-[2/3] w-24 shrink-0 overflow-hidden rounded-xl sm:w-36">
               <Image
                 src={posterUrl}
                 alt={movie.title}
                 fill
-                sizes="144px"
+                sizes="(max-width: 640px) 96px, 144px"
                 className="object-cover"
               />
             </div>
@@ -90,7 +90,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
 
           <div className="flex flex-col gap-4">
             <div>
-              <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{movie.title}</h1>
+              <h1 className="font-heading text-2xl font-bold leading-tight sm:text-3xl">{movie.title}</h1>
               {movie.original_title !== movie.title && (
                 <p className="mt-0.5 text-sm text-muted-foreground">{movie.original_title}</p>
               )}

@@ -3,6 +3,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
+import { checkAndGrantAchievements } from '@/lib/achievements'
 
 interface SelectedMovie {
   id: number
@@ -60,6 +61,8 @@ export async function completeOnboarding(
       })),
     })
   }
+
+  await checkAndGrantAchievements(userId).catch(() => {})
 
   redirect('/')
 }

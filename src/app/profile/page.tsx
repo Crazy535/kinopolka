@@ -5,6 +5,8 @@ import { User, Bookmark, Star, Film, Eye } from 'lucide-react'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { getPosterUrl } from '@/lib/tmdb-image'
+import { AchievementsSection } from '@/components/profile/achievements-section'
+import type { BadgeId } from '@/lib/achievements'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,7 +50,7 @@ export default async function ProfilePage() {
 
   const userId = session.user.id
 
-  const [watchlistCount, watchedCount, ratingsCount, tasteProfile, watchedItems] = await Promise.all([
+  const [watchlistCount, watchedCount, ratingsCount, tasteProfile, watchedItems, userAchievements] = await Promise.all([
     prisma.watchlistItem.count({ where: { userId, watchedAt: null } }),
     prisma.watchlistItem.count({ where: { userId, watchedAt: { not: null } } }),
     prisma.rating.count({ where: { userId } }),
@@ -59,11 +61,14 @@ export default async function ProfilePage() {
       take: 12,
       select: { id: true, tmdbId: true, mediaType: true, title: true, posterPath: true, watchedAt: true },
     }),
+    prisma.userAchievement.findMany({ where: { userId }, select: { badge: true } }),
   ])
 
   const topGenres = (tasteProfile?.genreIds ?? [])
     .slice(0, 5)
     .map((id) => GENRE_NAMES[id] ?? `Жанр ${id}`)
+
+  const unlockedBadgeIds = userAchievements.map((a) => a.badge as BadgeId)
 
   const user = session.user
 
@@ -160,6 +165,9 @@ export default async function ProfilePage() {
           </div>
         </div>
       )}
+
+      {/* Achievements */}
+      <AchievementsSection unlockedIds={unlockedBadgeIds} />
 
       {/* Recently watched */}
       {watchedItems.length > 0 && (

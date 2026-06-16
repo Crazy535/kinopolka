@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { generateRoomCode, intersectGenres } from '@/lib/partner-engine'
 import { discoverMovies } from '@/lib/tmdb'
+import { checkAndGrantAchievements } from '@/lib/achievements'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,6 +46,8 @@ export async function POST(req: Request) {
         expiresAt,
       },
     })
+
+    checkAndGrantAchievements(session.user.id).catch(() => {})
 
     return NextResponse.json({ code: room.code, expiresAt: room.expiresAt })
   } catch (err) {

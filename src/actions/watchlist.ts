@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
+import { checkAndGrantAchievements } from '@/lib/achievements'
 
 interface WatchlistInput {
   tmdbId: number
@@ -87,6 +88,9 @@ export async function markAsWatched(id: string) {
 
   revalidatePath('/watchlist')
   revalidatePath('/diary')
+
+  // Grant achievements async — never block the UI
+  checkAndGrantAchievements(session.user.id).catch(() => {})
 }
 
 export async function unmarkAsWatched(id: string) {

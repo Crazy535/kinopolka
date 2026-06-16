@@ -28,6 +28,7 @@ model User {
   hostedRooms     PartnerRoom[] @relation("HostRooms")
   guestRooms      PartnerRoom[] @relation("GuestRooms")
   watchLogs       WatchLog[]
+  achievements    UserAchievement[]
 
   @@map("users")
 }
@@ -173,6 +174,20 @@ model WatchLog {
   @@unique([userId, tmdbId, mediaType, watchedAt])
   @@index([userId, watchedAt(sort: Desc)])
   @@map("watch_logs")
+}
+
+// User Achievement — разблокированные достижения / badges
+model UserAchievement {
+  id         String   @id @default(cuid())
+  userId     String
+  badge      String   // 'first_watch' | 'cinephile_10' | 'genre_master' | 'explorer' | 'partner'
+  unlockedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badge])
+  @@index([userId])
+  @@map("user_achievements")
 }
 
 // Taste Profile — результат Onboarding (выбранные постеры → жанры)

@@ -49,26 +49,30 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Dropdown mode: fast multi-search, no filters, max 8 results
+    // Dropdown mode: fast multi-search, no filters, configurable limit (default 8, max 20)
     if (!full) {
       if (!q || q.length < 2) return NextResponse.json({ results: [] })
+
+      const limit = Math.min(parseInt(sp.get('limit') ?? '8', 10), 20)
 
       const data = await tmdbGet<{
         results: Array<{
           id: number; media_type: string; title?: string; name?: string
           poster_path: string | null; release_date?: string; first_air_date?: string
+          genre_ids?: number[]
         }>
       }>('/search/multi', { query: q, include_adult: 'false', page: '1' })
 
       const results = data.results
-        .filter((r) => r.media_type === 'movie' || r.media_type === 'tv')
-        .slice(0, 8)
+        .filter((r) => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path)
+        .slice(0, limit)
         .map((r) => ({
           id: r.id,
           media_type: r.media_type as 'movie' | 'tv',
           title: r.title ?? r.name ?? '',
           poster_path: r.poster_path,
           year: (r.release_date ?? r.first_air_date ?? '').slice(0, 4),
+          genre_ids: r.genre_ids ?? [],
         }))
 
       return NextResponse.json({ results })

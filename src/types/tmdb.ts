@@ -267,3 +267,12 @@ export interface TMDBSearchMultiResponse {
   total_pages: number
   page: number
 }
+
+export interface OnboardingItem {
+  id: number
+  title: string
+  poster_path: string | null
+  year: string
+  genre_ids: number[]
+  media_type: 'movie' | 'tv'
+}

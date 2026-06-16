@@ -15,6 +15,7 @@ import type {
   TMDBPersonCombinedCredits,
   TMDBSearchMultiResponse,
   TMDBVideosResponse,
+  OnboardingItem,
 } from '@/types/tmdb'
 
 const BASE_URL = 'https://api.themoviedb.org/3'
@@ -131,6 +132,48 @@ export async function getOnboardingPosters(): Promise<TMDBMovieListResponse['res
   return [...page1.results, ...page2.results]
     .filter((m) => !!m.poster_path)
     .slice(0, 40)
+}
+
+export async function getOnboardingItems(): Promise<OnboardingItem[]> {
+  const [moviesP1, moviesP2, tvP1, tvP2] = await Promise.all([
+    tmdbFetch<TMDBMovieListResponse>('/movie/popular', { page: '1' }, 86400),
+    tmdbFetch<TMDBMovieListResponse>('/movie/popular', { page: '2' }, 86400),
+    tmdbFetch<TMDBTVListResponse>('/tv/popular', { page: '1' }, 86400),
+    tmdbFetch<TMDBTVListResponse>('/tv/popular', { page: '2' }, 86400),
+  ])
+
+  const movies: OnboardingItem[] = [...moviesP1.results, ...moviesP2.results]
+    .filter((m) => !!m.poster_path)
+    .slice(0, 30)
+    .map((m) => ({
+      id: m.id,
+      title: m.title,
+      poster_path: m.poster_path,
+      year: m.release_date?.slice(0, 4) ?? '',
+      genre_ids: m.genre_ids,
+      media_type: 'movie' as const,
+    }))
+
+  const tvShows: OnboardingItem[] = [...tvP1.results, ...tvP2.results]
+    .filter((s) => !!s.poster_path)
+    .slice(0, 30)
+    .map((s) => ({
+      id: s.id,
+      title: s.name,
+      poster_path: s.poster_path,
+      year: s.first_air_date?.slice(0, 4) ?? '',
+      genre_ids: s.genre_ids,
+      media_type: 'tv' as const,
+    }))
+
+  // Interleave movies and TV shows so the grid shows a natural mix
+  const result: OnboardingItem[] = []
+  const maxLen = Math.max(movies.length, tvShows.length)
+  for (let i = 0; i < maxLen; i++) {
+    if (i < movies.length) result.push(movies[i])
+    if (i < tvShows.length) result.push(tvShows[i])
+  }
+  return result
 }
 
 export async function getPersonDetails(id: number): Promise<TMDBPersonDetails> {

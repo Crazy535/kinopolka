@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
-import { getOnboardingPosters } from '@/lib/tmdb'
+import { getOnboardingItems } from '@/lib/tmdb'
 import { OnboardingContainer } from '@/components/onboarding/onboarding-container'
 
 export const dynamic = 'force-dynamic'
@@ -16,7 +16,7 @@ export default async function OnboardingPage() {
   })
   if (existing) redirect('/')
 
-  const posters = await getOnboardingPosters()
+  const items = await getOnboardingItems()
 
-  return <OnboardingContainer posters={posters} />
+  return <OnboardingContainer items={items} />
 }

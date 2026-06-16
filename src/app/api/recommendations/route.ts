@@ -11,7 +11,16 @@ import type { ContentType, RuntimeOption, RecommendationItem } from '@/types/qui
 export const dynamic = 'force-dynamic'
 
 function randomPage(): number {
-  return Math.floor(Math.random() * 3) + 1
+  return Math.floor(Math.random() * 8) + 1
+}
+
+function pickRandom<T>(arr: T[], n: number): T[] {
+  const copy = [...arr]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy.slice(0, n)
 }
 
 export async function GET(req: NextRequest) {
@@ -45,7 +54,7 @@ export async function GET(req: NextRequest) {
       }
 
       const data = await discoverMovies(params)
-      rawItems = data.results.slice(0, 5)
+      rawItems = pickRandom(data.results, 5)
     } else {
       const params: TMDBDiscoverTVParams = {
         sort_by: 'popularity.desc',
@@ -56,7 +65,7 @@ export async function GET(req: NextRequest) {
       }
 
       const data = await discoverTVShows(params)
-      rawItems = data.results.slice(0, 5)
+      rawItems = pickRandom(data.results, 5)
     }
 
     const providerFetcher = type === 'movie' ? getMovieWatchProviders : getTVWatchProviders

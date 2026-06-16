@@ -185,7 +185,9 @@ export function OnboardingContainer({ items }: Props) {
                     canProceed ? 'text-primary' : 'text-muted-foreground'
                   }`}
                 >
-                  {movieCount}/{MAX_SELECT}
+                  {movieCount < MIN_SELECT
+                    ? `ещё ${MIN_SELECT - movieCount}`
+                    : `${movieCount}/${MAX_SELECT}`}
                 </span>
                 <button
                   onClick={() => setStep(2)}
@@ -222,7 +224,8 @@ export function OnboardingContainer({ items }: Props) {
                     setMovieSearch('')
                     setMovieSearchResults([])
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Очистить поиск"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center -mr-3 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -273,9 +276,9 @@ export function OnboardingContainer({ items }: Props) {
 
                     {/* TV badge */}
                     {item.media_type === 'tv' && (
-                      <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-sky-500/90 text-white">
+                      <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-sky-500/90 text-white" title="Сериал">
                         <Tv className="w-2.5 h-2.5" />
-                        <span className="text-[9px] font-bold leading-none">СЕР</span>
+                        <span className="text-[10px] font-bold leading-none">СЕР</span>
                       </div>
                     )}
 
@@ -305,11 +308,11 @@ export function OnboardingContainer({ items }: Props) {
 
                     {/* Title + year overlay at bottom — always visible */}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-2 pb-2 pt-8 pointer-events-none">
-                      <p className="text-white text-[11px] font-semibold leading-tight line-clamp-2">
+                      <p className="text-white text-xs font-semibold leading-tight line-clamp-2">
                         {item.title}
                       </p>
                       {item.year && (
-                        <p className="text-white/60 text-[10px] mt-0.5">{item.year}</p>
+                        <p className="text-white/70 text-xs mt-0.5">{item.year}</p>
                       )}
                     </div>
                   </button>
@@ -381,7 +384,8 @@ export function OnboardingContainer({ items }: Props) {
                 setSearchQuery('')
                 setSearchResults([])
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Очистить поиск"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center -mr-3 text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
             </button>

@@ -34,9 +34,9 @@ export function Logo() {
           <Image
             src="/logo.png"
             alt="Кинополка"
-            width={180}
-            height={48}
-            className="h-11 w-auto object-contain"
+            width={220}
+            height={60}
+            className="h-12 w-auto object-contain"
             priority
           />
         </motion.div>

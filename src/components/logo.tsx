@@ -16,7 +16,7 @@ export function Logo() {
       <motion.div
         whileHover="hover"
         initial="idle"
-        className="flex items-center"
+        className="flex items-center gap-2.5"
       >
         <motion.div
           variants={{
@@ -33,13 +33,23 @@ export function Logo() {
         >
           <Image
             src="/logo.png"
-            alt="Кинополка"
-            width={220}
-            height={60}
-            className="h-12 w-auto object-contain"
+            alt=""
+            width={44}
+            height={44}
+            className="h-10 w-10 object-contain"
             priority
           />
         </motion.div>
+        <motion.span
+          variants={{
+            idle: { opacity: 1 },
+            hover: { opacity: 0.92 },
+          }}
+          transition={{ duration: 0.28, ease: EXPO_OUT }}
+          className="font-heading text-lg font-bold tracking-[-0.01em] text-foreground"
+        >
+          Кинополка
+        </motion.span>
       </motion.div>
     </Link>
   )

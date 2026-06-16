@@ -1,9 +1,12 @@
 'use client'
 
-interface QuizOption {
+import type { ReactNode } from 'react'
+
+export interface QuizOption {
   value: string
   label: string
-  emoji: string
+  emoji?: string
+  icon?: ReactNode
   sublabel?: string
 }
 
@@ -30,7 +33,13 @@ export function QuizStep({ question, options, onSelect, columns = 2 }: QuizStepP
               columns === 1 ? 'flex-row items-center gap-4' : 'flex-col items-start gap-3'
             }`}
           >
-            <span className="text-2xl leading-none">{option.emoji}</span>
+            {option.icon ? (
+              <span className="flex h-7 w-7 items-center justify-center text-foreground/80">
+                {option.icon}
+              </span>
+            ) : (
+              <span className="text-2xl leading-none">{option.emoji}</span>
+            )}
             <div>
               <span className="block text-sm font-semibold leading-tight">{option.label}</span>
               {option.sublabel && (

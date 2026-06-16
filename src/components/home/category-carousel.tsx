@@ -50,12 +50,12 @@ export function CategoryCarousel({ title, items, browseHref, userGenreIds }: Cat
   return (
     <section>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-lg font-bold tracking-tight">{title}</h2>
+        <h2 className="font-heading text-xl font-bold tracking-tight sm:text-2xl">{title}</h2>
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-colors hover:bg-card hover:text-foreground disabled:pointer-events-none disabled:opacity-25"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-colors hover:bg-card hover:text-foreground disabled:pointer-events-none disabled:opacity-25"
             aria-label="Назад"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -63,7 +63,7 @@ export function CategoryCarousel({ title, items, browseHref, userGenreIds }: Cat
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-colors hover:bg-card hover:text-foreground disabled:pointer-events-none disabled:opacity-25"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-colors hover:bg-card hover:text-foreground disabled:pointer-events-none disabled:opacity-25"
             aria-label="Вперёд"
           >
             <ChevronRight className="h-4 w-4" />
@@ -85,7 +85,7 @@ export function CategoryCarousel({ title, items, browseHref, userGenreIds }: Cat
             ? (calcMatchScore(item.genre_ids, userGenreIds) ?? undefined)
             : undefined
           return (
-            <div key={item.id} className="w-36 shrink-0 sm:w-40">
+            <div key={item.id} className="w-40 shrink-0 sm:w-44 lg:w-48">
               <MovieCard movie={item} providers={null} priority={i === 0} matchScore={matchScore} />
             </div>
           )

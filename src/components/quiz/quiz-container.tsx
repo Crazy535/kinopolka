@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { Film, Tv } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useQuizStore } from '@/stores/quiz-store'
 import { QuizStep } from './quiz-step'
@@ -99,8 +100,8 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
   }
 
   const typeOptions = [
-    { value: 'movie', label: 'Фильм',   emoji: '🎬' },
-    { value: 'tv',    label: 'Сериал',  emoji: '📺' },
+    { value: 'movie', label: 'Фильм',  icon: <Film  className="h-6 w-6" /> },
+    { value: 'tv',    label: 'Сериал', icon: <Tv    className="h-6 w-6" /> },
   ]
 
   const moodOptions = MOODS.map((m, i) => ({

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Geist_Mono } from "next/font/google";
+import { Manrope, Playfair_Display, Geist_Mono } from "next/font/google";
 import { auth } from "@/auth";
 import { Header } from "@/components/header";
 import { BottomNav } from "@/components/bottom-nav";
 import { PHProvider } from "@/components/posthog-provider";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin", "cyrillic"],
   display: "swap",
 });
@@ -58,7 +58,7 @@ export default async function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${inter.variable} ${playfair.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${manrope.variable} ${playfair.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <PHProvider>

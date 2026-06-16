@@ -27,6 +27,7 @@ model User {
   favoritePersons FavoritePerson[]
   hostedRooms     PartnerRoom[] @relation("HostRooms")
   guestRooms      PartnerRoom[] @relation("GuestRooms")
+  watchLogs       WatchLog[]
 
   @@map("users")
 }
@@ -153,6 +154,25 @@ model SharedResult {
   createdAt DateTime @default(now())
 
   @@map("shared_results")
+}
+
+// Watch Log — дневник просмотров (каждый просмотр = запись)
+model WatchLog {
+  id         String   @id @default(cuid())
+  userId     String
+  tmdbId     Int
+  mediaType  String   // "movie" | "tv"
+  title      String
+  posterPath String?
+  watchedAt  DateTime @default(now())
+  note       String?
+  isRewatch  Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tmdbId, mediaType, watchedAt])
+  @@index([userId, watchedAt(sort: Desc)])
+  @@map("watch_logs")
 }
 
 // Taste Profile — результат Onboarding (выбранные постеры → жанры)

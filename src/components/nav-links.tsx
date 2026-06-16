@@ -4,18 +4,25 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 
-const NAV_ITEMS = [
+const BASE_ITEMS = [
   { label: 'Квиз', href: '/quiz' },
   { label: 'Рулетка', href: '/roulette' },
   { label: 'Партнёр', href: '/partner' },
 ]
 
-export function NavLinks() {
+const AUTH_EXTRA = { label: 'Дневник', href: '/diary' }
+
+interface NavLinksProps {
+  isAuthenticated?: boolean
+}
+
+export function NavLinks({ isAuthenticated = false }: NavLinksProps) {
   const pathname = usePathname()
+  const items = isAuthenticated ? [...BASE_ITEMS, AUTH_EXTRA] : BASE_ITEMS
 
   return (
     <nav aria-label="Основная навигация" className="hidden sm:flex items-center gap-0.5">
-      {NAV_ITEMS.map(({ label, href }) => {
+      {items.map(({ label, href }) => {
         const isActive = pathname === href || pathname.startsWith(href + '/')
         return (
           <Link

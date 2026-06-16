@@ -12,7 +12,7 @@ export async function Header() {
       <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6 sm:gap-8">
           <Logo />
-          <NavLinks />
+          <NavLinks isAuthenticated={!!session?.user} />
         </div>
 
         <div className="flex items-center gap-1">

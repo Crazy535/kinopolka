@@ -62,12 +62,31 @@ export async function markAsWatched(id: string) {
   const session = await auth()
   if (!session?.user?.id) throw new Error('Unauthorized')
 
-  await prisma.watchlistItem.update({
+  const watchedAt = new Date()
+
+  const item = await prisma.watchlistItem.update({
     where: { id, userId: session.user.id },
-    data: { watchedAt: new Date() },
+    data: { watchedAt },
   })
 
+  // Mirror to diary — ignore duplicate (same movie marked twice within same second)
+  try {
+    await prisma.watchLog.create({
+      data: {
+        userId: session.user.id,
+        tmdbId: item.tmdbId,
+        mediaType: item.mediaType,
+        title: item.title,
+        posterPath: item.posterPath,
+        watchedAt,
+      },
+    })
+  } catch {
+    // unique constraint violation = already logged, safe to ignore
+  }
+
   revalidatePath('/watchlist')
+  revalidatePath('/diary')
 }
 
 export async function unmarkAsWatched(id: string) {

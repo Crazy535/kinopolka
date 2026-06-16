@@ -4,6 +4,7 @@ import { FeedMovieCard } from '@/components/feed-movie-card'
 import { PersonalFeedSearch } from '@/components/personal-feed-search'
 import { calcMatchScore } from '@/lib/match-score'
 import type { RecommendationItem } from '@/types/quiz'
+import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
 interface Props {
   userId: string
@@ -41,7 +42,7 @@ async function getGenreItems(profile: TasteProfile): Promise<RecommendationItem[
   }))
 }
 
-async function getTVItems(profile: TasteProfile): Promise<RecommendationItem[]> {
+async function getTVItems(profile: TasteProfile, seenIds: Set<number>): Promise<RecommendationItem[]> {
   if (profile.genreIds.length === 0) return []
 
   const topGenres = profile.genreIds.slice(0, 3).join(',')
@@ -55,7 +56,7 @@ async function getTVItems(profile: TasteProfile): Promise<RecommendationItem[]> 
     page,
   })
 
-  const candidates = data.results.slice(0, 5)
+  const candidates = data.results.filter((s) => !seenIds.has(s.id)).slice(0, 5)
 
   const providerResults = await Promise.all(
     candidates.map((m) => getTVWatchProviders(m.id).catch(() => null))
@@ -74,23 +75,52 @@ async function getPeopleItems(userId: string): Promise<{ items: RecommendationIt
   const actors = people.filter((p) => p.role === 'actor').map((p) => p.tmdbId)
   const directors = people.filter((p) => p.role === 'director').map((p) => p.tmdbId)
 
-  const params: Parameters<typeof discoverMovies>[0] = {
+  const movieParams: Parameters<typeof discoverMovies>[0] = {
     sort_by: 'popularity.desc',
     'vote_count.gte': 20,
     'vote_average.gte': 5.5,
   }
-  if (actors.length > 0) params.with_cast = actors.slice(0, 4).join('|')
-  if (directors.length > 0) params.with_crew = directors.slice(0, 2).join('|')
+  const tvParams: Parameters<typeof discoverTVShows>[0] = {
+    sort_by: 'popularity.desc',
+    'vote_count.gte': 10,
+    'vote_average.gte': 5.5,
+  }
+  if (actors.length > 0) {
+    movieParams.with_cast = actors.slice(0, 4).join('|')
+    tvParams.with_cast = actors.slice(0, 4).join('|')
+  }
+  if (directors.length > 0) {
+    movieParams.with_crew = directors.slice(0, 2).join('|')
+    tvParams.with_crew = directors.slice(0, 2).join('|')
+  }
 
-  const data = await discoverMovies(params)
-  const candidates = data.results.slice(0, 5)
+  const [movieData, tvData] = await Promise.all([
+    discoverMovies(movieParams),
+    discoverTVShows(tvParams),
+  ])
+
+  // Interleave movies and TV for variety, cap at 6 total
+  const movieCandidates = movieData.results.slice(0, 4)
+  const tvCandidates = tvData.results.slice(0, 4)
+  const combined: (TMDBMovie | TMDBTVShow)[] = []
+  const maxLen = Math.max(movieCandidates.length, tvCandidates.length)
+  for (let i = 0; i < maxLen; i++) {
+    if (i < movieCandidates.length) combined.push(movieCandidates[i])
+    if (i < tvCandidates.length) combined.push(tvCandidates[i])
+  }
+  const candidates = combined.slice(0, 6)
 
   const providerResults = await Promise.all(
-    candidates.map((m) => getMovieWatchProviders(m.id).catch(() => null))
+    candidates.map((item) => {
+      const isTV = 'name' in item
+      return isTV
+        ? getTVWatchProviders(item.id).catch(() => null)
+        : getMovieWatchProviders(item.id).catch(() => null)
+    })
   )
 
-  const items = candidates.map((movie, i) => ({
-    movie,
+  const items = candidates.map((item, i) => ({
+    movie: item,
     providers: providerResults[i]?.results?.['RU'] ?? null,
   }))
 
@@ -99,16 +129,23 @@ async function getPeopleItems(userId: string): Promise<{ items: RecommendationIt
 }
 
 export async function PersonalFeed({ userId }: Props) {
-  const profile = await prisma.tasteProfile.findUnique({
-    where: { userId },
-    select: { genreIds: true, movieIds: true },
-  })
+  const [profile, seenTvLogs] = await Promise.all([
+    prisma.tasteProfile.findUnique({
+      where: { userId },
+      select: { genreIds: true, movieIds: true },
+    }),
+    prisma.watchLog.findMany({
+      where: { userId, mediaType: 'tv' },
+      select: { tmdbId: true },
+    }),
+  ])
 
   const tasteProfile: TasteProfile = profile ?? { genreIds: [], movieIds: [] }
+  const seenTvSet = new Set(seenTvLogs.map((r) => r.tmdbId))
 
   const [genreItems, tvItems, { items: peopleItems, personNames }] = await Promise.all([
     getGenreItems(tasteProfile),
-    getTVItems(tasteProfile),
+    getTVItems(tasteProfile, seenTvSet),
     getPeopleItems(userId),
   ])
 

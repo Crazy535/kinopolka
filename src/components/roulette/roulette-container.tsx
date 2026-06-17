@@ -60,7 +60,7 @@ export function RouletteContainer({ isAuthenticated = false, userGenreIds = [] }
     <div className="flex flex-col items-center">
       <AnimatePresence mode="wait">
         {result ? (
-          <motion.div key="result" {...SLIDE}>
+          <motion.div key="result" {...SLIDE} className="w-full max-w-md">
             <RouletteResult
               result={result}
               ttwDuration={ttwDuration}

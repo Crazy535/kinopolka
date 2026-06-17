@@ -77,15 +77,15 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
         </p>
       )}
 
-      {/* Mobile — vertical card with gradient overlay */}
-      <div className="relative w-full max-w-[280px] overflow-hidden rounded-lg bg-muted shadow-2xl sm:max-w-xs lg:hidden">
+      {/* Mobile — poster + info below */}
+      <div className="w-full overflow-hidden rounded-lg bg-card shadow-2xl lg:hidden">
         <div className="relative aspect-[2/3] w-full">
           {posterUrl ? (
             <Image
               src={posterUrl}
               alt={title}
               fill
-              sizes="(max-width: 640px) 80vw, 320px"
+              sizes="(max-width: 640px) 100vw, 448px"
               className="object-cover"
               priority
             />
@@ -94,14 +94,14 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
               Нет постера
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           {movie.vote_count > 0 && (
             <div className={`absolute right-3 top-3 rounded-md bg-black/50 px-2 py-1 text-xs font-bold backdrop-blur-sm ${ratingClass}`}>
               ★&nbsp;{movie.vote_average.toFixed(1)}
             </div>
           )}
           {typeof matchScore === 'number' && matchScore >= 60 && (
-            <div className="absolute left-3 top-3 pointer-events-none">
+            <div className="pointer-events-none absolute left-3 top-3">
               <span className={`inline-flex items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none backdrop-blur-sm shadow-sm ${
                 matchScore >= 80 ? 'bg-emerald-500/85 text-white' : 'bg-amber-500/85 text-white'
               }`}>
@@ -110,13 +110,13 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
             </div>
           )}
         </div>
-        <div className="absolute bottom-0 inset-x-0 p-4">
-          <h2 className="text-base font-bold leading-tight text-white">{title}</h2>
-          <p className="mt-0.5 text-xs text-white/60">{year}</p>
+        <div className="flex flex-col gap-2 p-4">
+          <h2 className="text-base font-bold leading-tight">{title}</h2>
+          <p className="text-xs text-muted-foreground">{year}</p>
           {movie.overview && (
-            <p className="mt-2 text-xs leading-relaxed text-white/55 line-clamp-3">{movie.overview}</p>
+            <p className="text-xs leading-relaxed text-foreground/70 line-clamp-4">{movie.overview}</p>
           )}
-          <div className="mt-3">
+          <div className="mt-1">
             {topProviders.length > 0 ? (
               <a
                 href={providers!.link}
@@ -142,13 +142,13 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
                 href={fallbackLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-white/50 transition-colors hover:text-white/80"
+                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
                 Найти онлайн&nbsp;→
               </a>
             )}
           </div>
-          <Link href={detailHref} className="mt-3 block text-xs text-white/45 transition-colors hover:text-white/80">
+          <Link href={detailHref} className="text-xs text-muted-foreground transition-colors hover:text-foreground">
             {isMovie ? 'Подробнее о фильме' : 'Подробнее о сериале'}&nbsp;→
           </Link>
         </div>
@@ -240,11 +240,11 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col items-center gap-3 sm:flex-row">
+      <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <button
           type="button"
           onClick={onRespin}
-          className="flex items-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-bold text-gold-foreground transition-all duration-200 hover:opacity-90 hover:shadow-[0_4px_16px_oklch(0.80_0.13_80_/_0.30)]"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-bold text-gold-foreground transition-all duration-200 hover:opacity-90 hover:shadow-[0_4px_16px_oklch(0.80_0.13_80_/_0.30)] sm:w-auto"
         >
           <RefreshCw className="size-4" />
           Перекрутить

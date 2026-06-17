@@ -59,6 +59,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
       vote_count: movie.vote_count,
       release_date: 'release_date' in movie ? movie.release_date : undefined,
       first_air_date: 'first_air_date' in movie ? movie.first_air_date : undefined,
+      genre_ids: movie.genre_ids ?? [],
     }))
 
     try {

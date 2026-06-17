@@ -14,7 +14,6 @@ async function tmdbGet<T>(
   revalidate = 60
 ): Promise<T> {
   const url = new URL(`${TMDB_BASE}${path}`)
-  url.searchParams.set('language', 'ru-RU')
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
 
   const res = await fetch(url.toString(), {
@@ -25,10 +24,139 @@ async function tmdbGet<T>(
   return res.json() as Promise<T>
 }
 
+function hasNonLatinCyrillic(str: string): boolean {
+  return /[^ -ɏЀ-ӿ\s]/u.test(str)
+}
+
+interface TMDBMovieResult {
+  id: number
+  title: string
+  poster_path: string | null
+  release_date?: string
+  genre_ids?: number[]
+  popularity: number
+}
+
+interface TMDBTVResult {
+  id: number
+  name: string
+  poster_path: string | null
+  first_air_date?: string
+  genre_ids?: number[]
+  popularity: number
+}
+
+interface TMDBMovieSearchResponse {
+  results: TMDBMovieResult[]
+  total_pages: number
+  total_results: number
+  page: number
+}
+
+interface TMDBTVSearchResponse {
+  results: TMDBTVResult[]
+  total_pages: number
+  total_results: number
+  page: number
+}
+
 interface TMDBPaginatedResult {
   results: unknown[]
   total_pages: number
   page: number
+}
+
+// Fetches /search/movie and /search/tv in parallel for ru-RU and en-US,
+// applies English title fallback for non-Latin/Cyrillic titles, and
+// returns merged results sorted by popularity descending.
+async function searchBothTypes(
+  query: string,
+  page: string,
+  filterType: 'movie' | 'tv' | null
+): Promise<{
+  movies: Array<{ id: number; media_type: 'movie'; title: string; poster_path: string | null; year: string; genre_ids: number[]; popularity: number }>
+  tv: Array<{ id: number; media_type: 'tv'; title: string; poster_path: string | null; year: string; genre_ids: number[]; popularity: number }>
+  movieTotalPages: number
+  tvTotalPages: number
+}> {
+  const commonParams = { query, include_adult: 'false', page }
+
+  const fetches: Promise<TMDBMovieSearchResponse | TMDBTVSearchResponse | null>[] = []
+
+  const wantMovies = filterType === null || filterType === 'movie'
+  const wantTV = filterType === null || filterType === 'tv'
+
+  if (wantMovies) {
+    fetches.push(tmdbGet<TMDBMovieSearchResponse>('/search/movie', { ...commonParams, language: 'ru-RU' }))
+    fetches.push(tmdbGet<TMDBMovieSearchResponse>('/search/movie', { ...commonParams, language: 'en-US' }))
+  } else {
+    fetches.push(Promise.resolve(null))
+    fetches.push(Promise.resolve(null))
+  }
+
+  if (wantTV) {
+    fetches.push(tmdbGet<TMDBTVSearchResponse>('/search/tv', { ...commonParams, language: 'ru-RU' }))
+    fetches.push(tmdbGet<TMDBTVSearchResponse>('/search/tv', { ...commonParams, language: 'en-US' }))
+  } else {
+    fetches.push(Promise.resolve(null))
+    fetches.push(Promise.resolve(null))
+  }
+
+  const [moviesRu, moviesEn, tvRu, tvEn] = await Promise.all(fetches) as [
+    TMDBMovieSearchResponse | null,
+    TMDBMovieSearchResponse | null,
+    TMDBTVSearchResponse | null,
+    TMDBTVSearchResponse | null,
+  ]
+
+  const enMovieMap = new Map<number, string>()
+  if (moviesEn) {
+    for (const m of moviesEn.results) enMovieMap.set(m.id, m.title)
+  }
+
+  const enTVMap = new Map<number, string>()
+  if (tvEn) {
+    for (const s of tvEn.results) enTVMap.set(s.id, s.name)
+  }
+
+  const movies = (moviesRu?.results ?? []).map((m) => {
+    const ruTitle = m.title
+    const title = hasNonLatinCyrillic(ruTitle)
+      ? (enMovieMap.get(m.id) ?? ruTitle)
+      : ruTitle
+    return {
+      id: m.id,
+      media_type: 'movie' as const,
+      title,
+      poster_path: m.poster_path,
+      year: (m.release_date ?? '').slice(0, 4),
+      genre_ids: m.genre_ids ?? [],
+      popularity: m.popularity,
+    }
+  })
+
+  const tvShows = (tvRu?.results ?? []).map((s) => {
+    const ruTitle = s.name
+    const title = hasNonLatinCyrillic(ruTitle)
+      ? (enTVMap.get(s.id) ?? ruTitle)
+      : ruTitle
+    return {
+      id: s.id,
+      media_type: 'tv' as const,
+      title,
+      poster_path: s.poster_path,
+      year: (s.first_air_date ?? '').slice(0, 4),
+      genre_ids: s.genre_ids ?? [],
+      popularity: s.popularity,
+    }
+  })
+
+  return {
+    movies,
+    tv: tvShows,
+    movieTotalPages: moviesRu ? Math.min(moviesRu.total_pages, 20) : 1,
+    tvTotalPages: tvRu ? Math.min(tvRu.total_pages, 20) : 1,
+  }
 }
 
 // Dropdown search (search-bar.tsx): GET /api/search?q=...
@@ -49,33 +177,28 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Dropdown mode: fast multi-search, no filters, configurable limit (default 8, max 20)
+    // Dropdown mode: parallel movie+tv search, title fallback, sort by popularity
     if (!full) {
       if (!q || q.length < 2) return NextResponse.json({ results: [] })
 
       const limit = Math.min(parseInt(sp.get('limit') ?? '8', 10), 20)
+      const filterType = type === 'movie' ? 'movie' : type === 'tv' ? 'tv' : null
 
-      const data = await tmdbGet<{
-        results: Array<{
-          id: number; media_type: string; title?: string; name?: string
-          poster_path: string | null; release_date?: string; first_air_date?: string
-          genre_ids?: number[]
-        }>
-      }>('/search/multi', { query: q, include_adult: 'false', page: '1' })
+      const { movies, tv } = await searchBothTypes(q, '1', filterType)
 
-      const results = data.results
-        .filter((r) => r.media_type === 'movie' || r.media_type === 'tv')
+      const merged = [...movies, ...tv]
+        .sort((a, b) => b.popularity - a.popularity)
         .slice(0, limit)
-        .map((r) => ({
-          id: r.id,
-          media_type: r.media_type as 'movie' | 'tv',
-          title: r.title ?? r.name ?? '',
-          poster_path: r.poster_path,
-          year: (r.release_date ?? r.first_air_date ?? '').slice(0, 4),
-          genre_ids: r.genre_ids ?? [],
+        .map(({ id, media_type, title, poster_path, year: y, genre_ids }) => ({
+          id,
+          media_type,
+          title,
+          poster_path,
+          year: y,
+          genre_ids,
         }))
 
-      return NextResponse.json({ results })
+      return NextResponse.json({ results: merged })
     }
 
     // Full search page mode
@@ -83,27 +206,25 @@ export async function GET(req: NextRequest) {
     let total_pages = 1
 
     if (q.length >= 2) {
-      // Text search via /search/multi, then filter by type
       const filterType = type === 'movie' ? 'movie' : type === 'tv' ? 'tv' : null
 
-      const data = await tmdbGet<TMDBPaginatedResult>('/search/multi', {
-        query: q,
-        include_adult: 'false',
-        page,
-      })
-      total_pages = Math.min(data.total_pages, 20)
+      const { movies, tv, movieTotalPages, tvTotalPages } = await searchBothTypes(q, page, filterType)
 
-      const mediaResults = (data.results as Array<{ media_type: string; poster_path: string | null }>)
-        .filter((r) => {
-          if (filterType) return r.media_type === filterType
-          return r.media_type === 'movie' || r.media_type === 'tv'
-        })
-
-      items = mediaResults
+      if (filterType === 'movie') {
+        items = movies
+        total_pages = movieTotalPages
+      } else if (filterType === 'tv') {
+        items = tv
+        total_pages = tvTotalPages
+      } else {
+        items = [...movies, ...tv].sort((a, b) => b.popularity - a.popularity)
+        total_pages = Math.max(movieTotalPages, tvTotalPages)
+      }
 
     } else if (genre || year) {
       // Discover mode: no text query but has filters
       const discoverParams: Record<string, string> = {
+        language: 'ru-RU',
         sort_by: 'popularity.desc',
         include_adult: 'false',
         page,
@@ -127,7 +248,6 @@ export async function GET(req: NextRequest) {
       total_pages = Math.min(data.total_pages, 20)
       items = (data.results as Array<{ poster_path: string | null }>)
         .map((r) => ({ ...r, media_type: mt }))
-
     }
 
     return NextResponse.json({

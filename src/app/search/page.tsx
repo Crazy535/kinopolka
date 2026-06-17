@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
-import { searchMulti, discoverMovies, discoverTVShows } from '@/lib/tmdb'
+import { searchMovies, searchTV, discoverMovies, discoverTVShows, hasNonLatinCyrillic } from '@/lib/tmdb'
 import { calcMatchScore } from '@/lib/match-score'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
@@ -38,20 +38,61 @@ async function fetchResults(
   page: number
 ): Promise<SearchResultsData> {
   if (query.length >= 2) {
-    const data = await searchMulti(query, page)
     const filterType = type === 'movie' ? 'movie' : type === 'tv' ? 'tv' : null
+    const wantMovies = filterType === null || filterType === 'movie'
+    const wantTV = filterType === null || filterType === 'tv'
 
-    const items = (data.results as Array<AnyItem & { media_type: string }>)
-      .filter((r) => {
-        if (filterType) return r.media_type === filterType
-        return r.media_type === 'movie' || r.media_type === 'tv'
-      })
+    const [moviesRu, moviesEn, tvRu, tvEn] = await Promise.all([
+      wantMovies ? searchMovies(query, page, 'ru-RU') : null,
+      wantMovies ? searchMovies(query, page, 'en-US') : null,
+      wantTV ? searchTV(query, page, 'ru-RU') : null,
+      wantTV ? searchTV(query, page, 'en-US') : null,
+    ])
 
-    return {
-      items,
-      totalPages: Math.min(data.total_pages, 20),
-      currentPage: page,
+    const enMovieMap = new Map<number, string>()
+    if (moviesEn) {
+      for (const m of moviesEn.results) enMovieMap.set(m.id, m.title)
     }
+    const enTVMap = new Map<number, string>()
+    if (tvEn) {
+      for (const s of tvEn.results) enTVMap.set(s.id, s.name)
+    }
+
+    const movieItems: AnyItem[] = (moviesRu?.results ?? []).map((m) => {
+      const ruTitle = m.title
+      return {
+        ...m,
+        title: hasNonLatinCyrillic(ruTitle) ? (enMovieMap.get(m.id) ?? ruTitle) : ruTitle,
+        media_type: 'movie' as const,
+      }
+    })
+
+    const tvItems: AnyItem[] = (tvRu?.results ?? []).map((s) => {
+      const ruTitle = s.name
+      return {
+        ...s,
+        name: hasNonLatinCyrillic(ruTitle) ? (enTVMap.get(s.id) ?? ruTitle) : ruTitle,
+        media_type: 'tv' as const,
+      }
+    })
+
+    let items: AnyItem[]
+    let totalPages: number
+    if (filterType === 'movie') {
+      items = movieItems
+      totalPages = Math.min(moviesRu?.total_pages ?? 1, 20)
+    } else if (filterType === 'tv') {
+      items = tvItems
+      totalPages = Math.min(tvRu?.total_pages ?? 1, 20)
+    } else {
+      items = [...movieItems, ...tvItems].sort((a, b) => b.popularity - a.popularity)
+      totalPages = Math.min(
+        Math.max(moviesRu?.total_pages ?? 1, tvRu?.total_pages ?? 1),
+        20
+      )
+    }
+
+    return { items, totalPages, currentPage: page }
   }
 
   if (genre || year) {

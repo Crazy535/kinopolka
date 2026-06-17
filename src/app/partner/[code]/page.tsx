@@ -15,7 +15,7 @@ export default async function PartnerRoomPage({
   const session = await auth()
 
   if (!session?.user?.id) {
-    redirect(`/api/auth/signin?callbackUrl=/partner/${code}`)
+    redirect(`/login?callbackUrl=${encodeURIComponent(`/partner/${code}`)}`)
   }
 
   const room = await prisma.partnerRoom.findUnique({

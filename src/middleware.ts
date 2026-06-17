@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PROTECTED = ['/profile', '/watchlist', '/partner']
+const PROTECTED = ['/profile', '/watchlist']
 
 // Optimistic check: verifies session cookie exists without hitting the DB.
 // Actual auth enforcement happens in Server Components via auth().

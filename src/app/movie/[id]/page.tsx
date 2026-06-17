@@ -12,6 +12,7 @@ import { StarRating } from '@/components/movie-detail/star-rating'
 import { RelatedSection } from '@/components/movie-detail/related-section'
 import { TrailerButton } from '@/components/movie-detail/trailer-button'
 import { OverviewSection } from '@/components/movie-detail/overview-section'
+import { AddToTasteButton } from '@/components/movie-detail/add-to-taste-button'
 
 export const revalidate = 86400
 
@@ -133,6 +134,9 @@ export default async function MoviePage({ params }: MoviePageProps) {
             />
             {trailer && <TrailerButton trailerKey={trailer.key} title={movie.title} />}
             <StarRating tmdbId={movieId} mediaType="movie" />
+            {session && movie.genres && movie.genres.length > 0 && (
+              <AddToTasteButton genreIds={movie.genres.map((g) => g.id)} />
+            )}
           </div>
 
           {(movie.overview || movie.tagline || movie.production_countries?.length) && (

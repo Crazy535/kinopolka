@@ -48,13 +48,26 @@ export function SearchBar() {
     const val = e.target.value
     setQuery(val)
     if (debounceRef.current) clearTimeout(debounceRef.current)
+    // Skip API search for #ID pattern — handled on Enter
+    if (/^#\d+$/.test(val.trim())) {
+      setResults([])
+      return
+    }
     debounceRef.current = setTimeout(() => void search(val), 300)
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && query.trim().length >= 2) {
-      e.preventDefault()
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    const trimmed = query.trim()
+    const tmdbIdMatch = trimmed.match(/^#(\d+)$/)
+    if (tmdbIdMatch) {
+      router.push(`/movie/${tmdbIdMatch[1]}`)
+      handleClose()
+      return
+    }
+    if (trimmed.length >= 2) {
+      router.push(`/search?q=${encodeURIComponent(trimmed)}`)
       handleClose()
     }
   }
@@ -116,7 +129,7 @@ export function SearchBar() {
               value={query}
               onChange={handleQueryChange}
               onKeyDown={handleKeyDown}
-              placeholder="Фильм или сериал..."
+              placeholder="Фильм, сериал или #ID..."
               className="h-10 w-56 rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none sm:w-80"
             />
           </div>

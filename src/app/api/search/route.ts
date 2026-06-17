@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
       }>('/search/multi', { query: q, include_adult: 'false', page: '1' })
 
       const results = data.results
-        .filter((r) => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path)
+        .filter((r) => r.media_type === 'movie' || r.media_type === 'tv')
         .slice(0, limit)
         .map((r) => ({
           id: r.id,
@@ -95,7 +95,6 @@ export async function GET(req: NextRequest) {
 
       const mediaResults = (data.results as Array<{ media_type: string; poster_path: string | null }>)
         .filter((r) => {
-          if (!r.poster_path) return false
           if (filterType) return r.media_type === filterType
           return r.media_type === 'movie' || r.media_type === 'tv'
         })
@@ -127,7 +126,6 @@ export async function GET(req: NextRequest) {
       const data = await tmdbGet<TMDBPaginatedResult>(endpoint, discoverParams)
       total_pages = Math.min(data.total_pages, 20)
       items = (data.results as Array<{ poster_path: string | null }>)
-        .filter((r) => r.poster_path)
         .map((r) => ({ ...r, media_type: mt }))
 
     }

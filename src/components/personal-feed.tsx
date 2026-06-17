@@ -1,7 +1,10 @@
+import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders } from '@/lib/tmdb'
 import { MovieCard } from '@/components/movie-card'
 import { PersonalFeedSearch } from '@/components/personal-feed-search'
+import { FeedCarousel } from '@/components/feed-carousel'
+import { AiRecommender } from '@/components/ai-recommender'
 import { calcMatchScore } from '@/lib/match-score'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import type { RecommendationItem } from '@/types/quiz'
@@ -162,16 +165,16 @@ async function getPeopleItems(userId: string): Promise<{ items: RecommendationIt
   return { items, personNames }
 }
 
-function FeedCarousel({ items, userGenreIds }: { items: RecommendationItem[]; userGenreIds: number[] }) {
+function SectionCarousel({ items, userGenreIds }: { items: RecommendationItem[]; userGenreIds: number[] }) {
   return (
-    <div className="flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-2">
+    <FeedCarousel>
       {items.map((item) => {
         const matchScore =
           userGenreIds.length > 0
             ? (calcMatchScore(item.movie.genre_ids, userGenreIds) ?? undefined)
             : undefined
         return (
-          <div key={item.movie.id} className="flex-shrink-0 w-[140px] sm:w-[160px]">
+          <div key={item.movie.id} className="w-[140px] flex-shrink-0 sm:w-[160px]">
             <MovieCard
               movie={item.movie}
               providers={item.providers}
@@ -180,7 +183,7 @@ function FeedCarousel({ items, userGenreIds }: { items: RecommendationItem[]; us
           </div>
         )
       })}
-    </div>
+    </FeedCarousel>
   )
 }
 
@@ -224,28 +227,55 @@ export async function PersonalFeed({ userId }: Props) {
       {/* People-based section */}
       {peopleItems.length > 0 && (
         <section>
-          <h2 className="mb-3 text-base font-semibold tracking-tight">
-            С {personNames.join(', ')}
-          </h2>
-          <FeedCarousel items={peopleItems} userGenreIds={userGenreIds} />
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold tracking-tight">
+              С {personNames.join(', ')}
+            </h2>
+            <Link
+              href="/feed?type=people"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Показать все →
+            </Link>
+          </div>
+          <SectionCarousel items={peopleItems} userGenreIds={userGenreIds} />
         </section>
       )}
 
       {/* Genre-based movies section */}
       {genreItems.length > 0 && (
         <section>
-          <h2 className="mb-3 text-base font-semibold tracking-tight">{genreTitle}</h2>
-          <FeedCarousel items={genreItems} userGenreIds={userGenreIds} />
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold tracking-tight">{genreTitle}</h2>
+            <Link
+              href="/feed?type=genre"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Показать все →
+            </Link>
+          </div>
+          <SectionCarousel items={genreItems} userGenreIds={userGenreIds} />
         </section>
       )}
 
       {/* TV section */}
       {tvItems.length > 0 && (
         <section>
-          <h2 className="mb-3 text-base font-semibold tracking-tight">{tvTitle}</h2>
-          <FeedCarousel items={tvItems} userGenreIds={userGenreIds} />
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold tracking-tight">{tvTitle}</h2>
+            <Link
+              href="/feed?type=tv"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Показать все →
+            </Link>
+          </div>
+          <SectionCarousel items={tvItems} userGenreIds={userGenreIds} />
         </section>
       )}
+
+      {/* AI section (KIN-37B) */}
+      <AiRecommender />
     </div>
   )
 }

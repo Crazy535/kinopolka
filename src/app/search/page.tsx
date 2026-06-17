@@ -43,7 +43,6 @@ async function fetchResults(
 
     const items = (data.results as Array<AnyItem & { media_type: string }>)
       .filter((r) => {
-        if (!r.poster_path) return false
         if (filterType) return r.media_type === filterType
         return r.media_type === 'movie' || r.media_type === 'tv'
       })
@@ -65,7 +64,7 @@ async function fetchResults(
         'vote_count.gte': 50,
       })
       return {
-        items: data.results.filter((r) => r.poster_path).map((r) => ({ ...r, media_type: 'tv' as const })),
+        items: data.results.map((r) => ({ ...r, media_type: 'tv' as const })),
         totalPages: Math.min(data.total_pages, 20),
         currentPage: page,
       }
@@ -78,7 +77,7 @@ async function fetchResults(
         'vote_count.gte': 100,
       })
       return {
-        items: data.results.filter((r) => r.poster_path).map((r) => ({ ...r, media_type: 'movie' as const })),
+        items: data.results.map((r) => ({ ...r, media_type: 'movie' as const })),
         totalPages: Math.min(data.total_pages, 20),
         currentPage: page,
       }

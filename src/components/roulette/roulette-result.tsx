@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { RefreshCw } from 'lucide-react'
 import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
 import { calcMatchScore } from '@/lib/match-score'
+import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
+import { AiExplanation } from '@/components/ai-explanation'
 import type { RecommendationItem } from '@/types/quiz'
 import type { WatchProvider, WatchProvidersByType } from '@/types/tmdb'
 
@@ -62,6 +64,9 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
     `https://www.google.com/search?q=${encodeURIComponent(`${title} смотреть онлайн`)}`
   const isMovie = 'title' in movie
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
+  const genreNames = (movie.genre_ids ?? [])
+    .map((id) => MOVIE_GENRES[id] ?? TV_GENRES[id])
+    .filter(Boolean) as string[]
 
   return (
     <div className="flex w-full flex-col items-center gap-5">
@@ -191,6 +196,9 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
             {movie.overview && (
               <p className="mt-2 text-sm leading-relaxed text-foreground/75 line-clamp-5">{movie.overview}</p>
             )}
+            <div className="mt-3">
+              <AiExplanation title={title} year={year !== '—' ? year : undefined} genres={genreNames} />
+            </div>
           </div>
 
           <div className="flex flex-col gap-3 pt-4">

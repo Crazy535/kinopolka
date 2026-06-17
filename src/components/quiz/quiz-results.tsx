@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, Link2, MoreHorizontal, RefreshCw, RotateCcw, Send } from 'lucide-react'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
+import { AiExplanation } from '@/components/ai-explanation'
 import { useQuizStore } from '@/stores/quiz-store'
 import { calcMatchScore } from '@/lib/match-score'
+import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import type { RecommendationItem } from '@/types/quiz'
 import { trackQuizCompleted } from '@/lib/analytics'
 
@@ -233,14 +235,23 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
           const matchScore = userGenreIds.length > 0
             ? (calcMatchScore(movie.genre_ids, userGenreIds) ?? undefined)
             : undefined
+          const title = 'title' in movie ? movie.title : movie.name
+          const year = ('release_date' in movie ? movie.release_date : movie.first_air_date)?.slice(0, 4)
+          const genreNames = (movie.genre_ids ?? [])
+            .map((id) => MOVIE_GENRES[id] ?? TV_GENRES[id])
+            .filter(Boolean) as string[]
           return (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-              providers={providers}
-              priority={i === 0}
-              matchScore={matchScore}
-            />
+            <div key={movie.id} className="flex flex-col gap-2">
+              <MovieCard
+                movie={movie}
+                providers={providers}
+                priority={i === 0}
+                matchScore={matchScore}
+              />
+              {userType === 'auth' && (
+                <AiExplanation title={title} year={year} genres={genreNames} />
+              )}
+            </div>
           )
         })}
       </div>

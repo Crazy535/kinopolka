@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Sparkles, SendHorizonal, RefreshCw } from 'lucide-react'
+import { Sparkles, SendHorizonal, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
@@ -21,8 +21,26 @@ export function AiRecommender() {
   const [results, setResults] = useState<AiRecommendResult[] | null>(null)
   const [lastQuery, setLastQuery] = useState('')
   const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  async function callApi(q: string, excludeIds: number[] = []): Promise<AiRecommendResult[]> {
+    const res = await fetch('/api/ai-recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: q, exclude_ids: excludeIds }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      if (res.status === 503) throw new Error('ИИ-сервис сейчас недоступен')
+      if (res.status === 401) throw new Error('Необходима авторизация')
+      if (res.status === 502) throw new Error('Сервис временно не отвечает, попробуйте позже')
+      throw new Error('Что-то пошло не так, попробуйте другой запрос')
+    }
+    return data.results as AiRecommendResult[]
+  }
 
   async function submit(q: string) {
     const trimmed = q.trim()
@@ -31,26 +49,34 @@ export function AiRecommender() {
     setError(null)
     setResults(null)
     setLastQuery(trimmed)
-
     try {
-      const res = await fetch('/api/ai-recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: trimmed }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        if (res.status === 503) throw new Error('ИИ-сервис сейчас недоступен')
-        if (res.status === 401) throw new Error('Необходима авторизация')
-        if (res.status === 502) throw new Error('Сервис временно не отвечает, попробуйте позже')
-        throw new Error('Что-то пошло не так, попробуйте другой запрос')
-      }
-      setResults(data.results)
+      setResults(await callApi(trimmed))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Что-то пошло не так')
     } finally {
       setLoading(false)
     }
+  }
+
+  async function loadMore() {
+    if (!lastQuery || loadingMore || !results) return
+    setLoadingMore(true)
+    try {
+      const existingIds = results.map((r) => r.movie.id)
+      const more = await callApi(lastQuery, existingIds)
+      setResults((prev) => [...(prev ?? []), ...more])
+      setTimeout(() => {
+        scrollRef.current?.scrollBy({ left: 999, behavior: 'smooth' })
+      }, 100)
+    } catch {
+      // silently ignore load-more errors
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  function scrollCarousel(dir: 'left' | 'right') {
+    scrollRef.current?.scrollBy({ left: dir === 'right' ? 320 : -320, behavior: 'smooth' })
   }
 
   function handleChip(chip: string) {
@@ -136,14 +162,16 @@ export function AiRecommender() {
 
       {/* Loading skeleton */}
       {loading && (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        <div className="flex gap-3 overflow-hidden pb-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <MovieCardSkeleton key={i} />
+            <div key={i} className="w-[140px] flex-shrink-0 sm:w-[160px]">
+              <MovieCardSkeleton />
+            </div>
           ))}
         </div>
       )}
 
-      {/* Results */}
+      {/* Results carousel */}
       <AnimatePresence>
         {results && results.length > 0 && (
           <motion.div
@@ -164,15 +192,57 @@ export function AiRecommender() {
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-              {results.map(({ movie, reason, matchScore }) => (
-                <div key={movie.id} className="flex flex-col gap-1.5">
-                  <MovieCard movie={movie} providers={null} matchScore={matchScore ?? undefined} />
-                  <p className="text-[11px] leading-snug text-muted-foreground line-clamp-2 px-0.5">
-                    {reason}
-                  </p>
+            {/* Carousel */}
+            <div className="group relative">
+              <div
+                ref={scrollRef}
+                className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {results.map(({ movie, reason, matchScore }) => (
+                  <div key={movie.id} className="w-[140px] flex-shrink-0 sm:w-[160px]">
+                    <div className="flex flex-col gap-1.5">
+                      <MovieCard movie={movie} providers={null} matchScore={matchScore ?? undefined} />
+                      {reason && (
+                        <p className="line-clamp-2 px-0.5 text-[11px] leading-snug text-muted-foreground">
+                          {reason}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* «Ещё 6» sentinel card */}
+                <div className="flex w-[120px] flex-shrink-0 items-center justify-center sm:w-[140px]">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="flex flex-col items-center gap-2 rounded-xl border border-border px-4 py-6 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-50"
+                  >
+                    {loadingMore ? (
+                      <RefreshCw className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5" />
+                    )}
+                    <span className="text-xs font-medium">Ещё 6</span>
+                  </button>
                 </div>
-              ))}
+              </div>
+
+              {/* Nav arrows */}
+              <button
+                onClick={() => scrollCarousel('left')}
+                aria-label="Назад"
+                className="absolute -left-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => scrollCarousel('right')}
+                aria-label="Вперёд"
+                className="absolute -right-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           </motion.div>
         )}

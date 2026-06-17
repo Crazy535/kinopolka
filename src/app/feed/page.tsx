@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
-import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders } from '@/lib/tmdb'
+import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders, getPersonCombinedCredits, getTrendingMovies } from '@/lib/tmdb'
 import { MovieCard } from '@/components/movie-card'
 import { calcMatchScore } from '@/lib/match-score'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
@@ -132,42 +132,81 @@ async function getTVFeed(
 
 async function getPeopleFeed(userId: string): Promise<FeedResult> {
   const people = await prisma.favoritePerson.findMany({ where: { userId } })
-  if (people.length === 0) return { items: [], title: 'С любимыми актёрами' }
 
-  const actors = people.filter((p) => p.role === 'actor').map((p) => p.tmdbId)
-  const directors = people.filter((p) => p.role === 'director').map((p) => p.tmdbId)
-
-  const movieParams: Parameters<typeof discoverMovies>[0] = {
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 20,
-    'vote_average.gte': 5.5,
-  }
-  const tvParams: Parameters<typeof discoverTVShows>[0] = {
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 10,
-    'vote_average.gte': 5.5,
-  }
-  if (actors.length > 0) {
-    movieParams.with_cast = actors.slice(0, 4).join('|')
-    tvParams.with_cast = actors.slice(0, 4).join('|')
-  }
-  if (directors.length > 0) {
-    movieParams.with_crew = directors.slice(0, 2).join('|')
-    tvParams.with_crew = directors.slice(0, 2).join('|')
+  if (people.length === 0) {
+    const trending = await getTrendingMovies('week')
+    const top = trending.results.slice(0, 40)
+    const providerResults = await Promise.all(
+      top.map((m) => getMovieWatchProviders(m.id).catch(() => null))
+    )
+    const items: RecommendationItem[] = top.map((movie, i) => ({
+      movie,
+      providers: providerResults[i]?.results?.['RU'] ?? null,
+    }))
+    return { items, title: 'Популярные фильмы' }
   }
 
-  const [movieData, tvData] = await Promise.all([
-    discoverMovies(movieParams),
-    discoverTVShows(tvParams),
-  ])
+  const creditsPerPerson = await Promise.all(
+    people.map((p) => getPersonCombinedCredits(p.tmdbId).catch(() => null))
+  )
 
-  const movieCandidates = movieData.results.slice(0, 15)
-  const tvCandidates = tvData.results.slice(0, 15)
+  const seenIds = new Set<string>()
+  const movies: TMDBMovie[] = []
+  const tvShows: TMDBTVShow[] = []
+
+  for (const credits of creditsPerPerson) {
+    if (!credits) continue
+    for (const credit of credits.cast) {
+      const key = `${credit.media_type}-${credit.id}`
+      if (seenIds.has(key) || credit.vote_count < 20 || credit.vote_average < 5.5) continue
+      seenIds.add(key)
+      if (credit.media_type === 'movie') {
+        movies.push({
+          id: credit.id,
+          title: credit.title ?? '',
+          original_title: credit.title ?? '',
+          overview: '',
+          poster_path: credit.poster_path,
+          backdrop_path: null,
+          release_date: credit.release_date ?? '',
+          vote_average: credit.vote_average,
+          vote_count: credit.vote_count,
+          popularity: credit.popularity,
+          genre_ids: [],
+          original_language: '',
+          adult: false,
+          video: false,
+        })
+      } else {
+        tvShows.push({
+          id: credit.id,
+          name: credit.name ?? '',
+          original_name: credit.name ?? '',
+          overview: '',
+          poster_path: credit.poster_path,
+          backdrop_path: null,
+          first_air_date: credit.first_air_date ?? '',
+          vote_average: credit.vote_average,
+          vote_count: credit.vote_count,
+          popularity: credit.popularity,
+          genre_ids: [],
+          original_language: '',
+          origin_country: [],
+        })
+      }
+    }
+  }
+
+  movies.sort((a, b) => b.popularity - a.popularity)
+  tvShows.sort((a, b) => b.popularity - a.popularity)
+
   const combined: (TMDBMovie | TMDBTVShow)[] = []
-  const maxLen = Math.max(movieCandidates.length, tvCandidates.length)
-  for (let i = 0; i < maxLen; i++) {
-    if (i < movieCandidates.length) combined.push(movieCandidates[i])
-    if (i < tvCandidates.length) combined.push(tvCandidates[i])
+  const movieTop = movies.slice(0, 20)
+  const tvTop = tvShows.slice(0, 20)
+  const maxLen = Math.max(movieTop.length, tvTop.length)
+  for (let i = 0; i < maxLen && combined.length < 40; i++) {
+    if (i < movieTop.length) combined.push(movieTop[i])
+    if (i < tvTop.length && combined.length < 40) combined.push(tvTop[i])
   }
 
   const providerResults = await Promise.all(

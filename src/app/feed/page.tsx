@@ -23,13 +23,14 @@ interface FeedResult {
   title: string
 }
 
+const DEFAULT_MOVIE_GENRE_IDS = [28, 35, 18]
+
 async function getGenreFeed(
   genreIds: number[],
   movieIds: number[]
 ): Promise<FeedResult> {
-  if (genreIds.length === 0) return { items: [], title: 'Для вас' }
-
-  const topGenreIds = genreIds.slice(0, 5)
+  const usingDefaults = genreIds.length === 0
+  const topGenreIds = usingDefaults ? DEFAULT_MOVIE_GENRE_IDS : genreIds.slice(0, 5)
   const topGenres = topGenreIds.join(',')
   const topGenreName = MOVIE_GENRES[topGenreIds[0]]?.toLowerCase() ?? 'любимые жанры'
 
@@ -72,16 +73,20 @@ async function getGenreFeed(
     providers: providerResults[i]?.results?.['RU'] ?? null,
   }))
 
-  return { items, title: `Потому что ты любишь ${topGenreName}` }
+  const title = usingDefaults
+    ? 'Популярные фильмы'
+    : `Потому что ты любишь ${topGenreName}`
+  return { items, title }
 }
+
+const DEFAULT_TV_GENRE_IDS = [10759, 35, 18]
 
 async function getTVFeed(
   genreIds: number[],
   seenTvIds: Set<number>
 ): Promise<FeedResult> {
-  if (genreIds.length === 0) return { items: [], title: 'Сериалы для вас' }
-
-  const topGenreIds = genreIds.slice(0, 5)
+  const usingDefaults = genreIds.length === 0
+  const topGenreIds = usingDefaults ? DEFAULT_TV_GENRE_IDS : genreIds.slice(0, 5)
   const topGenres = topGenreIds.join(',')
   const topGenreName =
     (TV_GENRES[topGenreIds[0]] ?? MOVIE_GENRES[topGenreIds[0]])?.toLowerCase() ?? 'любимые жанры'
@@ -121,7 +126,8 @@ async function getTVFeed(
     providers: providerResults[i]?.results?.['RU'] ?? null,
   }))
 
-  return { items, title: `Сериалы: ${topGenreName}` }
+  const title = usingDefaults ? 'Популярные сериалы' : `Сериалы: ${topGenreName}`
+  return { items, title }
 }
 
 async function getPeopleFeed(userId: string): Promise<FeedResult> {

@@ -106,7 +106,7 @@ export function SearchBar() {
     }
   }, [])
 
-  const showDropdown = isOpen && query.length >= 2
+  const showDropdown = isOpen && query.length >= 2 && !/^#\d+$/.test(query.trim())
 
   return (
     <div ref={containerRef} className="relative">

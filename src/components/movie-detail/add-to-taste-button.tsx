@@ -17,13 +17,8 @@ export function AddToTasteButton({ genreIds }: Props) {
     if (state !== 'idle' || genreIds.length === 0) return
     setState('loading')
     try {
-      const { added } = await addGenresToTaste(genreIds)
-      if (added > 0) {
-        setState('done')
-      } else {
-        // already in taste — still show as done
-        setState('done')
-      }
+      await addGenresToTaste(genreIds)
+      setState('done')
     } catch {
       setState('idle')
     }

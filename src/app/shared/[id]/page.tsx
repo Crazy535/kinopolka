@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { MovieCard } from '@/components/movie-card'
+import { AiExplanation } from '@/components/ai-explanation'
 import { calcMatchScore } from '@/lib/match-score'
+import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
 export const dynamic = 'force-dynamic'
@@ -109,14 +111,23 @@ export default async function SharedPage({ params }: SharedPageProps) {
               userGenreIds.length > 0
                 ? (calcMatchScore(movieLike.genre_ids ?? [], userGenreIds) ?? undefined)
                 : undefined
+            const title = shared.mediaType === 'tv' ? (m.name ?? m.title ?? '') : (m.title ?? m.name ?? '')
+            const year = (shared.mediaType === 'tv' ? m.first_air_date : m.release_date)?.slice(0, 4)
+            const genreNames = (m.genre_ids ?? [])
+              .map((id) => MOVIE_GENRES[id] ?? TV_GENRES[id])
+              .filter(Boolean) as string[]
             return (
-              <MovieCard
-                key={m.id}
-                movie={movieLike}
-                providers={null}
-                priority={i === 0}
-                matchScore={matchScore}
-              />
+              <div key={m.id} className="flex flex-col gap-2">
+                <MovieCard
+                  movie={movieLike}
+                  providers={null}
+                  priority={i === 0}
+                  matchScore={matchScore}
+                />
+                {session && (
+                  <AiExplanation title={title} year={year} genres={genreNames} overview={m.overview?.slice(0, 100)} />
+                )}
+              </div>
             )
           })}
         </div>

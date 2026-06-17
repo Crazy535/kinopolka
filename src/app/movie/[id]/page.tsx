@@ -13,6 +13,7 @@ import { RelatedSection } from '@/components/movie-detail/related-section'
 import { TrailerButton } from '@/components/movie-detail/trailer-button'
 import { OverviewSection } from '@/components/movie-detail/overview-section'
 import { AddToTasteButton } from '@/components/movie-detail/add-to-taste-button'
+import { AiExplanation } from '@/components/ai-explanation'
 
 export const revalidate = 86400
 
@@ -47,6 +48,8 @@ export default async function MoviePage({ params }: MoviePageProps) {
   const cast = movie.credits?.cast ?? []
   const crew = movie.credits?.crew ?? []
   const year = movie.release_date ? movie.release_date.slice(0, 4) : '—'
+  const director = crew.find((c) => c.job === 'Director')?.name
+  const topCast = cast.slice(0, 3).map((c) => c.name)
   const runtime = movie.runtime
     ? `${Math.floor(movie.runtime / 60)} ч ${movie.runtime % 60} мин`
     : null
@@ -144,6 +147,17 @@ export default async function MoviePage({ params }: MoviePageProps) {
               overview={movie.overview}
               tagline={movie.tagline}
               countries={movie.production_countries}
+            />
+          )}
+
+          {userType === 'auth' && (
+            <AiExplanation
+              title={movie.title}
+              year={year !== '—' ? year : undefined}
+              genres={movie.genres?.map((g) => g.name) ?? []}
+              director={director}
+              cast={topCast}
+              overview={movie.overview?.slice(0, 100)}
             />
           )}
 

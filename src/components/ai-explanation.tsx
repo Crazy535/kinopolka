@@ -7,9 +7,12 @@ interface Props {
   title: string
   year?: string
   genres?: string[]
+  director?: string
+  cast?: string[]
+  overview?: string
 }
 
-export function AiExplanation({ title, year, genres }: Props) {
+export function AiExplanation({ title, year, genres, director, cast, overview }: Props) {
   const [text, setText] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [fetched, setFetched] = useState(false)
@@ -21,7 +24,7 @@ export function AiExplanation({ title, year, genres }: Props) {
       const res = await fetch('/api/ai-explain', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, year, genres }),
+        body: JSON.stringify({ title, year, genres, director, cast, overview }),
       })
       if (!res.ok) return
       const data = (await res.json()) as { explanation: string }

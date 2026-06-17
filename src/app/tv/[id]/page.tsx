@@ -13,6 +13,7 @@ import { RelatedSection } from '@/components/movie-detail/related-section'
 import { TrailerButton } from '@/components/movie-detail/trailer-button'
 import { OverviewSection } from '@/components/movie-detail/overview-section'
 import { AddToTasteButton } from '@/components/movie-detail/add-to-taste-button'
+import { AiExplanation } from '@/components/ai-explanation'
 
 export const revalidate = 86400
 
@@ -47,8 +48,9 @@ export default async function TVPage({ params }: TVPageProps) {
   const cast = show.credits?.cast ?? []
   const crew = show.credits?.crew ?? []
   const year = show.first_air_date ? show.first_air_date.slice(0, 4) : '—'
-
   const creator = show.created_by?.[0] ?? null
+  const directorName = creator?.name ?? crew.find((c) => c.job === 'Director')?.name
+  const topCast = cast.slice(0, 3).map((c) => c.name)
 
   return (
     <div>
@@ -157,6 +159,17 @@ export default async function TVPage({ params }: TVPageProps) {
                   ? `${show.number_of_seasons} ${show.number_of_seasons === 1 ? 'сезон' : show.number_of_seasons < 5 ? 'сезона' : 'сезонов'}${show.number_of_episodes ? `, ${show.number_of_episodes} эп.` : ''}`
                   : undefined
               }
+            />
+          )}
+
+          {userType === 'auth' && (
+            <AiExplanation
+              title={show.name}
+              year={year !== '—' ? year : undefined}
+              genres={show.genres?.map((g) => g.name) ?? []}
+              director={directorName}
+              cast={topCast}
+              overview={show.overview?.slice(0, 100)}
             />
           )}
 

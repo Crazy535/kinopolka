@@ -6,6 +6,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { getPosterUrl } from '@/lib/tmdb-image'
 import { AchievementsSection } from '@/components/profile/achievements-section'
+import { AiRecommender } from '@/components/ai-recommender'
 import type { BadgeId } from '@/lib/achievements'
 
 export const dynamic = 'force-dynamic'
@@ -216,7 +217,7 @@ export default async function ProfilePage() {
       )}
 
       {/* Actions */}
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="mb-10 flex flex-col gap-2 sm:flex-row">
         <Link
           href="/watchlist"
           className="rounded-lg border border-border px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted"
@@ -230,6 +231,8 @@ export default async function ProfilePage() {
           Обновить вкусы
         </Link>
       </div>
+
+      <AiRecommender />
     </div>
   )
 }

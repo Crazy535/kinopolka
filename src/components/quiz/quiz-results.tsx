@@ -241,6 +241,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
           const genreNames = (movie.genre_ids ?? [])
             .map((id) => MOVIE_GENRES[id] ?? TV_GENRES[id])
             .filter(Boolean) as string[]
+          const overview = movie.overview ? movie.overview.slice(0, 100) : undefined
           return (
             <div key={movie.id} className="flex flex-col gap-2">
               <MovieCard
@@ -250,7 +251,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
                 matchScore={matchScore}
               />
               {userType === 'auth' && (
-                <AiExplanation title={title} year={year} genres={genreNames} />
+                <AiExplanation title={title} year={year} genres={genreNames} overview={overview} />
               )}
             </div>
           )

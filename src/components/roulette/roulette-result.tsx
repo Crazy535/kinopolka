@@ -148,6 +148,14 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
               </a>
             )}
           </div>
+          <div className="mt-1">
+            <AiExplanation
+              title={title}
+              year={year !== '—' ? year : undefined}
+              genres={genreNames}
+              overview={movie.overview?.slice(0, 100)}
+            />
+          </div>
           <Link href={detailHref} className="text-xs text-muted-foreground transition-colors hover:text-foreground">
             {isMovie ? 'Подробнее о фильме' : 'Подробнее о сериале'}&nbsp;→
           </Link>
@@ -197,7 +205,12 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
               <p className="mt-2 text-sm leading-relaxed text-foreground/75 line-clamp-5">{movie.overview}</p>
             )}
             <div className="mt-3">
-              <AiExplanation title={title} year={year !== '—' ? year : undefined} genres={genreNames} />
+              <AiExplanation
+                title={title}
+                year={year !== '—' ? year : undefined}
+                genres={genreNames}
+                overview={movie.overview?.slice(0, 100)}
+              />
             </div>
           </div>
 

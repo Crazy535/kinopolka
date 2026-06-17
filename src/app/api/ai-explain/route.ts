@@ -15,20 +15,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 })
   }
 
-  let body: { title: string; year?: string; genres?: string[] }
+  let body: { title: string; year?: string; genres?: string[]; director?: string; cast?: string[]; overview?: string }
   try {
     body = await req.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
 
-  const { title, year, genres = [] } = body
+  const { title, year, genres = [], director, cast = [], overview } = body
   if (!title) return NextResponse.json({ error: 'Missing title' }, { status: 400 })
 
-  const genreCtx = genres.length > 0 ? ` Жанры: ${genres.join(', ')}.` : ''
   const yearCtx = year ? ` (${year})` : ''
+  const directorCtx = director ? ` Режиссёр: ${director}.` : ''
+  const castCtx = cast.length > 0 ? ` В ролях: ${cast.slice(0, 3).join(', ')}.` : ''
+  const genreCtx = genres.length > 0 ? ` Жанры: ${genres.join(', ')}.` : ''
+  const overviewCtx = overview ? ` Контекст: ${overview.slice(0, 100)}.` : ''
 
-  const prompt = `Напиши 1-2 предложения на русском языке — почему фильм/сериал "${title}"${yearCtx} стоит посмотреть.${genreCtx} Будь конкретным, коротким, без спойлеров.`
+  const prompt = `Напиши одну цепляющую фразу на русском — что делает "${title}"${yearCtx} особенным. Не используй слова "стоит посмотреть", "обязательно к просмотру", "рекомендуем". Используй конкретную деталь.${directorCtx}${castCtx}${genreCtx}${overviewCtx} Без спойлеров. Только одна фраза.`
 
   try {
     const res = await fetch(GROQ_URL, {
@@ -40,8 +43,8 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 150,
+        temperature: 0.85,
+        max_tokens: 120,
       }),
     })
 

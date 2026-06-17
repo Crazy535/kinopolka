@@ -135,6 +135,26 @@ async function searchBothTypes(
     }
   })
 
+  // If ru-RU returned < 3 movies, supplement with unique en-US items
+  if (movies.length < 3 && moviesEn) {
+    const ruMovieIds = new Set(movies.map((m) => m.id))
+    for (const m of moviesEn.results) {
+      if (!ruMovieIds.has(m.id)) {
+        movies.push({
+          id: m.id,
+          media_type: 'movie' as const,
+          title: m.title,
+          poster_path: m.poster_path,
+          year: (m.release_date ?? '').slice(0, 4),
+          genre_ids: m.genre_ids ?? [],
+          popularity: m.popularity,
+        })
+        ruMovieIds.add(m.id)
+      }
+      if (movies.length >= 10) break
+    }
+  }
+
   const tvShows = (tvRu?.results ?? []).map((s) => {
     const ruTitle = s.name
     const title = hasNonLatinCyrillic(ruTitle)
@@ -150,6 +170,26 @@ async function searchBothTypes(
       popularity: s.popularity,
     }
   })
+
+  // If ru-RU returned < 3 TV results, supplement with unique en-US items
+  if (tvShows.length < 3 && tvEn) {
+    const ruTvIds = new Set(tvShows.map((s) => s.id))
+    for (const s of tvEn.results) {
+      if (!ruTvIds.has(s.id)) {
+        tvShows.push({
+          id: s.id,
+          media_type: 'tv' as const,
+          title: s.name,
+          poster_path: s.poster_path,
+          year: (s.first_air_date ?? '').slice(0, 4),
+          genre_ids: s.genre_ids ?? [],
+          popularity: s.popularity,
+        })
+        ruTvIds.add(s.id)
+      }
+      if (tvShows.length >= 10) break
+    }
+  }
 
   return {
     movies,
@@ -186,17 +226,19 @@ export async function GET(req: NextRequest) {
 
       const { movies, tv } = await searchBothTypes(q, '1', filterType)
 
-      const merged = [...movies, ...tv]
-        .sort((a, b) => b.popularity - a.popularity)
-        .slice(0, limit)
-        .map(({ id, media_type, title, poster_path, year: y, genre_ids }) => ({
+      // Guaranteed slots: up to 5 movies + up to 5 TV, each sorted by TMDB relevance
+      const slotMovies = filterType !== 'tv' ? movies.slice(0, 5) : []
+      const slotTV = filterType !== 'movie' ? tv.slice(0, 5) : []
+      const merged = [...slotMovies, ...slotTV].map(
+        ({ id, media_type, title, poster_path, year: y, genre_ids }) => ({
           id,
           media_type,
           title,
           poster_path,
           year: y,
           genre_ids,
-        }))
+        })
+      )
 
       return NextResponse.json({ results: merged })
     }

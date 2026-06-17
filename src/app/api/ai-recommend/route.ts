@@ -146,7 +146,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'AI service not configured' }, { status: 503 })
   }
 
-  let body: { query?: unknown }
+  let body: { query?: unknown; exclude_ids?: unknown }
   try {
     body = await req.json()
   } catch {
@@ -157,6 +157,12 @@ export async function POST(req: Request) {
   if (!query || query.length > 500) {
     return NextResponse.json({ error: 'Query is required' }, { status: 400 })
   }
+
+  const excludeIds: number[] = Array.isArray(body.exclude_ids)
+    ? (body.exclude_ids as unknown[])
+        .filter((id): id is number => typeof id === 'number' && Number.isFinite(id))
+        .slice(0, 50)
+    : []
 
   const [profile, favoritePersons] = await Promise.all([
     prisma.tasteProfile.findUnique({
@@ -177,7 +183,11 @@ export async function POST(req: Request) {
     ? await buildPersonFilmographyContext(query)
     : ''
 
-  const systemPrompt = `You are a movie and TV show recommender for a Russian streaming service called Kinopolka. ${genreContext} ${personContext} ${queryPersonContext}
+  const excludeCtx = excludeIds.length > 0
+    ? ` Do not suggest movies/shows with these TMDB IDs: ${excludeIds.join(', ')}.`
+    : ''
+
+  const systemPrompt = `You are a movie and TV show recommender for a Russian streaming service called Kinopolka. ${genreContext} ${personContext} ${queryPersonContext}${excludeCtx}
 Based on the user's request, suggest exactly 6 movies or TV shows.
 Respond ONLY with valid JSON in this exact format:
 {"movies":[{"title":"English Original Title","year":2023,"media_type":"movie","reason":"Причина на русском"},{"title":"English Original Title","year":2020,"media_type":"tv","reason":"Причина на русском"}]}
@@ -238,6 +248,8 @@ Rules:
     })
   )
 
-  const results = enriched.filter((r): r is AiRecommendResult => r !== null)
+  const results = enriched
+    .filter((r): r is AiRecommendResult => r !== null)
+    .filter((r) => !excludeIds.includes(r.movie.id))
   return NextResponse.json({ results })
 }

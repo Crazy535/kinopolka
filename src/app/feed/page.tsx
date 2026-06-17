@@ -5,6 +5,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders, getPersonCombinedCredits, getTrendingMovies } from '@/lib/tmdb'
 import { MovieCard } from '@/components/movie-card'
+import { AiRecommender } from '@/components/ai-recommender'
 import { calcMatchScore } from '@/lib/match-score'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import type { RecommendationItem } from '@/types/quiz'
@@ -286,6 +287,8 @@ export default async function FeedPage({ searchParams }: Props) {
         <h1 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{items.length} результатов</p>
       </div>
+
+      <AiRecommender />
 
       {/* Type tabs */}
       <div className="mb-6 flex gap-2 overflow-x-auto [scrollbar-width:none]">

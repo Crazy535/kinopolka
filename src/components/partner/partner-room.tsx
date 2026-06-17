@@ -20,9 +20,10 @@ interface Props {
   hasTasteProfile: boolean
   initialRoom: RoomState
   baseUrl: string
+  userGenreIds?: number[]
 }
 
-export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUrl }: Props) {
+export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUrl, userGenreIds = [] }: Props) {
   const [room, setRoom] = useState<RoomState>(initialRoom)
   const [joining, setJoining] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -130,6 +131,7 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
         items={room.items}
         hostName={room.host?.name ?? null}
         guestName={room.guest?.name ?? null}
+        userGenreIds={userGenreIds}
       />
     )
   }

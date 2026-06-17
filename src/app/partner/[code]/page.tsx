@@ -80,6 +80,7 @@ export default async function PartnerRoomPage({
           hasTasteProfile={!!profile}
           initialRoom={initialRoom}
           baseUrl={baseUrl}
+          userGenreIds={profile?.genreIds ?? []}
         />
       </div>
     </main>

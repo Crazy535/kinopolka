@@ -1,10 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { MovieCard } from '@/components/movie-card'
+import { calcMatchScore } from '@/lib/match-score'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
-export const revalidate = 86400
+export const dynamic = 'force-dynamic'
 
 interface SharedPageProps {
   params: Promise<{ id: string }>
@@ -62,14 +64,21 @@ function toMovieLike(m: SharedMovie, mediaType: string): TMDBMovie | TMDBTVShow 
 export default async function SharedPage({ params }: SharedPageProps) {
   const { id } = await params
 
-  let shared
-  try {
-    shared = await prisma.sharedResult.findUnique({ where: { id } })
-  } catch {
-    notFound()
-  }
+  const [session, shared] = await Promise.all([
+    auth(),
+    prisma.sharedResult.findUnique({ where: { id } }).catch(() => null),
+  ])
 
   if (!shared) notFound()
+
+  const userGenreIds: number[] = []
+  if (session?.user?.id) {
+    const profile = await prisma.tasteProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { genreIds: true },
+    })
+    userGenreIds.push(...(profile?.genreIds ?? []))
+  }
 
   const params_data = shared.params as { movies?: SharedMovie[] }
   const movies = params_data.movies ?? []
@@ -94,14 +103,22 @@ export default async function SharedPage({ params }: SharedPageProps) {
 
       {movies.length > 0 ? (
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 md:gap-4">
-          {movies.map((m, i) => (
-            <MovieCard
-              key={m.id}
-              movie={toMovieLike(m, shared!.mediaType)}
-              providers={null}
-              priority={i === 0}
-            />
-          ))}
+          {movies.map((m, i) => {
+            const movieLike = toMovieLike(m, shared.mediaType)
+            const matchScore =
+              userGenreIds.length > 0
+                ? (calcMatchScore(movieLike.genre_ids ?? [], userGenreIds) ?? undefined)
+                : undefined
+            return (
+              <MovieCard
+                key={m.id}
+                movie={movieLike}
+                providers={null}
+                priority={i === 0}
+                matchScore={matchScore}
+              />
+            )
+          })}
         </div>
       ) : (
         <p className="text-center text-muted-foreground">Подборка не найдена.</p>

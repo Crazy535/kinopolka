@@ -2,15 +2,17 @@
 
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
+import { calcMatchScore } from '@/lib/match-score'
 import type { RecommendationItem } from '@/types/quiz'
 
 interface Props {
   items: RecommendationItem[]
   hostName: string | null
   guestName: string | null
+  userGenreIds?: number[]
 }
 
-export function PartnerResults({ items, hostName, guestName }: Props) {
+export function PartnerResults({ items, hostName, guestName, userGenreIds = [] }: Props) {
   if (items.length === 0) {
     return (
       <p className="text-center text-slate-400 py-8">
@@ -32,14 +34,21 @@ export function PartnerResults({ items, hostName, guestName }: Props) {
         )}
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-        {items.map(({ movie, providers }, i) => (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            providers={providers}
-            priority={i === 0}
-          />
-        ))}
+        {items.map(({ movie, providers }, i) => {
+          const matchScore =
+            userGenreIds.length > 0
+              ? (calcMatchScore(movie.genre_ids ?? [], userGenreIds) ?? undefined)
+              : undefined
+          return (
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              providers={providers}
+              priority={i === 0}
+              matchScore={matchScore}
+            />
+          )
+        })}
       </div>
     </div>
   )

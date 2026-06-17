@@ -13,7 +13,7 @@ import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ type?: string }>
+  searchParams: Promise<{ type?: string; page?: string }>
 }
 
 type FeedType = 'genre' | 'tv' | 'people'
@@ -27,17 +27,19 @@ const DEFAULT_MOVIE_GENRE_IDS = [28, 35, 18]
 
 async function getGenreFeed(
   genreIds: number[],
-  movieIds: number[]
+  movieIds: number[],
+  page: number
 ): Promise<FeedResult> {
   const usingDefaults = genreIds.length === 0
   const topGenreIds = usingDefaults ? DEFAULT_MOVIE_GENRE_IDS : genreIds.slice(0, 5)
   const topGenres = topGenreIds.join(',')
   const topGenreName = MOVIE_GENRES[topGenreIds[0]]?.toLowerCase() ?? 'любимые жанры'
 
+  const base = (page - 1) * 5
   const pages = [
-    Math.floor(Math.random() * 5) + 1,
-    Math.floor(Math.random() * 5) + 1,
-    Math.floor(Math.random() * 5) + 1,
+    base + Math.floor(Math.random() * 5) + 1,
+    base + Math.floor(Math.random() * 5) + 1,
+    base + Math.floor(Math.random() * 5) + 1,
   ]
   const fetches = pages.map((p) =>
     discoverMovies({
@@ -83,7 +85,8 @@ const DEFAULT_TV_GENRE_IDS = [10759, 35, 18]
 
 async function getTVFeed(
   genreIds: number[],
-  seenTvIds: Set<number>
+  seenTvIds: Set<number>,
+  page: number
 ): Promise<FeedResult> {
   const usingDefaults = genreIds.length === 0
   const topGenreIds = usingDefaults ? DEFAULT_TV_GENRE_IDS : genreIds.slice(0, 5)
@@ -91,9 +94,10 @@ async function getTVFeed(
   const topGenreName =
     (TV_GENRES[topGenreIds[0]] ?? MOVIE_GENRES[topGenreIds[0]])?.toLowerCase() ?? 'любимые жанры'
 
+  const base = (page - 1) * 5
   const pages = [
-    Math.floor(Math.random() * 5) + 1,
-    Math.floor(Math.random() * 5) + 1,
+    base + Math.floor(Math.random() * 5) + 1,
+    base + Math.floor(Math.random() * 5) + 1,
   ]
   const [d1, d2] = await Promise.all(
     pages.map((p) =>
@@ -130,12 +134,13 @@ async function getTVFeed(
   return { items, title }
 }
 
-async function getPeopleFeed(userId: string): Promise<FeedResult> {
+async function getPeopleFeed(userId: string, page: number): Promise<FeedResult> {
   const people = await prisma.favoritePerson.findMany({ where: { userId } })
+  const offset = (page - 1) * 40
 
   if (people.length === 0) {
     const trending = await getTrendingMovies('week')
-    const top = trending.results.slice(0, 40)
+    const top = trending.results.slice(offset, offset + 40)
     const providerResults = await Promise.all(
       top.map((m) => getMovieWatchProviders(m.id).catch(() => null))
     )
@@ -201,8 +206,8 @@ async function getPeopleFeed(userId: string): Promise<FeedResult> {
   tvShows.sort((a, b) => b.popularity - a.popularity)
 
   const combined: (TMDBMovie | TMDBTVShow)[] = []
-  const movieTop = movies.slice(0, 20)
-  const tvTop = tvShows.slice(0, 20)
+  const movieTop = movies.slice(offset, offset + 20)
+  const tvTop = tvShows.slice(offset, offset + 20)
   const maxLen = Math.max(movieTop.length, tvTop.length)
   for (let i = 0; i < maxLen && combined.length < 40; i++) {
     if (i < movieTop.length) combined.push(movieTop[i])
@@ -237,6 +242,7 @@ export default async function FeedPage({ searchParams }: Props) {
   const [sp, session] = await Promise.all([searchParams, auth()])
   const rawType = sp.type ?? 'genre'
   const feedType: FeedType = rawType === 'tv' ? 'tv' : rawType === 'people' ? 'people' : 'genre'
+  const page = Math.max(1, parseInt(sp.page ?? '1', 10))
 
   if (!session?.user?.id) redirect('/login')
   const userId = session.user.id
@@ -258,11 +264,11 @@ export default async function FeedPage({ searchParams }: Props) {
 
   let result: FeedResult
   if (feedType === 'tv') {
-    result = await getTVFeed(genreIds, seenTvSet)
+    result = await getTVFeed(genreIds, seenTvSet, page)
   } else if (feedType === 'people') {
-    result = await getPeopleFeed(userId)
+    result = await getPeopleFeed(userId, page)
   } else {
-    result = await getGenreFeed(genreIds, movieIds)
+    result = await getGenreFeed(genreIds, movieIds, page)
   }
 
   const { items, title } = result
@@ -306,22 +312,49 @@ export default async function FeedPage({ searchParams }: Props) {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          {items.map(({ movie, providers }) => {
-            const matchScore =
-              genreIds.length > 0
-                ? (calcMatchScore(movie.genre_ids, genreIds) ?? undefined)
-                : undefined
-            return (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                providers={providers}
-                matchScore={matchScore}
-              />
-            )
-          })}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+            {items.map(({ movie, providers }) => {
+              const matchScore =
+                genreIds.length > 0
+                  ? (calcMatchScore(movie.genre_ids, genreIds) ?? undefined)
+                  : undefined
+              return (
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  providers={providers}
+                  matchScore={matchScore}
+                />
+              )
+            })}
+          </div>
+
+          <div className="mt-8 flex items-center justify-center gap-3">
+            {page === 1 ? (
+              <span
+                aria-disabled="true"
+                className="rounded-lg px-4 py-2 bg-slate-800 text-white opacity-40 pointer-events-none select-none"
+              >
+                ← Назад
+              </span>
+            ) : (
+              <Link
+                href={`/feed?type=${feedType}&page=${page - 1}`}
+                className="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+              >
+                ← Назад
+              </Link>
+            )}
+            <span className="text-sm text-muted-foreground">Страница {page}</span>
+            <Link
+              href={`/feed?type=${feedType}&page=${page + 1}`}
+              className="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+            >
+              Вперёд →
+            </Link>
+          </div>
+        </>
       )}
     </div>
   )

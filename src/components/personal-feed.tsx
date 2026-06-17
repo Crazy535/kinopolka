@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
-import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders } from '@/lib/tmdb'
+import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders, getPersonCombinedCredits } from '@/lib/tmdb'
 import { MovieCard } from '@/components/movie-card'
 import { PersonalFeedSearch } from '@/components/personal-feed-search'
 import { FeedCarousel } from '@/components/feed-carousel'
@@ -24,10 +24,12 @@ interface SectionResult {
   sectionTitle: string
 }
 
-async function getGenreItems(profile: TasteProfile): Promise<SectionResult> {
-  if (profile.genreIds.length === 0) return { items: [], sectionTitle: '' }
+const DEFAULT_MOVIE_GENRE_IDS = [28, 35, 18]
+const DEFAULT_TV_GENRE_IDS = [10759, 35, 18]
 
-  const topGenreIds = profile.genreIds.slice(0, 5)
+async function getGenreItems(profile: TasteProfile): Promise<SectionResult> {
+  const usingDefaults = profile.genreIds.length === 0
+  const topGenreIds = usingDefaults ? DEFAULT_MOVIE_GENRE_IDS : profile.genreIds.slice(0, 5)
   const topGenres = topGenreIds.join(',')
   const topGenreName = MOVIE_GENRES[topGenreIds[0]]?.toLowerCase() ?? 'любимые жанры'
 
@@ -71,13 +73,13 @@ async function getGenreItems(profile: TasteProfile): Promise<SectionResult> {
     providers: providerResults[i]?.results?.['RU'] ?? null,
   }))
 
-  return { items, sectionTitle: `Потому что ты любишь ${topGenreName}` }
+  const sectionTitle = usingDefaults ? 'Фильмы для вас' : `Потому что ты любишь ${topGenreName}`
+  return { items, sectionTitle }
 }
 
 async function getTVItems(profile: TasteProfile, seenIds: Set<number>): Promise<SectionResult> {
-  if (profile.genreIds.length === 0) return { items: [], sectionTitle: '' }
-
-  const topGenreIds = profile.genreIds.slice(0, 5)
+  const usingDefaults = profile.genreIds.length === 0
+  const topGenreIds = usingDefaults ? DEFAULT_TV_GENRE_IDS : profile.genreIds.slice(0, 5)
   const topGenres = topGenreIds.join(',')
   const topGenreName =
     (TV_GENRES[topGenreIds[0]] ?? MOVIE_GENRES[topGenreIds[0]])?.toLowerCase() ?? 'любимые жанры'
@@ -103,47 +105,78 @@ async function getTVItems(profile: TasteProfile, seenIds: Set<number>): Promise<
     providers: providerResults[i]?.results?.['RU'] ?? null,
   }))
 
-  return { items, sectionTitle: `Сериалы: ${topGenreName}` }
+  const sectionTitle = usingDefaults ? 'Сериалы для вас' : `Сериалы: ${topGenreName}`
+  return { items, sectionTitle }
 }
 
 async function getPeopleItems(userId: string): Promise<{ items: RecommendationItem[]; personNames: string[] }> {
   const people = await prisma.favoritePerson.findMany({ where: { userId } })
   if (people.length === 0) return { items: [], personNames: [] }
 
-  const actors = people.filter((p) => p.role === 'actor').map((p) => p.tmdbId)
-  const directors = people.filter((p) => p.role === 'director').map((p) => p.tmdbId)
+  const creditsResults = await Promise.all(
+    people.slice(0, 5).map((p) => getPersonCombinedCredits(p.tmdbId).catch(() => null))
+  )
 
-  const movieParams: Parameters<typeof discoverMovies>[0] = {
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 20,
-    'vote_average.gte': 5.5,
-  }
-  const tvParams: Parameters<typeof discoverTVShows>[0] = {
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 10,
-    'vote_average.gte': 5.5,
-  }
-  if (actors.length > 0) {
-    movieParams.with_cast = actors.slice(0, 4).join('|')
-    tvParams.with_cast = actors.slice(0, 4).join('|')
-  }
-  if (directors.length > 0) {
-    movieParams.with_crew = directors.slice(0, 2).join('|')
-    tvParams.with_crew = directors.slice(0, 2).join('|')
+  const seen = new Set<string>()
+  const movies: TMDBMovie[] = []
+  const tvShows: TMDBTVShow[] = []
+
+  for (const credits of creditsResults) {
+    if (!credits) continue
+    const qualified = credits.cast
+      .filter((c) => c.vote_count >= 20 && c.vote_average >= 5.5)
+      .sort((a, b) => b.popularity - a.popularity)
+      .slice(0, 20)
+
+    for (const c of qualified) {
+      const key = `${c.media_type}-${c.id}`
+      if (seen.has(key)) continue
+      seen.add(key)
+
+      if (c.media_type === 'movie' && movies.length < 4) {
+        movies.push({
+          id: c.id,
+          title: c.title ?? c.name ?? '',
+          original_title: c.title ?? '',
+          poster_path: c.poster_path,
+          backdrop_path: null,
+          vote_average: c.vote_average,
+          vote_count: c.vote_count,
+          release_date: c.release_date ?? '',
+          genre_ids: [],
+          popularity: c.popularity,
+          overview: '',
+          original_language: '',
+          adult: false,
+          video: false,
+        })
+      } else if (c.media_type === 'tv' && tvShows.length < 4) {
+        tvShows.push({
+          id: c.id,
+          name: c.name ?? c.title ?? '',
+          original_name: c.name ?? '',
+          poster_path: c.poster_path,
+          backdrop_path: null,
+          vote_average: c.vote_average,
+          vote_count: c.vote_count,
+          first_air_date: c.first_air_date ?? '',
+          genre_ids: [],
+          popularity: c.popularity,
+          overview: '',
+          original_language: '',
+          origin_country: [],
+        })
+      }
+      if (movies.length >= 4 && tvShows.length >= 4) break
+    }
+    if (movies.length >= 4 && tvShows.length >= 4) break
   }
 
-  const [movieData, tvData] = await Promise.all([
-    discoverMovies(movieParams),
-    discoverTVShows(tvParams),
-  ])
-
-  const movieCandidates = movieData.results.slice(0, 4)
-  const tvCandidates = tvData.results.slice(0, 4)
   const combined: (TMDBMovie | TMDBTVShow)[] = []
-  const maxLen = Math.max(movieCandidates.length, tvCandidates.length)
+  const maxLen = Math.max(movies.length, tvShows.length)
   for (let i = 0; i < maxLen; i++) {
-    if (i < movieCandidates.length) combined.push(movieCandidates[i])
-    if (i < tvCandidates.length) combined.push(tvCandidates[i])
+    if (i < movies.length) combined.push(movies[i])
+    if (i < tvShows.length) combined.push(tvShows[i])
   }
   const candidates = combined.slice(0, 8)
 

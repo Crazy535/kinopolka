@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { calcMatchScore } from '@/lib/match-score'
+import { searchPersons, getPersonCombinedCredits } from '@/lib/tmdb'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import { NextResponse } from 'next/server'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
@@ -78,6 +79,37 @@ function looksLikePersonName(query: string): boolean {
   })
 }
 
+async function buildPersonFilmographyContext(query: string): Promise<string> {
+  try {
+    const search = await searchPersons(query)
+    const person = search.results?.[0]
+    if (!person) {
+      return `The user's request appears to be a person's name. Suggest films directed by or starring "${query}", drawing from their filmography.`
+    }
+
+    const credits = await getPersonCombinedCredits(person.id)
+    const titles = (credits.cast ?? [])
+      .filter((c) => c.vote_count >= 30 && c.vote_average >= 6)
+      .sort((a, b) => b.popularity - a.popularity)
+      .slice(0, 15)
+      .map((c) => {
+        const name = c.title ?? c.name ?? ''
+        const date = c.release_date ?? c.first_air_date ?? ''
+        const year = date ? date.slice(0, 4) : ''
+        return year ? `${name} (${year})` : name
+      })
+      .filter((t) => t.length > 0)
+
+    if (titles.length === 0) {
+      return `The user's request appears to be a person's name. Suggest films directed by or starring "${person.name}", drawing from their filmography.`
+    }
+
+    return `The user's request is the person "${person.name}". Here are actual films/shows from their filmography (use these as primary source): ${titles.join(', ')}.`
+  } catch {
+    return `The user's request appears to be a person's name. Suggest films directed by or starring "${query}", drawing from their filmography.`
+  }
+}
+
 async function searchTMDB(
   title: string,
   year: number,
@@ -142,7 +174,7 @@ export async function POST(req: Request) {
   const genreContext = buildGenreContext(profile?.genreIds ?? [])
   const personContext = buildPersonContext(favoritePersons)
   const queryPersonContext = looksLikePersonName(query)
-    ? `The user's request appears to be a person's name. Suggest films directed by or starring "${query}", drawing from their filmography.`
+    ? await buildPersonFilmographyContext(query)
     : ''
 
   const systemPrompt = `You are a movie and TV show recommender for a Russian streaming service called Kinopolka. ${genreContext} ${personContext} ${queryPersonContext}

@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Film, Tv } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useQuizStore } from '@/stores/quiz-store'
+import { useDiscoveryStore } from '@/stores/discovery-store'
 import { QuizStep } from './quiz-step'
 import { QuizResults } from './quiz-results'
 import { MOODS, RUNTIMES } from '@/types/quiz'
@@ -34,6 +35,7 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
 
   useEffect(() => {
     reset()
+    useDiscoveryStore.getState().clearSeenIds()
     if (initialType) {
       setType(initialType)
       startTTW()
@@ -58,11 +60,16 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
     if (resolvedRuntime && resolvedRuntime !== 'any') {
       params.set('runtime', resolvedRuntime)
     }
+    const seenIds = useDiscoveryStore.getState().seenIds
+    if (seenIds.length > 0) {
+      params.set('exclude_ids', seenIds.join(','))
+    }
 
     try {
       const res = await fetch(`/api/recommendations?${params}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = (await res.json()) as { items: RecommendationItem[] }
+      useDiscoveryStore.getState().addSeenIds(data.items.map((item) => item.movie.id))
       setResults(data.items)
       stopTTW()
     } catch {

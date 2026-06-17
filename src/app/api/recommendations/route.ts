@@ -29,6 +29,10 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get('type') as ContentType | null
     const genreId = searchParams.get('genre_id')
     const runtime = searchParams.get('runtime') as RuntimeOption | null
+    const excludeIdsParam = searchParams.get('exclude_ids')
+    const excludeSet = new Set<number>(
+      excludeIdsParam ? excludeIdsParam.split(',').map(Number).filter(Boolean) : []
+    )
 
     if (!type || !genreId) {
       return NextResponse.json({ error: 'Missing required params: type, genre_id' }, { status: 400 })
@@ -54,7 +58,8 @@ export async function GET(req: NextRequest) {
       }
 
       const data = await discoverMovies(params)
-      rawItems = pickRandom(data.results, 5)
+      const filtered = data.results.filter((m) => !excludeSet.has(m.id))
+      rawItems = pickRandom(filtered.length >= 5 ? filtered : data.results, 5)
     } else {
       const params: TMDBDiscoverTVParams = {
         sort_by: 'popularity.desc',
@@ -65,7 +70,8 @@ export async function GET(req: NextRequest) {
       }
 
       const data = await discoverTVShows(params)
-      rawItems = pickRandom(data.results, 5)
+      const filtered = data.results.filter((m) => !excludeSet.has(m.id))
+      rawItems = pickRandom(filtered.length >= 5 ? filtered : data.results, 5)
     }
 
     const providerFetcher = type === 'movie' ? getMovieWatchProviders : getTVWatchProviders

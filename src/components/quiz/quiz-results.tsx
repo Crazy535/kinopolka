@@ -5,6 +5,7 @@ import { Check, Link2, MoreHorizontal, RefreshCw, RotateCcw, Send } from 'lucide
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { useQuizStore } from '@/stores/quiz-store'
+import { calcMatchScore } from '@/lib/match-score'
 import type { RecommendationItem } from '@/types/quiz'
 import { trackQuizCompleted } from '@/lib/analytics'
 
@@ -15,11 +16,12 @@ interface QuizResultsProps {
   onReset: () => void
   onRefresh?: () => void
   userType?: 'anon' | 'auth'
+  userGenreIds?: number[]
 }
 
 type CopyState = 'idle' | 'loading' | 'copied'
 
-export function QuizResults({ results, isLoading, error, onReset, onRefresh, userType = 'anon' }: QuizResultsProps) {
+export function QuizResults({ results, isLoading, error, onReset, onRefresh, userType = 'anon', userGenreIds = [] }: QuizResultsProps) {
   const ttwDuration = useQuizStore((s) => s.ttwDuration)
   const type = useQuizStore((s) => s.type)
   const [copyState, setCopyState] = useState<CopyState>('idle')
@@ -227,14 +229,20 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-        {results.map(({ movie, providers }, i) => (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            providers={providers}
-            priority={i === 0}
-          />
-        ))}
+        {results.map(({ movie, providers }, i) => {
+          const matchScore = userGenreIds.length > 0
+            ? (calcMatchScore(movie.genre_ids, userGenreIds) ?? undefined)
+            : undefined
+          return (
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              providers={providers}
+              priority={i === 0}
+              matchScore={matchScore}
+            />
+          )
+        })}
       </div>
     </div>
   )

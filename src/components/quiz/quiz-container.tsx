@@ -13,6 +13,7 @@ import { trackTTWStart, trackQuizStep } from '@/lib/analytics'
 interface QuizContainerProps {
   initialType?: ContentType
   isAuthenticated?: boolean
+  userGenreIds?: number[]
 }
 
 const STEP_VARIANTS = {
@@ -21,7 +22,7 @@ const STEP_VARIANTS = {
   exit:    { opacity: 0, x: -32 },
 }
 
-export function QuizContainer({ initialType, isAuthenticated = false }: QuizContainerProps) {
+export function QuizContainer({ initialType, isAuthenticated = false, userGenreIds = [] }: QuizContainerProps) {
   const userType = isAuthenticated ? 'auth' : 'anon'
   const {
     step, type, moodIndex, runtime,
@@ -134,6 +135,7 @@ export function QuizContainer({ initialType, isAuthenticated = false }: QuizCont
         onReset={reset}
         onRefresh={handleRefresh}
         userType={userType}
+        userGenreIds={userGenreIds}
       />
     )
   }

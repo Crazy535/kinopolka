@@ -9,6 +9,7 @@ import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { PersonalFeed } from '@/components/personal-feed'
 import { OnboardingBanner } from '@/components/onboarding-banner'
 import { CategoriesSection } from '@/components/home/categories-section'
+import { AiRecommender } from '@/components/ai-recommender'
 
 function GridSkeleton() {
   return (
@@ -65,6 +66,8 @@ export default async function HomePage() {
           <PersonalFeed userId={userId} />
         </Suspense>
       )}
+
+      {userId && <AiRecommender />}
 
       <section className="mb-10">
         <h2 className="mb-5 text-lg font-bold tracking-tight">В тренде сейчас</h2>

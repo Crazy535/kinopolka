@@ -1,7 +1,10 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { auth } from '@/auth'
+import { prisma } from '@/lib/db'
 import { searchMulti, discoverMovies, discoverTVShows } from '@/lib/tmdb'
+import { calcMatchScore } from '@/lib/match-score'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { SearchFilters } from '@/components/search/search-filters'
@@ -159,6 +162,7 @@ async function SearchResults({
   year,
   page,
   rawParams,
+  userGenreIds,
 }: {
   query: string
   type: string
@@ -166,6 +170,7 @@ async function SearchResults({
   year: string
   page: number
   rawParams: URLSearchParams
+  userGenreIds: number[]
 }) {
   const { items, totalPages, currentPage } = await fetchResults(query, type, genre, year, page)
 
@@ -183,13 +188,19 @@ async function SearchResults({
   return (
     <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-        {items.map((item) => (
-          <MovieCard
-            key={`${(item as AnyItem & { media_type?: string }).media_type ?? 'movie'}-${item.id}`}
-            movie={item as TMDBMovie | TMDBTVShow}
-            providers={null}
-          />
-        ))}
+        {items.map((item) => {
+          const matchScore = userGenreIds.length > 0
+            ? (calcMatchScore(item.genre_ids, userGenreIds) ?? undefined)
+            : undefined
+          return (
+            <MovieCard
+              key={`${(item as AnyItem & { media_type?: string }).media_type ?? 'movie'}-${item.id}`}
+              movie={item as TMDBMovie | TMDBTVShow}
+              providers={null}
+              matchScore={matchScore}
+            />
+          )
+        })}
       </div>
       <Pagination currentPage={currentPage} totalPages={totalPages} searchParams={rawParams} />
     </>
@@ -197,12 +208,21 @@ async function SearchResults({
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-  const sp = await searchParams
+  const [sp, session] = await Promise.all([searchParams, auth()])
   const query = sp.q?.trim() ?? ''
   const type = sp.type ?? ''
   const genre = sp.genre ?? ''
   const year = sp.year ?? ''
   const page = Math.max(1, parseInt(sp.page ?? '1', 10))
+
+  let userGenreIds: number[] = []
+  if (session?.user?.id) {
+    const profile = await prisma.tasteProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { genreIds: true },
+    })
+    userGenreIds = profile?.genreIds ?? []
+  }
 
   const rawParams = new URLSearchParams()
   if (query) rawParams.set('q', query)
@@ -252,6 +272,7 @@ export default async function SearchPage({ searchParams }: Props) {
             year={year}
             page={page}
             rawParams={rawParams}
+            userGenreIds={userGenreIds}
           />
         </Suspense>
       ) : (

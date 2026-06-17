@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { RefreshCw } from 'lucide-react'
 import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
+import { calcMatchScore } from '@/lib/match-score'
 import type { RecommendationItem } from '@/types/quiz'
 import type { WatchProvider, WatchProvidersByType } from '@/types/tmdb'
 
@@ -43,10 +44,14 @@ interface RouletteResultProps {
   ttwDuration: number | null
   onRespin: () => void
   onChangeMood: () => void
+  userGenreIds?: number[]
 }
 
-export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: RouletteResultProps) {
+export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, userGenreIds = [] }: RouletteResultProps) {
   const { movie, providers } = result
+  const matchScore = userGenreIds.length > 0
+    ? (calcMatchScore(movie.genre_ids, userGenreIds) ?? undefined)
+    : undefined
   const title = getTitle(movie)
   const year = getYear(movie)
   const posterUrl = getPosterUrl(movie.poster_path, 'w500')
@@ -88,6 +93,15 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
           {movie.vote_count > 0 && (
             <div className={`absolute right-3 top-3 rounded-md bg-black/50 px-2 py-1 text-xs font-bold backdrop-blur-sm ${ratingClass}`}>
               ★&nbsp;{movie.vote_average.toFixed(1)}
+            </div>
+          )}
+          {typeof matchScore === 'number' && matchScore >= 60 && (
+            <div className="absolute left-3 top-3 pointer-events-none">
+              <span className={`inline-flex items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none backdrop-blur-sm shadow-sm ${
+                matchScore >= 80 ? 'bg-emerald-500/85 text-white' : 'bg-amber-500/85 text-white'
+              }`}>
+                {matchScore}%
+              </span>
             </div>
           )}
         </div>
@@ -158,11 +172,20 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood }: 
         {/* Info panel */}
         <div className="flex flex-1 flex-col justify-between p-6">
           <div className="flex flex-col gap-1.5">
-            {movie.vote_count > 0 && (
-              <span className={`text-sm font-bold ${ratingClass}`}>
-                ★&nbsp;{movie.vote_average.toFixed(1)}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {movie.vote_count > 0 && (
+                <span className={`text-sm font-bold ${ratingClass}`}>
+                  ★&nbsp;{movie.vote_average.toFixed(1)}
+                </span>
+              )}
+              {typeof matchScore === 'number' && matchScore >= 60 && (
+                <span className={`inline-flex items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${
+                  matchScore >= 80 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
+                }`}>
+                  {matchScore}% совпадение
+                </span>
+              )}
+            </div>
             <h2 className="font-heading text-2xl font-bold leading-tight tracking-[-0.02em]">{title}</h2>
             <p className="text-sm text-muted-foreground">{year}</p>
             {movie.overview && (

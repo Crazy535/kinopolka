@@ -19,9 +19,10 @@ const SLIDE = {
 
 interface RouletteContainerProps {
   isAuthenticated?: boolean
+  userGenreIds?: number[]
 }
 
-export function RouletteContainer({ isAuthenticated = false }: RouletteContainerProps) {
+export function RouletteContainer({ isAuthenticated = false, userGenreIds = [] }: RouletteContainerProps) {
   const { contentType, moodIndex, result, isLoading, error, setContentType, setMood, spin, reset } =
     useRouletteStore()
   const ttwDuration = useRouletteStore((s) => s.ttwDuration)
@@ -65,6 +66,7 @@ export function RouletteContainer({ isAuthenticated = false }: RouletteContainer
               ttwDuration={ttwDuration}
               onRespin={handleRespin}
               onChangeMood={handleChangeMood}
+              userGenreIds={userGenreIds}
             />
           </motion.div>
         ) : isLoading ? (

@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { auth } from '@/auth'
+import { prisma } from '@/lib/db'
 import { getTopRatedMovies, getPopularMovies, getPopularTVShows } from '@/lib/tmdb'
+import { calcMatchScore } from '@/lib/match-score'
 import { MovieCard } from '@/components/movie-card'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
@@ -36,6 +39,17 @@ export default async function BrowsePage({ params, searchParams }: Props) {
   if (!category) notFound()
 
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
+
+  const session = await auth()
+  let userGenreIds: number[] = []
+  if (session?.user?.id) {
+    const profile = await prisma.tasteProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { genreIds: true },
+    })
+    userGenreIds = profile?.genreIds ?? []
+  }
+
   const data = await category.fetcher(page)
 
   const totalPages = Math.min(data.total_pages, 20)
@@ -62,9 +76,14 @@ export default async function BrowsePage({ params, searchParams }: Props) {
 
       {/* Grid */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-        {data.results.map((item, i) => (
-          <MovieCard key={item.id} movie={item} providers={null} priority={i < 5} />
-        ))}
+        {data.results.map((item, i) => {
+          const matchScore = userGenreIds.length > 0
+            ? (calcMatchScore(item.genre_ids, userGenreIds) ?? undefined)
+            : undefined
+          return (
+            <MovieCard key={item.id} movie={item} providers={null} priority={i < 5} matchScore={matchScore} />
+          )
+        })}
       </div>
 
       {/* Pagination */}

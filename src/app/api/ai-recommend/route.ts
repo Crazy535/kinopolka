@@ -34,6 +34,50 @@ function buildGenreContext(genreIds: number[]): string {
   return names.length > 0 ? `User's preferred genres: ${names.join(', ')}.` : ''
 }
 
+function buildPersonContext(
+  persons: { name: string; role: string }[]
+): string {
+  if (persons.length === 0) return ''
+  const labelled = persons.map((p) =>
+    p.role === 'director' ? `${p.name} (director)` : `${p.name} (actor)`
+  )
+  return `User loves the work of these people, prioritize their filmography when relevant: ${labelled.join(', ')}.`
+}
+
+const PERSON_STOP_WORDS = [
+  'фильм',
+  'фильмы',
+  'кино',
+  'сериал',
+  'сериалы',
+  'комедия',
+  'комедии',
+  'драма',
+  'ужасы',
+  'триллер',
+  'детектив',
+  'боевик',
+  'мультфильм',
+  'аниме',
+  'что',
+  'хочу',
+  'movie',
+  'film',
+  'show',
+  'series',
+]
+
+function looksLikePersonName(query: string): boolean {
+  const words = query.trim().split(/\s+/)
+  if (words.length < 1 || words.length > 3) return false
+  const lower = query.toLowerCase()
+  if (PERSON_STOP_WORDS.some((w) => lower.includes(w))) return false
+  return words.every((w) => {
+    const first = w.charAt(0)
+    return first === first.toUpperCase() && first !== first.toLowerCase()
+  })
+}
+
 async function searchTMDB(
   title: string,
   year: number,
@@ -82,14 +126,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Query is required' }, { status: 400 })
   }
 
-  const profile = await prisma.tasteProfile.findUnique({
-    where: { userId: session.user.id },
-    select: { genreIds: true },
-  })
+  const [profile, favoritePersons] = await Promise.all([
+    prisma.tasteProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { genreIds: true },
+    }),
+    prisma.favoritePerson.findMany({
+      where: { userId: session.user.id },
+      select: { name: true, role: true },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    }),
+  ])
 
   const genreContext = buildGenreContext(profile?.genreIds ?? [])
+  const personContext = buildPersonContext(favoritePersons)
+  const queryPersonContext = looksLikePersonName(query)
+    ? `The user's request appears to be a person's name. Suggest films directed by or starring "${query}", drawing from their filmography.`
+    : ''
 
-  const systemPrompt = `You are a movie and TV show recommender for a Russian streaming service called Kinopolka. ${genreContext}
+  const systemPrompt = `You are a movie and TV show recommender for a Russian streaming service called Kinopolka. ${genreContext} ${personContext} ${queryPersonContext}
 Based on the user's request, suggest exactly 6 movies or TV shows.
 Respond ONLY with valid JSON in this exact format:
 {"movies":[{"title":"English Original Title","year":2023,"media_type":"movie","reason":"Причина на русском"},{"title":"English Original Title","year":2020,"media_type":"tv","reason":"Причина на русском"}]}

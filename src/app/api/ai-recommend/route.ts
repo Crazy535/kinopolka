@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
+import { calcMatchScore } from '@/lib/match-score'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import { NextResponse } from 'next/server'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
@@ -18,6 +19,7 @@ export type AiRecommendResult = {
   movie: TMDBMovie | TMDBTVShow
   reason: string
   media_type: 'movie' | 'tv'
+  matchScore: number | null
 }
 
 function buildGenreContext(genreIds: number[]): string {
@@ -133,12 +135,15 @@ Rules:
     return NextResponse.json({ error: 'Failed to generate recommendations' }, { status: 500 })
   }
 
+  const userGenreIds = profile?.genreIds ?? []
+
   const enriched = await Promise.all(
     suggestions.map(async ({ title, year, media_type, reason }) => {
       try {
         const movie = await searchTMDB(title, year, media_type)
         if (!movie) return null
-        return { movie, reason, media_type } satisfies AiRecommendResult
+        const matchScore = calcMatchScore(movie.genre_ids ?? [], userGenreIds)
+        return { movie, reason, media_type, matchScore } satisfies AiRecommendResult
       } catch {
         return null
       }

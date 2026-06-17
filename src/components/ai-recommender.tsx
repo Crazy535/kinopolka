@@ -165,9 +165,9 @@ export function AiRecommender() {
             </div>
 
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-              {results.map(({ movie, reason }) => (
+              {results.map(({ movie, reason, matchScore }) => (
                 <div key={movie.id} className="flex flex-col gap-1.5">
-                  <MovieCard movie={movie} providers={null} />
+                  <MovieCard movie={movie} providers={null} matchScore={matchScore ?? undefined} />
                   <p className="text-[11px] leading-snug text-muted-foreground line-clamp-2 px-0.5">
                     {reason}
                   </p>

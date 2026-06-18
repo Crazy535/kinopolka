@@ -221,7 +221,6 @@ export async function GET(req: NextRequest) {
     if (!full) {
       if (!q || q.length < 2) return NextResponse.json({ results: [] })
 
-      const limit = Math.min(parseInt(sp.get('limit') ?? '8', 10), 20)
       const filterType = type === 'movie' ? 'movie' : type === 'tv' ? 'tv' : null
 
       const { movies, tv } = await searchBothTypes(q, '1', filterType)

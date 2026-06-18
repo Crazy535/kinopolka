@@ -8,6 +8,7 @@ import { calcMatchScore } from '@/lib/match-score'
 import { MovieCard } from '@/components/movie-card'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { SearchFilters } from '@/components/search/search-filters'
+import { AiRecommender } from '@/components/ai-recommender'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
 export const dynamic = 'force-dynamic'
@@ -22,11 +23,13 @@ interface Props {
   }>
 }
 
-type AnyItem = (TMDBMovie | TMDBTVShow) & { media_type?: string }
+type AnyItem = (TMDBMovie | TMDBTVShow) & { media_type: 'movie' | 'tv' }
 
 interface SearchResultsData {
-  items: AnyItem[]
-  totalPages: number
+  movieItems: AnyItem[]
+  tvItems: AnyItem[]
+  movieTotalPages: number
+  tvTotalPages: number
   currentPage: number
 }
 
@@ -50,49 +53,54 @@ async function fetchResults(
     ])
 
     const enMovieMap = new Map<number, string>()
-    if (moviesEn) {
-      for (const m of moviesEn.results) enMovieMap.set(m.id, m.title)
-    }
+    if (moviesEn) for (const m of moviesEn.results) enMovieMap.set(m.id, m.title)
+
     const enTVMap = new Map<number, string>()
-    if (tvEn) {
-      for (const s of tvEn.results) enTVMap.set(s.id, s.name)
+    if (tvEn) for (const s of tvEn.results) enTVMap.set(s.id, s.name)
+
+    const movieItems: AnyItem[] = (moviesRu?.results ?? []).map((m) => ({
+      ...m,
+      title: hasNonLatinCyrillic(m.title) ? (enMovieMap.get(m.id) ?? m.title) : m.title,
+      media_type: 'movie' as const,
+    }))
+
+    // Supplement with en-US items when ru-RU returns sparse results
+    if (movieItems.length < 3 && moviesEn) {
+      const ruIds = new Set(movieItems.map((m) => m.id))
+      for (const m of moviesEn.results) {
+        if (!ruIds.has(m.id)) {
+          movieItems.push({ ...m, media_type: 'movie' as const })
+          ruIds.add(m.id)
+        }
+        if (movieItems.length >= 10) break
+      }
     }
 
-    const movieItems: AnyItem[] = (moviesRu?.results ?? []).map((m) => {
-      const ruTitle = m.title
-      return {
-        ...m,
-        title: hasNonLatinCyrillic(ruTitle) ? (enMovieMap.get(m.id) ?? ruTitle) : ruTitle,
-        media_type: 'movie' as const,
-      }
-    })
+    const tvItems: AnyItem[] = (tvRu?.results ?? []).map((s) => ({
+      ...s,
+      name: hasNonLatinCyrillic(s.name) ? (enTVMap.get(s.id) ?? s.name) : s.name,
+      media_type: 'tv' as const,
+    }))
 
-    const tvItems: AnyItem[] = (tvRu?.results ?? []).map((s) => {
-      const ruTitle = s.name
-      return {
-        ...s,
-        name: hasNonLatinCyrillic(ruTitle) ? (enTVMap.get(s.id) ?? ruTitle) : ruTitle,
-        media_type: 'tv' as const,
+    // Supplement with en-US items when ru-RU returns sparse results
+    if (tvItems.length < 3 && tvEn) {
+      const ruIds = new Set(tvItems.map((s) => s.id))
+      for (const s of tvEn.results) {
+        if (!ruIds.has(s.id)) {
+          tvItems.push({ ...s, media_type: 'tv' as const })
+          ruIds.add(s.id)
+        }
+        if (tvItems.length >= 10) break
       }
-    })
-
-    let items: AnyItem[]
-    let totalPages: number
-    if (filterType === 'movie') {
-      items = movieItems
-      totalPages = Math.min(moviesRu?.total_pages ?? 1, 20)
-    } else if (filterType === 'tv') {
-      items = tvItems
-      totalPages = Math.min(tvRu?.total_pages ?? 1, 20)
-    } else {
-      items = [...movieItems, ...tvItems].sort((a, b) => b.popularity - a.popularity)
-      totalPages = Math.min(
-        Math.max(moviesRu?.total_pages ?? 1, tvRu?.total_pages ?? 1),
-        20
-      )
     }
 
-    return { items, totalPages, currentPage: page }
+    return {
+      movieItems,
+      tvItems,
+      movieTotalPages: Math.min(moviesRu?.total_pages ?? 1, 20),
+      tvTotalPages: Math.min(tvRu?.total_pages ?? 1, 20),
+      currentPage: page,
+    }
   }
 
   if (genre || year) {
@@ -105,8 +113,10 @@ async function fetchResults(
         'vote_count.gte': 50,
       })
       return {
-        items: data.results.map((r) => ({ ...r, media_type: 'tv' as const })),
-        totalPages: Math.min(data.total_pages, 20),
+        movieItems: [],
+        tvItems: data.results.map((r) => ({ ...r, media_type: 'tv' as const })),
+        movieTotalPages: 1,
+        tvTotalPages: Math.min(data.total_pages, 20),
         currentPage: page,
       }
     } else {
@@ -118,20 +128,19 @@ async function fetchResults(
         'vote_count.gte': 100,
       })
       return {
-        items: data.results.map((r) => ({ ...r, media_type: 'movie' as const })),
-        totalPages: Math.min(data.total_pages, 20),
+        movieItems: data.results.map((r) => ({ ...r, media_type: 'movie' as const })),
+        tvItems: [],
+        movieTotalPages: Math.min(data.total_pages, 20),
+        tvTotalPages: 1,
         currentPage: page,
       }
     }
   }
 
-  return { items: [], totalPages: 1, currentPage: page }
+  return { movieItems: [], tvItems: [], movieTotalPages: 1, tvTotalPages: 1, currentPage: page }
 }
 
-function buildPageUrl(
-  base: URLSearchParams,
-  targetPage: number
-): string {
+function buildPageUrl(base: URLSearchParams, targetPage: number): string {
   const p = new URLSearchParams(base.toString())
   if (targetPage === 1) {
     p.delete('page')
@@ -212,35 +221,115 @@ async function SearchResults({
   rawParams: URLSearchParams
   userGenreIds: number[]
 }) {
-  const { items, totalPages, currentPage } = await fetchResults(query, type, genre, year, page)
+  const { movieItems, tvItems, movieTotalPages, tvTotalPages, currentPage } =
+    await fetchResults(query, type, genre, year, page)
 
-  if (items.length === 0) {
-    const hasFilters = query || genre || year || type
+  const filterType = type === 'movie' ? 'movie' : type === 'tv' ? 'tv' : null
+  const isDiscover = query.length < 2 && (!!genre || !!year)
+
+  const isEmpty = movieItems.length === 0 && tvItems.length === 0
+
+  if (isEmpty) {
     return (
       <div className="py-20 text-center">
         <p className="text-muted-foreground">
-          {hasFilters ? 'Ничего не найдено. Попробуй изменить фильтры.' : 'Введите запрос или выберите фильтры'}
+          {query || genre || year
+            ? 'Ничего не найдено. Попробуй изменить фильтры.'
+            : 'Введите запрос или выберите фильтры'}
         </p>
       </div>
     )
   }
 
+  function renderCard(item: AnyItem, i: number) {
+    const matchScore =
+      userGenreIds.length > 0
+        ? (calcMatchScore(item.genre_ids, userGenreIds) ?? undefined)
+        : undefined
+    return (
+      <MovieCard
+        key={`${item.media_type}-${item.id}`}
+        movie={item as TMDBMovie | TMDBTVShow}
+        providers={null}
+        priority={i === 0}
+        matchScore={matchScore}
+      />
+    )
+  }
+
+  // Combined mode: separate sections for movies and TV, sorted by TMDB relevance
+  if (filterType === null && !isDiscover) {
+    const qParam = query ? `q=${encodeURIComponent(query)}` : ''
+    const genreParam = genre ? `&genre=${genre}` : ''
+    const yearParam = year ? `&year=${year}` : ''
+    const baseParams = [qParam, genreParam.replace(/^&/, ''), yearParam.replace(/^&/, '')]
+      .filter(Boolean)
+      .join('&')
+    const movieFilterUrl = `/search?${baseParams}&type=movie`
+    const tvFilterUrl = `/search?${baseParams}&type=tv`
+
+    return (
+      <div className="space-y-10">
+        {movieItems.length > 0 && (
+          <section>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-medium text-muted-foreground">
+                Фильмы
+                <span className="ml-1.5 tabular-nums">
+                  ({movieItems.length}{movieTotalPages > 1 ? '+' : ''})
+                </span>
+              </h2>
+              {movieTotalPages > 1 && (
+                <Link
+                  href={movieFilterUrl}
+                  className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Все фильмы →
+                </Link>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+              {movieItems.slice(0, 10).map((item, i) => renderCard(item, i))}
+            </div>
+          </section>
+        )}
+        {tvItems.length > 0 && (
+          <section>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-medium text-muted-foreground">
+                Сериалы
+                <span className="ml-1.5 tabular-nums">
+                  ({tvItems.length}{tvTotalPages > 1 ? '+' : ''})
+                </span>
+              </h2>
+              {tvTotalPages > 1 && (
+                <Link
+                  href={tvFilterUrl}
+                  className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Все сериалы →
+                </Link>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+              {tvItems.slice(0, 10).map((item, i) => renderCard(item, i))}
+            </div>
+          </section>
+        )}
+      </div>
+    )
+  }
+
+  // Single type or discover mode: paginated grid
+  const items =
+    filterType === 'tv' || (isDiscover && type === 'tv') ? tvItems : movieItems
+  const totalPages =
+    filterType === 'tv' || (isDiscover && type === 'tv') ? tvTotalPages : movieTotalPages
+
   return (
     <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-        {items.map((item) => {
-          const matchScore = userGenreIds.length > 0
-            ? (calcMatchScore(item.genre_ids, userGenreIds) ?? undefined)
-            : undefined
-          return (
-            <MovieCard
-              key={`${(item as AnyItem & { media_type?: string }).media_type ?? 'movie'}-${item.id}`}
-              movie={item as TMDBMovie | TMDBTVShow}
-              providers={null}
-              matchScore={matchScore}
-            />
-          )
-        })}
+        {items.map((item, i) => renderCard(item, i))}
       </div>
       <Pagination currentPage={currentPage} totalPages={totalPages} searchParams={rawParams} />
     </>
@@ -316,8 +405,8 @@ export default async function SearchPage({ searchParams }: Props) {
           />
         </Suspense>
       ) : (
-        <div className="py-20 text-center">
-          <p className="text-muted-foreground">Введите запрос или выберите фильтры выше</p>
+        <div className="mt-4">
+          <AiRecommender />
         </div>
       )}
     </div>

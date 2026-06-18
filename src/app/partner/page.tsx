@@ -14,17 +14,17 @@ export default async function PartnerPage() {
   })
 
   return (
-    <main className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="flex flex-col items-center justify-center min-h-[70vh]">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <div className="text-5xl mb-4">🎬</div>
-          <h1 className="text-3xl font-bold text-white">Вечер с партнёром</h1>
-          <p className="mt-3 text-slate-400">
+          <h1 className="text-3xl font-bold text-foreground">Вечер с партнёром</h1>
+          <p className="mt-3 text-muted-foreground">
             Найдём фильм, который понравится вам обоим
           </p>
         </div>
         <PartnerCreateRoom hasTasteProfile={!!profile} genreIds={profile?.genreIds ?? []} />
       </div>
-    </main>
+    </div>
   )
 }

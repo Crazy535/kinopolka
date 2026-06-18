@@ -30,27 +30,27 @@ export default async function PartnerRoomPage({
 
   if (room.expiresAt < new Date()) {
     return (
-      <main className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
-        <div className="text-center">
-          <p className="text-2xl font-bold text-white mb-2">Комната истекла</p>
-          <p className="text-slate-400">Создайте новую комнату</p>
-          <a href="/partner" className="mt-4 inline-block text-violet-400 hover:text-violet-300 underline">
+      <div className="flex items-center justify-center py-24 text-center">
+        <div>
+          <p className="text-2xl font-bold text-foreground mb-2">Комната истекла</p>
+          <p className="text-muted-foreground">Создайте новую комнату</p>
+          <a href="/partner" className="mt-4 inline-block text-primary hover:text-primary/80 underline">
             Создать новую
           </a>
         </div>
-      </main>
+      </div>
     )
   }
 
   // If room already has a different guest — block access
   if (room.guestId && room.guestId !== session.user.id && room.hostId !== session.user.id) {
     return (
-      <main className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
-        <div className="text-center">
-          <p className="text-2xl font-bold text-white mb-2">Комната занята</p>
-          <p className="text-slate-400">В этой комнате уже есть два участника</p>
+      <div className="flex items-center justify-center py-24 text-center">
+        <div>
+          <p className="text-2xl font-bold text-foreground mb-2">Комната занята</p>
+          <p className="text-muted-foreground">В этой комнате уже есть два участника</p>
         </div>
-      </main>
+      </div>
     )
   }
 
@@ -68,12 +68,14 @@ export default async function PartnerRoomPage({
     status: room.status as 'waiting' | 'active' | 'done',
     host: room.host,
     guest: room.guest,
+    hostGenreIds: room.hostGenreIds,
+    guestGenreIds: room.guestGenreIds,
     items: null,
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-16">
-      <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto py-8">
+      <div>
         <PartnerRoom
           code={code}
           userId={session.user.id}
@@ -83,6 +85,6 @@ export default async function PartnerRoomPage({
           userGenreIds={profile?.genreIds ?? []}
         />
       </div>
-    </main>
+    </div>
   )
 }

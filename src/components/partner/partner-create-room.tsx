@@ -38,11 +38,11 @@ export function PartnerCreateRoom({ hasTasteProfile, genreIds }: Props) {
   if (!hasTasteProfile) {
     return (
       <div className="space-y-4">
-        <p className="text-center text-slate-400 text-sm">
+        <p className="text-center text-muted-foreground text-sm">
           Расскажите о своих предпочтениях, чтобы начать
         </p>
         <GenrePicker onConfirm={createRoom} loading={loading} />
-        {error && <p className="text-center text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-center text-destructive text-sm">{error}</p>}
       </div>
     )
   }
@@ -52,12 +52,12 @@ export function PartnerCreateRoom({ hasTasteProfile, genreIds }: Props) {
       <button
         onClick={() => createRoom()}
         disabled={loading}
-        className="w-full py-4 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-lg font-bold rounded-2xl transition-all"
+        className="w-full py-4 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-lg font-bold rounded-2xl transition-all"
       >
         {loading ? 'Создаём комнату...' : 'Создать комнату'}
       </button>
-      {error && <p className="text-center text-red-400 text-sm">{error}</p>}
-      <p className="text-center text-slate-500 text-xs max-w-xs">
+      {error && <p className="text-center text-destructive text-sm">{error}</p>}
+      <p className="text-center text-muted-foreground text-xs max-w-xs">
         Создайте комнату и отправьте ссылку партнёру — подберём фильм для обоих за 30 сек
       </p>
     </div>

@@ -58,6 +58,8 @@ export async function GET(
       status: room.status,
       host: room.host,
       guest: room.guest,
+      hostGenreIds: room.hostGenreIds,
+      guestGenreIds: room.guestGenreIds,
       items,
       expiresAt: room.expiresAt,
     })

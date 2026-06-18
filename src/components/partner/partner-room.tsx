@@ -11,6 +11,8 @@ interface RoomState {
   status: 'waiting' | 'active' | 'done'
   host: { id: string; name: string | null; image: string | null } | null
   guest: { id: string; name: string | null; image: string | null } | null
+  hostGenreIds: number[]
+  guestGenreIds: number[]
   items: RecommendationItem[] | null
 }
 
@@ -28,6 +30,8 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
   const [joining, setJoining] = useState(false)
   const [copied, setCopied] = useState(false)
   const [fetchingResults, setFetchingResults] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [currentItems, setCurrentItems] = useState<RecommendationItem[] | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const supabase = getSupabaseClient()
 
@@ -40,7 +44,6 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
     const data: RoomState = await res.json()
     setRoom(data)
 
-    // Fetch enriched items when status becomes done but items not loaded
     if (data.status === 'done' && !data.items) {
       setFetchingResults(true)
       const r2 = await fetch(`/api/partner/rooms/${code}`, { cache: 'no-store' })
@@ -90,7 +93,6 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
         body: JSON.stringify({ genreIds: genreIds ?? [] }),
       })
       if (res.ok) {
-        // Broadcast to host so they get instant notification
         await supabase.channel(`partner:${code}`).send({
           type: 'broadcast',
           event: 'update',
@@ -100,6 +102,25 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
       }
     } finally {
       setJoining(false)
+    }
+  }
+
+  async function handleRefresh() {
+    const displayedItems = currentItems ?? room.items ?? []
+    const excludeIds = displayedItems.map(({ movie }) => movie.id)
+    setRefreshing(true)
+    try {
+      const res = await fetch(`/api/partner/rooms/${code}/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ excludeIds }),
+      })
+      if (res.ok) {
+        const { items } = await res.json()
+        setCurrentItems(items)
+      }
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -115,7 +136,8 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
 
   // ─── DONE state ───────────────────────────────────────────────────────────
   if (room.status === 'done') {
-    if (fetchingResults || !room.items) {
+    const displayItems = currentItems ?? room.items
+    if (fetchingResults || !displayItems) {
       return (
         <div>
           <div className="mb-8 text-center">
@@ -128,10 +150,13 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
     }
     return (
       <PartnerResults
-        items={room.items}
+        items={displayItems}
         hostName={room.host?.name ?? null}
         guestName={room.guest?.name ?? null}
-        userGenreIds={userGenreIds}
+        hostGenreIds={room.hostGenreIds ?? []}
+        guestGenreIds={room.guestGenreIds ?? []}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
       />
     )
   }
@@ -142,7 +167,7 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
       <div className="flex flex-col items-center gap-8 text-center">
         <div>
           <div className="inline-block w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-          <h2 className="text-2xl font-bold">Ожидаем партнёра...</h2>
+          <h2 className="text-2xl font-bold text-foreground">Ожидаем партнёра...</h2>
           <p className="mt-2 text-muted-foreground">Отправьте ссылку другу, чтобы начать подбор</p>
         </div>
 
@@ -172,7 +197,7 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
     return (
       <div className="flex flex-col items-center gap-4 text-center">
         <div className="inline-block w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <h2 className="text-2xl font-bold">Подбираем фильмы...</h2>
+        <h2 className="text-2xl font-bold text-foreground">Подбираем фильмы...</h2>
         <p className="text-muted-foreground">Ещё секунда</p>
       </div>
     )
@@ -182,7 +207,7 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div>
-        <h2 className="text-2xl font-bold">
+        <h2 className="text-2xl font-bold text-foreground">
           Вечер с{room.host?.name ? ` ${room.host.name}` : ' партнёром'}
         </h2>
         <p className="mt-2 text-muted-foreground">Выберите свои предпочтения, чтобы найти общий фильм</p>

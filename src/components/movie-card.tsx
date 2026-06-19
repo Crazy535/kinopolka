@@ -102,7 +102,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
           {title}
         </h3>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-[11px] text-white/55">{year}</span>
+          <span className="text-[11px] text-white/70">{year}</span>
           {movie.vote_count > 0 && (
             <span className={`text-[11px] font-bold ${ratingClass}`}>
               ★&nbsp;{movie.vote_average.toFixed(1)}
@@ -137,7 +137,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
           href={fallbackLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-2.5 right-2.5 z-30 text-[10px] text-white/65 transition-colors hover:text-white/90"
+          className="absolute bottom-2.5 right-2.5 z-30 text-[10px] text-white/75 transition-colors hover:text-white"
         >
           Найти&nbsp;→
         </a>

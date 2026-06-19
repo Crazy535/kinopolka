@@ -64,6 +64,9 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
     if (seenIds.length > 0) {
       params.set('exclude_ids', seenIds.join(','))
     }
+    if (userGenreIds.length > 0) {
+      params.set('user_genre_ids', userGenreIds.join(','))
+    }
 
     try {
       const res = await fetch(`/api/recommendations?${params}`)

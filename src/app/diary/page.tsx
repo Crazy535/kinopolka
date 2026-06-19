@@ -6,6 +6,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { getPosterUrl } from '@/lib/tmdb-image'
 import { DiaryRemoveButton } from '@/components/diary/diary-remove-button'
+import { DiaryNoteButton } from '@/components/diary/diary-note-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -114,7 +115,7 @@ export default async function DiaryPage() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-2">
-                          <p className="text-[10px] text-white/60">{dayLabel}</p>
+                          <p className="text-[10px] text-white/75">{dayLabel}</p>
                           {log.isRewatch && (
                             <span className="mt-0.5 inline-block rounded bg-primary/80 px-1 py-px text-[9px] font-semibold uppercase leading-none text-white">
                               Повтор
@@ -123,11 +124,7 @@ export default async function DiaryPage() {
                         </div>
                       </Link>
                       <DiaryRemoveButton logId={log.id} />
-                      {log.note && (
-                        <p className="mt-1.5 line-clamp-2 text-[11px] leading-tight text-muted-foreground">
-                          {log.note}
-                        </p>
-                      )}
+                      <DiaryNoteButton logId={log.id} initialNote={log.note} />
                     </div>
                   )
                 })}

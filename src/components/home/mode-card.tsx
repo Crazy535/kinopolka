@@ -34,7 +34,7 @@ export function ModeCard({ href, icon: Icon, title, description, from, to, index
 
           <div>
             <h3 className="text-base font-bold text-white sm:text-lg">{title}</h3>
-            <p className="mt-0.5 text-xs text-white/65 sm:text-sm">{description}</p>
+            <p className="mt-0.5 text-xs text-white/75 sm:text-sm">{description}</p>
           </div>
 
           {/* Hover shine */}

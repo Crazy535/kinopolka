@@ -239,7 +239,7 @@ export default async function WatchlistPage({ searchParams }: Props) {
                     <p className="text-[13px] font-semibold leading-tight text-white line-clamp-2">
                       {item.title}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-white/50 capitalize">
+                    <p className="mt-0.5 text-[11px] text-white/70 capitalize">
                       {item.mediaType === 'tv' ? 'Сериал' : 'Фильм'}
                       {showWatched && item.watchedAt && (
                         <> &bull; {formatDate(item.watchedAt)}</>

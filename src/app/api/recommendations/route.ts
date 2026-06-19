@@ -23,6 +23,32 @@ function pickRandom<T>(arr: T[], n: number): T[] {
   return copy.slice(0, n)
 }
 
+function rankByGenres<T extends { id: number; genre_ids?: number[] }>(
+  items: T[],
+  excludeSet: Set<number>,
+  preferredGenres: Set<number>,
+  count = 5
+): T[] {
+  const seen = new Set<number>()
+  const candidates = items.filter((m) => {
+    if (excludeSet.has(m.id) || seen.has(m.id)) return false
+    seen.add(m.id)
+    return true
+  })
+  if (preferredGenres.size === 0) return pickRandom(candidates.length >= count ? candidates : items, count)
+  const scored = candidates.map((m) => ({
+    m,
+    score: (m.genre_ids ?? []).filter((g) => preferredGenres.has(g)).length,
+  }))
+  scored.sort((a, b) => b.score - a.score)
+  const ranked = scored.slice(0, count).map((s) => s.m)
+  if (ranked.length < count) {
+    const extra = candidates.filter((m) => !ranked.find((r) => r.id === m.id))
+    return [...ranked, ...extra].slice(0, count)
+  }
+  return ranked
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl
@@ -30,14 +56,20 @@ export async function GET(req: NextRequest) {
     const genreId = searchParams.get('genre_id')
     const runtime = searchParams.get('runtime') as RuntimeOption | null
     const excludeIdsParam = searchParams.get('exclude_ids')
+    const userGenreIdsParam = searchParams.get('user_genre_ids')
+
     const excludeSet = new Set<number>(
       excludeIdsParam ? excludeIdsParam.split(',').map(Number).filter(Boolean) : []
+    )
+    const preferredGenres = new Set<number>(
+      userGenreIdsParam ? userGenreIdsParam.split(',').map(Number).filter(Boolean) : []
     )
 
     if (!type || !genreId) {
       return NextResponse.json({ error: 'Missing required params: type, genre_id' }, { status: 400 })
     }
 
+    const isPersonalized = preferredGenres.size > 0
     let rawItems: (TMDBMovie | TMDBTVShow)[]
 
     if (type === 'movie') {
@@ -57,9 +89,17 @@ export async function GET(req: NextRequest) {
         params['with_runtime.gte'] = 150
       }
 
-      const data = await discoverMovies(params)
-      const filtered = data.results.filter((m) => !excludeSet.has(m.id))
-      rawItems = pickRandom(filtered.length >= 5 ? filtered : data.results, 5)
+      if (isPersonalized) {
+        const [page1, page2] = await Promise.all([
+          discoverMovies({ ...params, page: randomPage() }),
+          discoverMovies({ ...params, page: randomPage() }),
+        ])
+        rawItems = rankByGenres([...page1.results, ...page2.results], excludeSet, preferredGenres)
+      } else {
+        const data = await discoverMovies(params)
+        const filtered = data.results.filter((m) => !excludeSet.has(m.id))
+        rawItems = pickRandom(filtered.length >= 5 ? filtered : data.results, 5)
+      }
     } else {
       const params: TMDBDiscoverTVParams = {
         sort_by: 'popularity.desc',
@@ -69,9 +109,17 @@ export async function GET(req: NextRequest) {
         page: randomPage(),
       }
 
-      const data = await discoverTVShows(params)
-      const filtered = data.results.filter((m) => !excludeSet.has(m.id))
-      rawItems = pickRandom(filtered.length >= 5 ? filtered : data.results, 5)
+      if (isPersonalized) {
+        const [page1, page2] = await Promise.all([
+          discoverTVShows({ ...params, page: randomPage() }),
+          discoverTVShows({ ...params, page: randomPage() }),
+        ])
+        rawItems = rankByGenres([...page1.results, ...page2.results], excludeSet, preferredGenres)
+      } else {
+        const data = await discoverTVShows(params)
+        const filtered = data.results.filter((m) => !excludeSet.has(m.id))
+        rawItems = pickRandom(filtered.length >= 5 ? filtered : data.results, 5)
+      }
     }
 
     const providerFetcher = type === 'movie' ? getMovieWatchProviders : getTVWatchProviders

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Shuffle, Film, Tv } from 'lucide-react'
 import { MOODS } from '@/types/quiz'
@@ -7,6 +8,58 @@ import { useRouletteStore } from '@/stores/roulette-store'
 import { RouletteResult } from './roulette-result'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { trackRouletteSpun, trackTTWStart } from '@/lib/analytics'
+
+const SPIN_LABELS = [
+  'Боевик', 'Комедия', 'Драма', 'Триллер', 'Фантастика',
+  'Ужасы', 'Романтика', 'Аниме', 'Документалка', 'Криминал',
+  'Анимация', 'Приключения', 'Мистика', 'Биография', 'Фэнтези',
+]
+
+function SpinningLoader() {
+  const [idx, setIdx] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIdx((i) => (i + 1) % SPIN_LABELS.length)
+    }, 90)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="flex flex-col items-center gap-6 py-8">
+      <div className="relative flex size-16 items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-0 rounded-full border-2 border-transparent border-t-gold border-r-gold/50"
+        />
+        <Shuffle className="size-7 text-gold" />
+      </div>
+
+      <div className="flex flex-col items-center gap-1.5">
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Крутим рулетку</p>
+        <div className="h-7 overflow-hidden">
+          <AnimatePresence mode="popLayout">
+            <motion.p
+              key={idx}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.09 }}
+              className="text-center text-lg font-bold text-foreground"
+            >
+              {SPIN_LABELS[idx]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <div className="w-full max-w-[200px]">
+        <MovieCardSkeleton />
+      </div>
+    </div>
+  )
+}
 
 const EXPO_OUT: [number, number, number, number] = [0.19, 1, 0.22, 1]
 
@@ -71,16 +124,8 @@ export function RouletteContainer({ isAuthenticated = false, userGenreIds = [] }
             />
           </motion.div>
         ) : isLoading ? (
-          <motion.div key="loading" {...SLIDE} className="w-full max-w-[200px]">
-            <div className="flex flex-col items-center gap-5 py-8">
-              <div className="flex items-center gap-3">
-                <Shuffle className="size-5 animate-spin text-gold" />
-                <span className="text-sm font-medium text-muted-foreground">Крутим…</span>
-              </div>
-              <div className="w-full">
-                <MovieCardSkeleton />
-              </div>
-            </div>
+          <motion.div key="loading" {...SLIDE} className="w-full max-w-sm">
+            <SpinningLoader />
           </motion.div>
         ) : error ? (
           <motion.div key="error" {...SLIDE} className="py-16 text-center">

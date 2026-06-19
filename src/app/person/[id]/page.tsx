@@ -5,6 +5,7 @@ import { getPersonDetails, getPersonCombinedCredits } from '@/lib/tmdb'
 import { PersonHero } from '@/components/person/person-hero'
 import { PersonBio } from '@/components/person/person-bio'
 import { PersonFilmography } from '@/components/person/person-filmography'
+import { EveningWithPerson } from '@/components/person/evening-with-person'
 
 export const revalidate = 86400
 
@@ -49,6 +50,8 @@ export default async function PersonPage({ params }: PersonPageProps) {
       <PersonHero person={person} />
 
       {person.biography && <PersonBio biography={person.biography} />}
+
+      <EveningWithPerson personId={personId} personName={person.name} />
 
       {topCredits.length > 0 && <PersonFilmography credits={topCredits} />}
     </div>

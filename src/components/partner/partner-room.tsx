@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import QRCode from 'react-qr-code'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { GenrePicker } from './genre-picker'
 import { PartnerResults, PartnerResultsSkeleton } from './partner-results'
@@ -187,6 +188,14 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
           <p className="mt-3 text-center text-xs text-muted-foreground">
             Код комнаты: <span className="font-mono tracking-widest text-foreground">{code}</span>
           </p>
+        </div>
+
+        {/* QR code */}
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-xs text-muted-foreground">Или отсканируй QR-код</p>
+          <div className="rounded-xl bg-white p-3">
+            <QRCode value={inviteUrl} size={140} />
+          </div>
         </div>
       </div>
     )

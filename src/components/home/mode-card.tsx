@@ -14,9 +14,10 @@ interface ModeCardProps {
   from: string
   to: string
   index: number
+  wide?: boolean
 }
 
-export function ModeCard({ href, icon: Icon, title, description, from, to, index }: ModeCardProps) {
+export function ModeCard({ href, icon: Icon, title, description, from, to, index, wide = false }: ModeCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -25,16 +26,16 @@ export function ModeCard({ href, icon: Icon, title, description, from, to, index
     >
       <Link href={href} className="group block h-full">
         <motion.div
-          className="relative flex h-full min-h-[80px] flex-col justify-between overflow-hidden rounded-xl p-4 sm:min-h-[140px] sm:p-6"
+          className={`relative flex h-full overflow-hidden rounded-xl p-4 sm:p-6 ${wide ? 'min-h-[64px] flex-row items-center gap-4 sm:min-h-[80px]' : 'min-h-[80px] flex-col justify-between sm:min-h-[140px]'}`}
           style={{ background: `linear-gradient(145deg, ${from}, ${to})` }}
           whileHover={{ scale: 1.02, y: -4 }}
           transition={{ duration: 0.22, ease: EXPO_OUT }}
         >
-          <Icon className="size-6 text-white/85 sm:size-7" />
+          <Icon className={`shrink-0 text-white/85 ${wide ? 'size-5 sm:size-6' : 'size-6 sm:size-7'}`} />
 
-          <div>
+          <div className={wide ? 'flex items-center gap-3' : ''}>
             <h3 className="text-base font-bold text-white sm:text-lg">{title}</h3>
-            <p className="mt-0.5 text-xs text-white/75 sm:text-sm">{description}</p>
+            <p className={`text-xs text-white/75 sm:text-sm ${wide ? '' : 'mt-0.5'}`}>{description}</p>
           </div>
 
           {/* Hover shine */}

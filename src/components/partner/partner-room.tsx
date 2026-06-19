@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { GenrePicker } from './genre-picker'
 import { PartnerResults, PartnerResultsSkeleton } from './partner-results'
+import { trackTTWStart } from '@/lib/analytics'
 import type { RecommendationItem } from '@/types/quiz'
 
 interface RoomState {
@@ -93,6 +94,7 @@ export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUr
         body: JSON.stringify({ genreIds: genreIds ?? [] }),
       })
       if (res.ok) {
+        trackTTWStart('auth', '/partner', 'partner')
         await supabase.channel(`partner:${code}`).send({
           type: 'broadcast',
           event: 'update',

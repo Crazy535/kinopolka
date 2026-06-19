@@ -7,6 +7,7 @@ import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
 import { calcMatchScore } from '@/lib/match-score'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import { AiExplanation } from '@/components/ai-explanation'
+import { trackTTWCompleted } from '@/lib/analytics'
 import type { RecommendationItem } from '@/types/quiz'
 import type { WatchProvider, WatchProvidersByType } from '@/types/tmdb'
 
@@ -47,9 +48,10 @@ interface RouletteResultProps {
   onRespin: () => void
   onChangeMood: () => void
   userGenreIds?: number[]
+  userType?: 'anon' | 'auth'
 }
 
-export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, userGenreIds = [] }: RouletteResultProps) {
+export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, userGenreIds = [], userType = 'anon' }: RouletteResultProps) {
   const { movie, providers } = result
   const matchScore = userGenreIds.length > 0
     ? (calcMatchScore(movie.genre_ids, userGenreIds) ?? undefined)
@@ -124,6 +126,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5"
                 aria-label="Где смотреть"
+                onClick={() => trackTTWCompleted(userType, 'provider')}
               >
                 {topProviders.map((p) => (
                   <Image
@@ -143,6 +146,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => trackTTWCompleted(userType, 'provider')}
               >
                 Найти онлайн&nbsp;→
               </a>
@@ -222,6 +226,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
                 aria-label="Где смотреть"
+                onClick={() => trackTTWCompleted(userType, 'provider')}
               >
                 {topProviders.map((p) => (
                   <Image
@@ -241,6 +246,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => trackTTWCompleted(userType, 'provider')}
               >
                 Найти онлайн&nbsp;→
               </a>

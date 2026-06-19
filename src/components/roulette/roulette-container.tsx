@@ -67,6 +67,7 @@ export function RouletteContainer({ isAuthenticated = false, userGenreIds = [] }
               onRespin={handleRespin}
               onChangeMood={handleChangeMood}
               userGenreIds={userGenreIds}
+              userType={userType}
             />
           </motion.div>
         ) : isLoading ? (

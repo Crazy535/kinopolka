@@ -1,15 +1,17 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from '@sentry/nextjs'
 
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.com'
+
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://www.youtube-nocookie.com https://app.posthog.com",
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://www.youtube-nocookie.com ${posthogHost}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://image.tmdb.org https://lh3.googleusercontent.com",
   "media-src 'self' https://www.youtube.com",
   "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
-  "connect-src 'self' https://api.themoviedb.org https://app.posthog.com https://api.groq.com https://api.resend.com https://o*.ingest.sentry.io",
+  `connect-src 'self' https://api.themoviedb.org ${posthogHost} https://api.groq.com https://api.resend.com https://o*.ingest.sentry.io`,
   "worker-src blob:",
 ].join('; ')
 

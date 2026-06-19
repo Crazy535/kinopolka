@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import type { Metadata } from 'next'
 import { auth } from '@/auth'
 import { getTVShowDetailsEnriched, getTVRecommendations, getTVVideos } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
@@ -17,8 +18,44 @@ import { AiExplanation } from '@/components/ai-explanation'
 
 export const revalidate = 86400
 
+const BASE_URL = 'https://kinopolka.vercel.app'
+
 interface TVPageProps {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: TVPageProps): Promise<Metadata> {
+  const { id } = await params
+  const tvId = Number(id)
+  if (!tvId || isNaN(tvId)) return {}
+
+  try {
+    const show = await getTVShowDetailsEnriched(tvId)
+    const posterUrl = getPosterUrl(show.poster_path, 'w500')
+    const year = show.first_air_date ? show.first_air_date.slice(0, 4) : ''
+    const title = year ? `${show.name} (${year})` : show.name
+    const description = show.overview?.slice(0, 160) ?? `Сериал ${show.name} на Кинополке`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        type: 'video.tv_show',
+        url: `${BASE_URL}/tv/${id}`,
+        images: posterUrl ? [{ url: posterUrl, width: 500, height: 750 }] : [],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: posterUrl ? [posterUrl] : [],
+      },
+    }
+  } catch {
+    return {}
+  }
 }
 
 export default async function TVPage({ params }: TVPageProps) {
@@ -52,7 +89,39 @@ export default async function TVPage({ params }: TVPageProps) {
   const directorName = creator?.name ?? crew.find((c) => c.job === 'Director')?.name
   const topCast = cast.slice(0, 3).map((c) => c.name)
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TVSeries',
+    name: show.name,
+    ...(show.original_name !== show.name && { alternateName: show.original_name }),
+    ...(show.first_air_date && { startDate: show.first_air_date }),
+    ...(show.overview && { description: show.overview }),
+    ...(posterUrl && { image: posterUrl }),
+    url: `${BASE_URL}/tv/${tvId}`,
+    ...(show.genres?.length && { genre: show.genres.map((g) => g.name) }),
+    ...(show.number_of_seasons && { numberOfSeasons: show.number_of_seasons }),
+    ...(show.number_of_episodes && { numberOfEpisodes: show.number_of_episodes }),
+    ...(directorName && { creator: { '@type': 'Person', name: directorName } }),
+    ...(topCast.length > 0 && {
+      actor: topCast.map((name) => ({ '@type': 'Person', name })),
+    }),
+    ...(show.vote_count > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: show.vote_average.toFixed(1),
+        ratingCount: show.vote_count,
+        bestRating: '10',
+        worstRating: '1',
+      },
+    }),
+  }
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     <div>
       {backdropUrl && (
         <div className="relative -mx-4 mb-8 h-48 sm:h-64 md:h-80 lg:h-96">
@@ -190,5 +259,6 @@ export default async function TVPage({ params }: TVPageProps) {
         </div>
       </div>
     </div>
+    </>
   )
 }

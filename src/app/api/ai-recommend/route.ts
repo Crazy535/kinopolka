@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { calcMatchScore } from '@/lib/match-score'
 import { searchPersons, getPersonCombinedCredits } from '@/lib/tmdb'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
+import { checkRateLimit } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
@@ -139,6 +140,24 @@ export async function POST(req: Request) {
   const session = await auth()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const ip =
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    req.headers.get('x-real-ip') ??
+    session.user.id
+  const rl = await checkRateLimit(ip)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Try again in a minute.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((rl.reset - Date.now()) / 1000)),
+          'X-RateLimit-Remaining': String(rl.remaining),
+        },
+      }
+    )
   }
 
   const groqKey = process.env.GROQ_API_KEY

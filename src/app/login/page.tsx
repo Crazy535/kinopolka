@@ -3,12 +3,12 @@ import { LoginForm } from './login-form'
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ verified?: string }>
+  searchParams: Promise<{ verified?: string; reset?: string }>
 }) {
-  const { verified } = await searchParams
+  const { verified, reset } = await searchParams
   return (
     <main className="flex min-h-[80vh] items-center justify-center px-4">
-      <LoginForm verified={!!verified} />
+      <LoginForm verified={!!verified} passwordReset={!!reset} />
     </main>
   )
 }

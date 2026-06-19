@@ -15,9 +15,10 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   image         String?
-  passwordHash  String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  passwordHash        String?
+  emailUnsubscribed   Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   accounts        Account[]
   sessions        Session[]
@@ -188,6 +189,18 @@ model UserAchievement {
   @@unique([userId, badge])
   @@index([userId])
   @@map("user_achievements")
+}
+
+// Password Reset Token — одноразовый токен сброса пароля
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("password_reset_tokens")
 }
 
 // Taste Profile — результат Onboarding (выбранные постеры → жанры)

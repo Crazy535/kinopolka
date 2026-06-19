@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     const ruProviders = providers?.results?.['RU'] ?? null
 
     const users = await prisma.user.findMany({
-      where: { emailVerified: { not: null } },
+      where: { emailVerified: { not: null }, emailUnsubscribed: false },
       select: { email: true },
     })
 

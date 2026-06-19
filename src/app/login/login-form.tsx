@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { Logo } from '@/components/logo'
 
-export function LoginForm({ verified }: { verified: boolean }) {
+export function LoginForm({ verified, passwordReset }: { verified: boolean; passwordReset?: boolean }) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,6 +37,9 @@ export function LoginForm({ verified }: { verified: boolean }) {
         <h1 className="text-2xl font-bold">Вход</h1>
         {verified && (
           <p className="text-sm text-green-600">Email подтверждён! Можете войти.</p>
+        )}
+        {passwordReset && (
+          <p className="text-sm text-green-600">Пароль изменён. Войдите с новым паролем.</p>
         )}
       </div>
 

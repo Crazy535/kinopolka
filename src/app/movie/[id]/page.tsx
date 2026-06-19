@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import type { Metadata } from 'next'
 import { auth } from '@/auth'
 import { getMovieDetailsEnriched, getMovieRecommendations, getMovieVideos } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
@@ -17,8 +18,44 @@ import { AiExplanation } from '@/components/ai-explanation'
 
 export const revalidate = 86400
 
+const BASE_URL = 'https://kinopolka.vercel.app'
+
 interface MoviePageProps {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: MoviePageProps): Promise<Metadata> {
+  const { id } = await params
+  const movieId = Number(id)
+  if (!movieId || isNaN(movieId)) return {}
+
+  try {
+    const movie = await getMovieDetailsEnriched(movieId)
+    const posterUrl = getPosterUrl(movie.poster_path, 'w500')
+    const year = movie.release_date ? movie.release_date.slice(0, 4) : ''
+    const title = year ? `${movie.title} (${year})` : movie.title
+    const description = movie.overview?.slice(0, 160) ?? `Фильм ${movie.title} на Кинополке`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        type: 'video.movie',
+        url: `${BASE_URL}/movie/${id}`,
+        images: posterUrl ? [{ url: posterUrl, width: 500, height: 750 }] : [],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: posterUrl ? [posterUrl] : [],
+      },
+    }
+  } catch {
+    return {}
+  }
 }
 
 export default async function MoviePage({ params }: MoviePageProps) {
@@ -54,7 +91,37 @@ export default async function MoviePage({ params }: MoviePageProps) {
     ? `${Math.floor(movie.runtime / 60)} ч ${movie.runtime % 60} мин`
     : null
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Movie',
+    name: movie.title,
+    ...(movie.original_title !== movie.title && { alternateName: movie.original_title }),
+    ...(movie.release_date && { datePublished: movie.release_date }),
+    ...(movie.overview && { description: movie.overview }),
+    ...(posterUrl && { image: posterUrl }),
+    url: `${BASE_URL}/movie/${movieId}`,
+    ...(movie.genres?.length && { genre: movie.genres.map((g) => g.name) }),
+    ...(director && { director: { '@type': 'Person', name: director } }),
+    ...(topCast.length > 0 && {
+      actor: topCast.map((name) => ({ '@type': 'Person', name })),
+    }),
+    ...(movie.vote_count > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: movie.vote_average.toFixed(1),
+        ratingCount: movie.vote_count,
+        bestRating: '10',
+        worstRating: '1',
+      },
+    }),
+  }
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     <div>
       {backdropUrl && (
         <div className="relative -mx-4 mb-8 h-48 sm:h-64 md:h-80 lg:h-96">
@@ -169,5 +236,6 @@ export default async function MoviePage({ params }: MoviePageProps) {
         </div>
       </div>
     </div>
+    </>
   )
 }

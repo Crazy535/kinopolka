@@ -19,6 +19,7 @@ interface QuizState {
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   reset: () => void
+  goBack: () => void
   startTTW: () => void
   stopTTW: () => void
 }
@@ -53,6 +54,13 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   setError: (error) => set({ error, isLoading: false }),
 
   reset: () => set(initialState),
+
+  goBack: () =>
+    set((state) => {
+      if (state.step === 1) return { step: 0, type: null }
+      if (state.step === 2) return { step: 1, moodIndex: null }
+      return {}
+    }),
 
   startTTW: () => set({ ttwStart: performance.now() }),
 

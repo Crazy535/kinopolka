@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Film, Tv } from 'lucide-react'
+import { Film, Tv, ArrowLeft } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useQuizStore } from '@/stores/quiz-store'
 import { useDiscoveryStore } from '@/stores/discovery-store'
@@ -29,7 +29,7 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
     step, type, moodIndex, runtime,
     setType, setMood, setRuntime,
     setResults, setLoading, setError,
-    reset, startTTW, stopTTW,
+    reset, goBack, startTTW, stopTTW,
     results, isLoading, error,
   } = useQuizStore()
 
@@ -39,7 +39,7 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
     if (initialType) {
       setType(initialType)
       startTTW()
-      trackTTWStart(userType, '/quiz')
+      trackTTWStart(userType, '/quiz', 'quiz')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -80,7 +80,7 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
   function handleTypeSelect(value: string) {
     startTTW()
     setType(value as ContentType)
-    trackTTWStart(userType, '/quiz')
+    trackTTWStart(userType, '/quiz', 'quiz')
     trackQuizStep(1, userType)
   }
 
@@ -153,9 +153,21 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
     <div className="flex min-h-[calc(100vh-5rem)] flex-col pt-6 sm:pt-12">
       {/* Segmented progress bar */}
       <div className="mb-10 flex flex-col gap-1">
-        <p className="text-xs text-muted-foreground">
-          Шаг {step + 1} из {totalSteps}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            Шаг {step + 1} из {totalSteps}
+          </p>
+          {step > 0 && (
+            <button
+              type="button"
+              onClick={goBack}
+              className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="size-3.5" />
+              Назад
+            </button>
+          )}
+        </div>
         <div className="flex gap-1.5">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div

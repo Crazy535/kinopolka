@@ -34,7 +34,7 @@ export function RouletteContainer({ isAuthenticated = false, userGenreIds = [] }
     if (moodIndex === null || contentType === null) return
     const mood = MOODS[moodIndex]
     const genreId = contentType === 'tv' ? mood.tvGenreId : mood.movieGenreId
-    trackTTWStart(userType, '/roulette')
+    trackTTWStart(userType, '/roulette', 'roulette')
     spin(genreId, contentType)
     trackRouletteSpun(userType)
   }

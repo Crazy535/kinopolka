@@ -9,6 +9,7 @@ import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { PersonalFeed } from '@/components/personal-feed'
 import { OnboardingBanner } from '@/components/onboarding-banner'
 import { CategoriesSection } from '@/components/home/categories-section'
+import { ModeGrid } from '@/components/home/mode-grid'
 
 function GridSkeleton() {
   return (
@@ -57,6 +58,12 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection />
+
+      {!userId && (
+        <section className="mb-10">
+          <ModeGrid />
+        </section>
+      )}
 
       {userId && !hasTasteProfile && <OnboardingBanner />}
 

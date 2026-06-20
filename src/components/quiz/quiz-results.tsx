@@ -250,9 +250,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
                 priority={i === 0}
                 matchScore={matchScore}
               />
-              {userType === 'auth' && (
-                <AiExplanation title={title} year={year} genres={genreNames} overview={overview} />
-              )}
+              <AiExplanation title={title} year={year} genres={genreNames} overview={overview} />
             </div>
           )
         })}

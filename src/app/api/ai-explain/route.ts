@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import { checkRateLimit } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
@@ -6,8 +7,23 @@ const MODEL = 'llama-3.3-70b-versatile'
 
 export async function POST(req: Request) {
   const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const ip =
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    req.headers.get('x-real-ip') ??
+    session?.user?.id ??
+    'anon'
+  const rl = await checkRateLimit(`explain:${ip}`)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Try again in a minute.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((rl.reset - Date.now()) / 1000)),
+          'X-RateLimit-Remaining': String(rl.remaining),
+        },
+      }
+    )
   }
 
   const apiKey = process.env.GROQ_API_KEY

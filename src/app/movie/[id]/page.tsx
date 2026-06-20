@@ -217,16 +217,14 @@ export default async function MoviePage({ params }: MoviePageProps) {
             />
           )}
 
-          {userType === 'auth' && (
-            <AiExplanation
-              title={movie.title}
-              year={year !== '—' ? year : undefined}
-              genres={movie.genres?.map((g) => g.name) ?? []}
-              director={director}
-              cast={topCast}
-              overview={movie.overview?.slice(0, 100)}
-            />
-          )}
+          <AiExplanation
+            title={movie.title}
+            year={year !== '—' ? year : undefined}
+            genres={movie.genres?.map((g) => g.name) ?? []}
+            director={director}
+            cast={topCast}
+            overview={movie.overview?.slice(0, 100)}
+          />
 
           <WatchProvidersBlock providers={providers} title={movie.title} userType={userType} />
 

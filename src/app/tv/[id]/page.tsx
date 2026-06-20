@@ -231,16 +231,14 @@ export default async function TVPage({ params }: TVPageProps) {
             />
           )}
 
-          {userType === 'auth' && (
-            <AiExplanation
-              title={show.name}
-              year={year !== '—' ? year : undefined}
-              genres={show.genres?.map((g) => g.name) ?? []}
-              director={directorName}
-              cast={topCast}
-              overview={show.overview?.slice(0, 100)}
-            />
-          )}
+          <AiExplanation
+            title={show.name}
+            year={year !== '—' ? year : undefined}
+            genres={show.genres?.map((g) => g.name) ?? []}
+            director={directorName}
+            cast={topCast}
+            overview={show.overview?.slice(0, 100)}
+          />
 
           <WatchProvidersBlock providers={providers} title={show.name} userType={userType} />
 

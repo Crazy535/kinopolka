@@ -1,7 +1,7 @@
 import {
   Clapperboard, Trophy, Star, Film, Compass, Users, Bookmark,
   BookOpen, ThumbsUp, ThumbsDown, Zap, Layers, Heart, Award,
-  Flame, Crown, Library, Swords, Eye, Lock
+  Flame, Crown, Library, Swords, Eye, Lock, UserPlus, Sparkles
 } from 'lucide-react'
 import { BADGES, type BadgeId } from '@/lib/achievements'
 
@@ -26,6 +26,8 @@ const BADGE_ICONS: Record<BadgeId, React.ReactNode> = {
   perfectionist:    <Star className="size-5" />,
   harsh_critic:     <ThumbsDown className="size-5" />,
   diary_keeper:     <BookOpen className="size-5" />,
+  referrer:         <UserPlus className="size-5" />,
+  super_referrer:   <Sparkles className="size-5" />,
 }
 
 const CATEGORY_LABELS: Record<string, string> = {

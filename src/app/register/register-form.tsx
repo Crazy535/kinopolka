@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/logo'
 
-export function RegisterForm() {
+export function RegisterForm({ referralCode }: { referralCode?: string }) {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
@@ -21,7 +21,7 @@ export function RegisterForm() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, password }),
+        body: JSON.stringify({ email, name, password, referralCode }),
       })
 
       const data = await res.json().catch(() => ({}))
@@ -58,6 +58,11 @@ export function RegisterForm() {
       <div className="flex flex-col items-center gap-3 text-center">
         <Logo />
         <h1 className="text-2xl font-bold">Регистрация</h1>
+        {referralCode && (
+          <p className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs text-primary">
+            Вас пригласил друг — вы получите персональные рекомендации быстрее
+          </p>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

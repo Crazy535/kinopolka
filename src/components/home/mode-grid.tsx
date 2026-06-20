@@ -2,8 +2,9 @@
 
 import { Film, Tv, Shuffle, Users, Search, Gamepad2 } from 'lucide-react'
 import { ModeCard } from './mode-card'
+import { useFeatureFlagVariant } from '@/hooks/use-feature-flag'
 
-const MODES = [
+const BASE_MODES = [
   {
     href: '/quiz?start=movie',
     icon: Film,
@@ -36,7 +37,7 @@ const MODES = [
     from: 'oklch(0.50 0.15 195)',
     to: 'oklch(0.36 0.12 195)',
   },
-] as const
+]
 
 const WIDE_MODES = [
   {
@@ -58,6 +59,15 @@ const WIDE_MODES = [
 ] as const
 
 export function ModeGrid() {
+  const ctaVariant = useFeatureFlagVariant('quiz_film_cta')
+
+  const MODES = BASE_MODES.map((m, i) => {
+    if (i === 0 && ctaVariant === 'direct') {
+      return { ...m, description: 'Найди за 30 сек' }
+    }
+    return m
+  })
+
   return (
     <div className="flex flex-col gap-3 sm:gap-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">

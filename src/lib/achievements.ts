@@ -22,6 +22,8 @@ export type BadgeId =
   | 'harsh_critic'
   | 'diary_keeper'
   | 'taste_defined'
+  | 'referrer'
+  | 'super_referrer'
 
 export interface BadgeDef {
   id: BadgeId
@@ -59,6 +61,9 @@ export const BADGES: BadgeDef[] = [
   { id: 'harsh_critic',     title: 'Суровый критик',      description: 'Поставил оценку 1 звезда',               condition: 'Поставь кому-нибудь 1 звезду',            xp: 25,  category: 'rating' },
   // Diary
   { id: 'diary_keeper',     title: 'Хроникёр',            description: '5 записей в дневнике с заметкой',        condition: 'Добавь 5 заметок в дневник просмотров',   xp: 100, category: 'diary' },
+  // Referral
+  { id: 'referrer',         title: 'Амбассадор',          description: 'Первый друг зарегистрировался по твоей ссылке', condition: 'Пригласи друга по реферальной ссылке', xp: 150, category: 'social' },
+  { id: 'super_referrer',   title: 'Суперамбассадор',     description: '3 друга зарегистрировались по твоей ссылке',    condition: 'Пригласи 3 друзей по реферальной ссылке', xp: 300, category: 'social' },
 ]
 
 export const BADGE_XP: Record<BadgeId, number> = Object.fromEntries(
@@ -138,6 +143,41 @@ export async function checkAndGrantAchievements(userId: string): Promise<BadgeId
     }),
     prisma.user.update({
       where: { id: userId },
+      data: { xp: newXp, level: newLevel },
+    }),
+  ])
+
+  return newBadges
+}
+
+export async function grantReferralAchievements(referrerId: string): Promise<BadgeId[]> {
+  const [referralCount, existingAchievements, userXp] = await Promise.all([
+    prisma.user.count({ where: { referredById: referrerId } }),
+    prisma.userAchievement.findMany({ where: { userId: referrerId }, select: { badge: true } }),
+    prisma.user.findUnique({ where: { id: referrerId }, select: { xp: true } }),
+  ])
+
+  const alreadyUnlocked = new Set(existingAchievements.map((a) => a.badge))
+  const eligible: BadgeId[] = []
+
+  if (referralCount >= 1) eligible.push('referrer')
+  if (referralCount >= 3) eligible.push('super_referrer')
+
+  const newBadges = eligible.filter((b) => !alreadyUnlocked.has(b))
+  if (newBadges.length === 0) return []
+
+  const earnedXp = newBadges.reduce((sum, b) => sum + (BADGE_XP[b] ?? 0), 0)
+  const currentXp = userXp?.xp ?? 0
+  const newXp = currentXp + earnedXp
+  const newLevel = getLevelFromXp(newXp)
+
+  await prisma.$transaction([
+    prisma.userAchievement.createMany({
+      data: newBadges.map((badge) => ({ userId: referrerId, badge })),
+      skipDuplicates: true,
+    }),
+    prisma.user.update({
+      where: { id: referrerId },
       data: { xp: newXp, level: newLevel },
     }),
   ])

@@ -19,6 +19,8 @@ model User {
   emailUnsubscribed   Boolean   @default(false)
   xp                  Int       @default(0)
   level               Int       @default(1)
+  referralCode        String?   @unique
+  referredById        String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -33,7 +35,10 @@ model User {
   watchLogs       WatchLog[]
   achievements    UserAchievement[]
   collections     Collection[]
+  referredBy      User?  @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals       User[] @relation("Referrals")
 
+  @@index([referredById])
   @@map("users")
 }
 

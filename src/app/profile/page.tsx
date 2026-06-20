@@ -6,6 +6,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { getPosterUrl } from '@/lib/tmdb-image'
 import { AchievementsSection } from '@/components/profile/achievements-section'
+import { ReferralSection } from '@/components/profile/referral-section'
 import { AiRecommender } from '@/components/ai-recommender'
 import type { BadgeId } from '@/lib/achievements'
 import { getXpForCurrentLevel, getXpForNextLevel } from '@/lib/achievements'
@@ -64,8 +65,10 @@ export default async function ProfilePage() {
       select: { id: true, tmdbId: true, mediaType: true, title: true, posterPath: true, watchedAt: true },
     }),
     prisma.userAchievement.findMany({ where: { userId }, select: { badge: true } }),
-    prisma.user.findUnique({ where: { id: userId }, select: { xp: true, level: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { xp: true, level: true, referralCode: true } }),
   ])
+
+  const referralCount = await prisma.user.count({ where: { referredById: userId } })
 
   const topGenres = (tasteProfile?.genreIds ?? [])
     .slice(0, 5)
@@ -74,6 +77,8 @@ export default async function ProfilePage() {
   const unlockedBadgeIds = userAchievements.map((a) => a.badge as BadgeId)
   const xp = userXpData?.xp ?? 0
   const level = userXpData?.level ?? 1
+  const referralCode = userXpData?.referralCode ?? ''
+  const baseUrl = process.env.NEXTAUTH_URL ?? process.env.AUTH_URL ?? 'https://kinopolka.vercel.app'
   const xpForCurrent = getXpForCurrentLevel(level)
   const xpForNext = getXpForNextLevel(level)
   const xpProgress = xpForNext > xpForCurrent
@@ -262,6 +267,14 @@ export default async function ProfilePage() {
           Обновить вкусы
         </Link>
       </div>
+
+      {referralCode && (
+        <ReferralSection
+          referralCode={referralCode}
+          referralCount={referralCount}
+          baseUrl={baseUrl}
+        />
+      )}
 
       <AiRecommender />
     </div>

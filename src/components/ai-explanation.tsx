@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Sparkles, Loader2 } from 'lucide-react'
+import { useFeatureFlag } from '@/hooks/use-feature-flag'
 
 interface Props {
   title: string
@@ -16,6 +17,16 @@ export function AiExplanation({ title, year, genres, director, cast, overview }:
   const [text, setText] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [fetched, setFetched] = useState(false)
+  const autoFetched = useRef(false)
+  const autoExplain = useFeatureFlag('ai_auto_explain')
+
+  useEffect(() => {
+    if (autoExplain && !fetched && !autoFetched.current) {
+      autoFetched.current = true
+      fetchExplanation()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoExplain])
 
   async function fetchExplanation() {
     if (fetched || loading) return

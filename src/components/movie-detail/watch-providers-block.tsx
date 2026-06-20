@@ -31,6 +31,9 @@ export function WatchProvidersBlock({ providers, title, userType = 'anon' }: Wat
   const topProviders = getTopProviders(providers)
   const fallbackLink = `https://www.google.com/search?q=${encodeURIComponent(`${title} смотреть онлайн`)}`
 
+  const justWatchUrl = `https://www.justwatch.com/ru/search?q=${encodeURIComponent(title)}`
+  const kinopoiskUrl = `https://www.kinopoisk.ru/index.php?kp_query=${encodeURIComponent(title)}`
+
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -72,6 +75,25 @@ export function WatchProvidersBlock({ providers, title, userType = 'anon' }: Wat
           Найти онлайн →
         </a>
       )}
+
+      <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+        <a
+          href={justWatchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-md border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        >
+          JustWatch →
+        </a>
+        <a
+          href={kinopoiskUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-md border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        >
+          Кинопоиск →
+        </a>
+      </div>
     </div>
   )
 }

@@ -8,6 +8,7 @@ import { getPosterUrl } from '@/lib/tmdb-image'
 import { AchievementsSection } from '@/components/profile/achievements-section'
 import { AiRecommender } from '@/components/ai-recommender'
 import type { BadgeId } from '@/lib/achievements'
+import { getXpForCurrentLevel, getXpForNextLevel } from '@/lib/achievements'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +52,7 @@ export default async function ProfilePage() {
 
   const userId = session.user.id
 
-  const [watchlistCount, watchedCount, ratingsCount, tasteProfile, watchedItems, userAchievements] = await Promise.all([
+  const [watchlistCount, watchedCount, ratingsCount, tasteProfile, watchedItems, userAchievements, userXpData] = await Promise.all([
     prisma.watchlistItem.count({ where: { userId, watchedAt: null } }),
     prisma.watchlistItem.count({ where: { userId, watchedAt: { not: null } } }),
     prisma.rating.count({ where: { userId } }),
@@ -63,6 +64,7 @@ export default async function ProfilePage() {
       select: { id: true, tmdbId: true, mediaType: true, title: true, posterPath: true, watchedAt: true },
     }),
     prisma.userAchievement.findMany({ where: { userId }, select: { badge: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { xp: true, level: true } }),
   ])
 
   const topGenres = (tasteProfile?.genreIds ?? [])
@@ -70,6 +72,13 @@ export default async function ProfilePage() {
     .map((id) => GENRE_NAMES[id] ?? `Жанр ${id}`)
 
   const unlockedBadgeIds = userAchievements.map((a) => a.badge as BadgeId)
+  const xp = userXpData?.xp ?? 0
+  const level = userXpData?.level ?? 1
+  const xpForCurrent = getXpForCurrentLevel(level)
+  const xpForNext = getXpForNextLevel(level)
+  const xpProgress = xpForNext > xpForCurrent
+    ? Math.round(((xp - xpForCurrent) / (xpForNext - xpForCurrent)) * 100)
+    : 100
 
   const user = session.user
 
@@ -93,11 +102,27 @@ export default async function ProfilePage() {
           )}
         </div>
 
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-[-0.02em] sm:text-3xl">
-            {user.name ?? 'Пользователь'}
-          </h1>
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-heading text-2xl font-bold tracking-[-0.02em] sm:text-3xl">
+              {user.name ?? 'Пользователь'}
+            </h1>
+            <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-bold text-primary">
+              Ур. {level}
+            </span>
+          </div>
           <p className="mt-0.5 text-sm text-muted-foreground">{user.email}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${xpProgress}%` }}
+              />
+            </div>
+            <span className="shrink-0 text-[11px] text-muted-foreground">
+              {xp} / {xpForNext} XP
+            </span>
+          </div>
         </div>
       </div>
 
@@ -168,7 +193,7 @@ export default async function ProfilePage() {
       )}
 
       {/* Achievements */}
-      <AchievementsSection unlockedIds={unlockedBadgeIds} />
+      <AchievementsSection unlockedIds={unlockedBadgeIds} totalXp={xp} level={level} />
 
       {/* Recently watched */}
       {watchedItems.length > 0 && (
@@ -223,6 +248,12 @@ export default async function ProfilePage() {
           className="rounded-lg border border-border px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted"
         >
           Мой вотчлист
+        </Link>
+        <Link
+          href="/collections"
+          className="rounded-lg border border-border px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted"
+        >
+          Коллекции
         </Link>
         <Link
           href="/onboarding"

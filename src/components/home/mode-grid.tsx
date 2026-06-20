@@ -1,6 +1,6 @@
 'use client'
 
-import { Film, Tv, Shuffle, Users, Search } from 'lucide-react'
+import { Film, Tv, Shuffle, Users, Search, Gamepad2 } from 'lucide-react'
 import { ModeCard } from './mode-card'
 
 const MODES = [
@@ -38,14 +38,24 @@ const MODES = [
   },
 ] as const
 
-const DETECTIVE_MODE = {
-  href: '/detective',
-  icon: Search,
-  title: 'Кино-детектив',
-  description: 'Опиши — найдём',
-  from: 'oklch(0.42 0.14 290)',
-  to: 'oklch(0.28 0.12 290)',
-} as const
+const WIDE_MODES = [
+  {
+    href: '/detective',
+    icon: Search,
+    title: 'Кино-детектив',
+    description: 'Опиши — найдём',
+    from: 'oklch(0.42 0.14 290)',
+    to: 'oklch(0.28 0.12 290)',
+  },
+  {
+    href: '/game/daily',
+    icon: Gamepad2,
+    title: 'Угадай фильм',
+    description: 'Новая загадка каждый день',
+    from: 'oklch(0.44 0.14 145)',
+    to: 'oklch(0.30 0.12 145)',
+  },
+] as const
 
 export function ModeGrid() {
   return (
@@ -55,7 +65,9 @@ export function ModeGrid() {
           <ModeCard key={mode.href} {...mode} index={i} />
         ))}
       </div>
-      <ModeCard {...DETECTIVE_MODE} index={MODES.length} wide />
+      {WIDE_MODES.map((mode, i) => (
+        <ModeCard key={mode.href} {...mode} index={MODES.length + i} wide />
+      ))}
     </div>
   )
 }

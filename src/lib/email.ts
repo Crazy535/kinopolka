@@ -82,10 +82,20 @@ export async function sendPasswordResetEmail(email: string, token: string, baseU
   })
 }
 
+export async function sendPersonalizedWeeklyEmail(
+  email: string,
+  movie: TMDBMovie,
+  providers: WatchProvidersByType | null,
+  genreName?: string,
+) {
+  return sendWeeklyFilmEmail(email, movie, providers, genreName)
+}
+
 export async function sendWeeklyFilmEmail(
   email: string,
   movie: TMDBMovie,
   providers: WatchProvidersByType | null,
+  genreName?: string,
 ) {
   const unsubscribeUrl = await buildUnsubscribeUrl(email)
   const posterUrl = movie.poster_path ? getPosterUrl(movie.poster_path, 'w342') : null
@@ -114,15 +124,17 @@ export async function sendWeeklyFilmEmail(
        <div style="margin-bottom:20px">${providersHtml}</div>`
     : ''
 
+  const subjectPrefix = genreName ? `${genreName} · ` : ''
+
   await resend.emails.send({
     from: FROM,
     to: [email],
-    subject: `Фильм недели — ${movie.title}`,
+    subject: `${subjectPrefix}Фильм недели — ${movie.title}`,
     html: `
       <div style="font-family:sans-serif;background:#0A0B14;max-width:480px;margin:0 auto;border-radius:12px;overflow:hidden">
         <div style="background:#C41E3A;height:4px"></div>
         <div style="padding:32px 32px 0">
-          <p style="color:#9B9BAD;font-size:13px;margin:0 0 16px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Фильм недели</p>
+          <p style="color:#9B9BAD;font-size:13px;margin:0 0 16px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">${genreName ? `${genreName} · ` : ''}Фильм недели</p>
           ${
             posterUrl
               ? `<img src="${posterUrl}" alt="${movie.title}" width="160" style="border-radius:8px;display:block;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,0,0,0.6)" />`

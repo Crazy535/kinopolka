@@ -16,7 +16,20 @@ function calcAge(birthday: string | null, deathday: string | null): number | nul
   if (!birthday) return null
   const end = deathday ? new Date(deathday) : new Date()
   const born = new Date(birthday)
-  return end.getFullYear() - born.getFullYear()
+  const age = end.getFullYear() - born.getFullYear()
+  const notYetBirthday =
+    end.getMonth() < born.getMonth() ||
+    (end.getMonth() === born.getMonth() && end.getDate() < born.getDate())
+  return notYetBirthday ? age - 1 : age
+}
+
+function ageWord(age: number): string {
+  const mod100 = age % 100
+  const mod10 = age % 10
+  if (mod100 >= 11 && mod100 <= 19) return 'лет'
+  if (mod10 === 1) return 'год'
+  if (mod10 >= 2 && mod10 <= 4) return 'года'
+  return 'лет'
 }
 
 interface PersonHeroProps {
@@ -54,7 +67,7 @@ export function PersonHero({ person }: PersonHeroProps) {
         )}
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
           {age !== null && (
-            <span>{person.deathday ? `${age} лет` : `${age} лет`}</span>
+            <span>{age} {ageWord(age)}{person.deathday ? ' †' : ''}</span>
           )}
           {person.place_of_birth && <span>{person.place_of_birth}</span>}
         </div>

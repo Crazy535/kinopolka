@@ -83,12 +83,11 @@ export function getXpForCurrentLevel(level: number): number {
 }
 
 export async function checkAndGrantAchievements(userId: string): Promise<BadgeId[]> {
-  const [watchedCount, watchlistCount, tasteProfile, directorCount, personCount, partnerCount, ratingsCount, score5Count, score1Count, diaryWithNoteCount, existingAchievements] = await Promise.all([
+  const [watchedCount, watchlistCount, tasteProfile, directorCount, partnerCount, ratingsCount, score5Count, score1Count, diaryWithNoteCount, existingAchievements] = await Promise.all([
     prisma.watchlistItem.count({ where: { userId, watchedAt: { not: null } } }),
     prisma.watchlistItem.count({ where: { userId } }),
     prisma.tasteProfile.findUnique({ where: { userId }, select: { genreIds: true } }),
     prisma.favoritePerson.count({ where: { userId, role: 'director' } }),
-    prisma.favoritePerson.count({ where: { userId } }),
     prisma.partnerRoom.count({ where: { OR: [{ hostId: userId }, { guestId: userId }] } }),
     prisma.rating.count({ where: { userId } }),
     prisma.rating.count({ where: { userId, score: 5 } }),

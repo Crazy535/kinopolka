@@ -16,7 +16,7 @@ export function PersonBio({ biography }: PersonBioProps) {
         Биография
       </p>
       <p
-        className={`text-sm leading-relaxed text-foreground/80 sm:text-base ${
+        className={`whitespace-pre-line text-sm leading-relaxed text-foreground/80 sm:text-base ${
           !expanded && isLong ? 'line-clamp-4' : ''
         }`}
       >

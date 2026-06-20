@@ -20,7 +20,10 @@ export default async function CollectionsPage() {
 
   const collections = await prisma.collection.findMany({
     where: { userId: session.user.id },
-    include: { items: { orderBy: { addedAt: 'desc' }, take: 4 } },
+    include: {
+      items: { orderBy: { addedAt: 'desc' }, take: 4 },
+      _count: { select: { items: true } },
+    },
     orderBy: { updatedAt: 'desc' },
   })
 
@@ -85,7 +88,7 @@ export default async function CollectionsPage() {
                   <p className="text-xs text-muted-foreground">Пустая коллекция</p>
                 )}
                 <p className="mt-2 text-[11px] text-muted-foreground">
-                  {col.items.length} фильмов
+                  {col._count.items} фильмов
                 </p>
               </Link>
             )

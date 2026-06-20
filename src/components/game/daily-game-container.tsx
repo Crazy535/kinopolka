@@ -63,7 +63,7 @@ export function DailyGameContainer() {
 
   useEffect(() => {
     fetch('/api/game/daily')
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`${r.status}`); return r.json() })
       .then((data: DailyGameData) => {
         setGame(data)
         const saved: SavedState | null = (() => {
@@ -126,7 +126,6 @@ export function DailyGameContainer() {
   }
 
   const posterUrl = game.posterPath ? getPosterUrl(game.posterPath, 'w342') : null
-  const cluesVisible = CLUE_LABELS.slice(0, revealedCount)
   const progressPct = Math.round((revealedCount / MAX_CLUES) * 100)
 
   return (
@@ -222,7 +221,7 @@ export function DailyGameContainer() {
             )}
             <div>
               <p className={`mb-1 text-sm font-semibold ${gameState === 'won' ? 'text-emerald-500' : 'text-destructive'}`}>
-                {gameState === 'won' ? `Угадано за ${guesses.length} попытк${guesses.length === 1 ? 'у' : guesses.length < 5 ? 'и' : ''}!` : 'Не угадано'}
+                {gameState === 'won' ? `Угадано за ${guesses.length} попытк${guesses.length === 1 ? 'у' : guesses.length < 5 ? 'и' : 'ок'}!` : 'Не угадано'}
               </p>
               <p className="font-heading text-lg font-bold leading-tight">{game.title}</p>
               {game.originalTitle !== game.title && (

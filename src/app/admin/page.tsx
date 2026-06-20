@@ -12,8 +12,8 @@ export const metadata = {
 }
 
 function isAdmin(email?: string | null) {
-  const adminEmail = process.env.ADMIN_EMAIL
-  return !!adminEmail && email === adminEmail
+  const adminEmail = process.env.ADMIN_EMAIL?.trim()
+  return !!adminEmail && email?.trim().toLowerCase() === adminEmail.toLowerCase()
 }
 
 export default async function AdminPage() {

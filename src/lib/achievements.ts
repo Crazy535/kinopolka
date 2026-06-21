@@ -131,21 +131,21 @@ export async function checkAndGrantAchievements(userId: string): Promise<BadgeId
 
   const earnedXp = newBadges.reduce((sum, b) => sum + (BADGE_XP[b] ?? 0), 0)
 
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { xp: true } })
-  const currentXp = user?.xp ?? 0
-  const newXp = currentXp + earnedXp
-  const newLevel = getLevelFromXp(newXp)
-
-  await prisma.$transaction([
-    prisma.userAchievement.createMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.userAchievement.createMany({
       data: newBadges.map((badge) => ({ userId, badge })),
       skipDuplicates: true,
-    }),
-    prisma.user.update({
+    })
+    const updated = await tx.user.update({
       where: { id: userId },
-      data: { xp: newXp, level: newLevel },
-    }),
-  ])
+      data: { xp: { increment: earnedXp } },
+      select: { xp: true },
+    })
+    await tx.user.update({
+      where: { id: userId },
+      data: { level: getLevelFromXp(updated.xp) },
+    })
+  })
 
   return newBadges
 }

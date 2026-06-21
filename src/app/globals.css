@@ -177,6 +177,15 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Shake — wrong guess feedback ─── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
 @layer utilities {
   .animate-shimmer {
     background: linear-gradient(
@@ -191,6 +200,10 @@
 
   .animate-reveal {
     animation: reveal-up 0.6s cubic-bezier(0.19, 1, 0.22, 1) both;
+  }
+
+  .animate-shake {
+    animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   }
 }
 

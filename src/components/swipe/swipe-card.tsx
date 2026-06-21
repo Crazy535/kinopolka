@@ -15,7 +15,7 @@ import {
   animate,
   type PanInfo,
 } from 'framer-motion'
-import { Star } from 'lucide-react'
+import { Star, Film } from 'lucide-react'
 import { getPosterUrl } from '@/lib/tmdb-image'
 import { getGenreNames } from '@/lib/tmdb-genres'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
@@ -127,6 +127,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.85}
         onDragEnd={handleDragEnd}
+        whileDrag={{ scale: 1.03 }}
         whileTap={{ cursor: 'grabbing' }}
       >
         {posterUrl ? (
@@ -140,7 +141,9 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
             sizes="(max-width: 640px) 360px, 400px"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-muted text-5xl">🎬</div>
+          <div className="flex h-full items-center justify-center bg-muted">
+            <Film className="size-16 text-muted-foreground/30" />
+          </div>
         )}
 
         {/* Like stamp */}
@@ -148,7 +151,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
           className="absolute left-5 top-8"
           style={{ opacity: likeOpacity, rotate: -25 }}
         >
-          <span className="block rounded-lg border-4 border-emerald-400 px-3 py-1 text-xl font-black tracking-widest text-emerald-400">
+          <span className="block rounded-lg border-4 border-emerald-400 px-3 py-1 text-xl font-black tracking-widest text-emerald-400 drop-shadow-[0_0_14px_rgba(52,211,153,0.65)]">
             ЛАЙК
           </span>
         </motion.div>
@@ -158,13 +161,13 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
           className="absolute right-5 top-8"
           style={{ opacity: skipOpacity, rotate: 25 }}
         >
-          <span className="block rounded-lg border-4 border-rose-400 px-3 py-1 text-xl font-black tracking-widest text-rose-400">
+          <span className="block rounded-lg border-4 border-rose-400 px-3 py-1 text-xl font-black tracking-widest text-rose-400 drop-shadow-[0_0_14px_rgba(251,113,133,0.65)]">
             ПАСС
           </span>
         </motion.div>
 
         {/* Bottom info overlay */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/92 via-black/55 to-transparent px-5 pb-5 pt-24">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-5 pb-5 pt-32">
           <Link
             href={detailHref}
             className="pointer-events-auto group block"

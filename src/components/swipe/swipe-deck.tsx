@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, X, Film, Tv, Loader2, RefreshCw, BookmarkPlus } from 'lucide-react'
+import { Heart, X, Film, Tv, RefreshCw, BookmarkPlus } from 'lucide-react'
 import { SwipeCard, type SwipeItem, type SwipeCardHandle } from './swipe-card'
 import { useDiscoveryStore } from '@/stores/discovery-store'
 import { toggleWatchlist } from '@/actions/watchlist'
@@ -139,10 +139,10 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
           <button
             key={type}
             onClick={() => handleTypeChange(type)}
-            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
               contentType === type
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {type === 'movie' ? <Film className="size-3.5" /> : <Tv className="size-3.5" />}
@@ -167,11 +167,28 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
       </div>
 
       {/* Card deck */}
-      <div className="relative mx-auto w-full max-w-sm" style={{ height: 460 }}>
+      <div className="relative mx-auto w-full max-w-sm" style={{ height: 'clamp(400px, calc(100dvh - 270px), 520px)' }}>
         {isLoading && items.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
-            <Loader2 className="size-8 animate-spin text-muted-foreground" />
-          </div>
+          <>
+            <div
+              className="absolute inset-0 overflow-hidden rounded-2xl border border-border/20 bg-surface"
+              style={{ transform: 'scale(0.91) translateY(-28px)', zIndex: 8 }}
+            />
+            <div
+              className="absolute inset-0 overflow-hidden rounded-2xl border border-border/20 bg-surface"
+              style={{ transform: 'scale(0.955) translateY(-14px)', zIndex: 9 }}
+            />
+            <div className="absolute inset-0 overflow-hidden rounded-2xl border border-border/20 bg-surface" style={{ zIndex: 10 }}>
+              <div className="h-full animate-shimmer" />
+              <div className="absolute inset-x-0 bottom-0 space-y-2.5 bg-gradient-to-t from-black/80 to-transparent px-5 pb-5 pt-24">
+                <div className="h-5 w-3/4 animate-pulse rounded-full bg-white/15" />
+                <div className="mt-2 flex gap-2">
+                  <div className="h-3.5 w-10 animate-pulse rounded-full bg-white/10" />
+                  <div className="h-3.5 w-20 animate-pulse rounded-full bg-white/10" />
+                </div>
+              </div>
+            </div>
+          </>
         ) : error ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card">
             <p className="text-sm text-muted-foreground">{error}</p>
@@ -185,7 +202,7 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
           </div>
         ) : isEmpty ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card text-center px-8">
-            <span className="text-5xl">🎬</span>
+            <Film className="size-12 text-muted-foreground/40" />
             <p className="text-muted-foreground">Фильмы закончились</p>
             <button
               onClick={() => fetchBatch(contentType, [], true)}
@@ -220,20 +237,22 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
       {/* Action buttons */}
       <div className="flex items-center justify-center gap-10">
         <motion.button
-          whileTap={{ scale: 0.88 }}
+          whileTap={{ scale: 0.86 }}
+          whileHover={{ scale: 1.07 }}
           onClick={handleSkipButton}
           disabled={isActing || isEmpty || isLoading}
-          className="flex size-[60px] items-center justify-center rounded-full border-2 border-rose-500/50 bg-card text-rose-500 shadow-md transition-colors hover:bg-rose-500/10 disabled:opacity-40"
+          className="flex size-[64px] items-center justify-center rounded-full bg-card text-rose-500 ring-1 ring-rose-500/30 shadow-[0_0_20px_rgba(239,68,68,0.12)] transition-shadow hover:shadow-[0_0_30px_rgba(239,68,68,0.28)] hover:ring-rose-500/55 disabled:opacity-40 disabled:pointer-events-none"
           aria-label="Пропустить"
         >
           <X className="size-7" />
         </motion.button>
 
         <motion.button
-          whileTap={{ scale: 0.88 }}
+          whileTap={{ scale: 0.86 }}
+          whileHover={{ scale: 1.07 }}
           onClick={handleLikeButton}
           disabled={isActing || isEmpty || isLoading}
-          className="flex size-[60px] items-center justify-center rounded-full border-2 border-emerald-500/50 bg-card text-emerald-500 shadow-md transition-colors hover:bg-emerald-500/10 disabled:opacity-40"
+          className="flex size-[64px] items-center justify-center rounded-full bg-card text-emerald-500 ring-1 ring-emerald-500/30 shadow-[0_0_20px_rgba(52,211,153,0.12)] transition-shadow hover:shadow-[0_0_30px_rgba(52,211,153,0.28)] hover:ring-emerald-500/55 disabled:opacity-40 disabled:pointer-events-none"
           aria-label="В список"
         >
           <Heart className="size-7" />

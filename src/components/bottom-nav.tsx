@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Film, Shuffle, Bookmark, BookOpen, Users } from 'lucide-react'
+import { Home, Film, Shuffle, Bookmark, BookOpen, Users, Layers } from 'lucide-react'
 
 const ANON_ITEMS = [
   { href: '/',         icon: Home,    label: 'Главная',  exact: true  },
@@ -14,7 +14,7 @@ const ANON_ITEMS = [
 const AUTH_ITEMS = [
   { href: '/',          icon: Home,     label: 'Главная',  exact: true  },
   { href: '/quiz',      icon: Film,     label: 'Квиз',     exact: false },
-  { href: '/roulette',  icon: Shuffle,  label: 'Рулетка',  exact: false },
+  { href: '/swipe',     icon: Layers,   label: 'Свайп',    exact: false },
   { href: '/watchlist', icon: Bookmark, label: 'Список',   exact: false },
   { href: '/diary',     icon: BookOpen, label: 'Дневник',  exact: false },
 ] as const

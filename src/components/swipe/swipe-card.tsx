@@ -167,7 +167,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
         </motion.div>
 
         {/* Bottom info overlay */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/98 via-black/75 to-transparent px-5 pb-5 pt-44">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/98 via-black/80 to-transparent px-5 pb-5 pt-52">
           <Link
             href={detailHref}
             className="pointer-events-auto group block"
@@ -196,7 +196,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
             ))}
           </div>
           {movie.overview && (
-            <p className="mt-2.5 line-clamp-3 text-[0.8rem] leading-relaxed text-white/70">
+            <p className="mt-2.5 line-clamp-5 text-sm leading-relaxed text-white/75">
               {movie.overview}
             </p>
           )}

@@ -1,12 +1,12 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { User, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { prisma } from '@/lib/db'
 import { MOVIE_GENRES } from '@/lib/tmdb-genres'
 import { BADGES, getXpForCurrentLevel, getXpForNextLevel, type BadgeId } from '@/lib/achievements'
 import { PublicProfileCard } from '@/components/profile/public-profile-card'
+import { AchievementsSection } from '@/components/profile/achievements-section'
 
 export const revalidate = 60
 
@@ -90,10 +90,7 @@ export default async function PublicProfilePage({ params }: Props) {
 
   const genreIds = user.tasteProfile?.genreIds ?? []
   const topGenres = genreIds.slice(0, 5).map((id) => MOVIE_GENRES[id]).filter(Boolean)
-
   const badgeIds = user.achievements.map((a) => a.badge as BadgeId)
-  const unlockedSet = new Set(badgeIds)
-  const unlockedBadges = BADGES.filter((b) => unlockedSet.has(b.id))
 
   const xp = user.xp ?? 0
   const level = user.level ?? 1
@@ -107,82 +104,28 @@ export default async function PublicProfilePage({ params }: Props) {
     <div className="pb-12">
       <Link
         href="/"
-        className="mb-8 flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="mb-8 inline-flex w-fit items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-[0.98]"
       >
         <ArrowLeft className="size-4" />
         На главную
       </Link>
 
-      {/* Summary card (OG preview style) */}
       <PublicProfileCard
         name={user.name}
         image={user.image}
         level={level}
         xp={xp}
-        genreIds={genreIds}
-        badgeIds={badgeIds}
+        xpProgress={xpProgress}
+        xpNext={xpForNext}
+        topGenres={topGenres}
+        badgeCount={badgeIds.length}
+        totalBadges={BADGES.length}
       />
 
-      {/* XP bar */}
-      <div className="mb-10 flex items-center gap-3">
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{ width: `${xpProgress}%` }}
-          />
-        </div>
-        <span className="shrink-0 text-xs text-muted-foreground">
-          {xp} / {xpForNext} XP
-        </span>
-      </div>
-
-      {/* Taste genres */}
-      {topGenres.length > 0 && (
-        <div className="mb-10">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-            Вкус
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {topGenres.map((name) => (
-              <span
-                key={name}
-                className="rounded-md border border-border bg-muted px-3 py-1 text-sm font-medium"
-              >
-                {name}
-              </span>
-            ))}
-          </div>
-        </div>
+      {badgeIds.length > 0 && (
+        <AchievementsSection unlockedIds={badgeIds} totalXp={xp} level={level} />
       )}
 
-      {/* Unlocked achievements */}
-      {unlockedBadges.length > 0 && (
-        <div className="mb-10">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold tracking-tight">Достижения</h2>
-            <span className="text-sm text-muted-foreground">
-              {unlockedBadges.length} / {BADGES.length}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
-            {unlockedBadges.map((badge) => (
-              <div
-                key={badge.id}
-                title={badge.description}
-                className="flex flex-col items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-center"
-              >
-                <div className="flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary text-base font-bold">
-                  ★
-                </div>
-                <p className="text-[12px] font-semibold leading-tight">{badge.title}</p>
-                <p className="text-[10px] text-muted-foreground leading-tight">{badge.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Public collections */}
       {user.collections.length > 0 && (
         <div className="mb-10">
           <h2 className="mb-4 text-lg font-bold tracking-tight">Коллекции</h2>
@@ -191,9 +134,9 @@ export default async function PublicProfilePage({ params }: Props) {
               <Link
                 key={col.id}
                 href={`/collections/${col.id}`}
-                className="group rounded-xl border border-border bg-muted/30 p-4 transition-colors hover:bg-muted"
+                className="group relative overflow-hidden rounded-xl border border-border/60 bg-card/50 p-5 transition-colors duration-200 hover:border-primary/30 hover:bg-card"
               >
-                <p className="font-semibold transition-colors group-hover:text-primary">
+                <p className="font-semibold transition-colors duration-200 group-hover:text-primary">
                   {col.title}
                 </p>
                 {col.description && (
@@ -201,8 +144,8 @@ export default async function PublicProfilePage({ params }: Props) {
                     {col.description}
                   </p>
                 )}
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {col._count.items} фильмов
+                <p className="mt-3 font-mono text-xs text-muted-foreground">
+                  {col._count.items} {col._count.items === 1 ? 'фильм' : 'фильмов'}
                 </p>
               </Link>
             ))}
@@ -210,14 +153,17 @@ export default async function PublicProfilePage({ params }: Props) {
         </div>
       )}
 
-      {/* CTA for non-users */}
-      <div className="rounded-xl border border-border bg-muted/20 p-6 text-center">
-        <p className="text-sm text-muted-foreground">
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-muted/50 to-muted/10 p-8 text-center">
+        <div
+          className="pointer-events-none absolute -bottom-8 left-1/2 size-48 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+          aria-hidden="true"
+        />
+        <p className="relative text-sm text-muted-foreground">
           Хочешь отслеживать фильмы и делиться своим вкусом?
         </p>
         <Link
           href="/"
-          className="mt-3 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          className="relative mt-4 inline-flex items-center rounded-xl bg-primary px-7 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
         >
           Открыть Кинополку
         </Link>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import {
   Clapperboard, Trophy, Star, Film, Compass, Users, Bookmark,
   BookOpen, ThumbsUp, ThumbsDown, Zap, Layers, Heart, Award,
@@ -5,7 +6,7 @@ import {
 } from 'lucide-react'
 import { BADGES, type BadgeId } from '@/lib/achievements'
 
-const BADGE_ICONS: Record<BadgeId, React.ReactNode> = {
+const BADGE_ICONS: Record<BadgeId, ReactNode> = {
   first_watch:      <Clapperboard className="size-5" />,
   cinephile_10:     <Film className="size-5" />,
   cinephile_25:     <Eye className="size-5" />,

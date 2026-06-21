@@ -26,7 +26,7 @@ export function ModeCard({ href, icon: Icon, title, description, from, to, index
     >
       <Link href={href} className="group block h-full">
         <motion.div
-          className={`relative flex h-full overflow-hidden rounded-xl p-4 sm:p-6 ${wide ? 'min-h-[64px] flex-row items-center gap-4 sm:min-h-[80px]' : 'min-h-[80px] flex-col justify-between sm:min-h-[140px]'}`}
+          className={`relative flex h-full overflow-hidden rounded-xl p-4 sm:p-6 ${wide ? 'min-h-[64px] flex-row items-center gap-4 sm:min-h-[80px]' : 'min-h-[100px] flex-col justify-between sm:min-h-[180px]'}`}
           style={{ background: `linear-gradient(145deg, ${from}, ${to})` }}
           whileHover={{ scale: 1.02, y: -4 }}
           transition={{ duration: 0.22, ease: EXPO_OUT }}

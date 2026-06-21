@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Home, Film, Shuffle, Bookmark, BookOpen, Users, Layers } from 'lucide-react'
 
 const ANON_ITEMS = [
@@ -40,17 +41,21 @@ export function BottomNav({ isAuthenticated = false }: BottomNavProps) {
             <Link
               key={href}
               href={href}
-              className={`flex flex-1 flex-col items-center justify-center gap-1 transition-colors ${
+              className={`relative flex flex-1 flex-col items-center justify-center gap-1 transition-colors ${
                 active
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon
-                className="size-5"
-                strokeWidth={active ? 2.2 : 1.8}
-              />
-              <span className="text-[10px] font-medium">{label}</span>
+              {active && (
+                <motion.span
+                  layoutId="nav-pill"
+                  className="absolute inset-x-1.5 inset-y-2 rounded-xl bg-primary/10"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Icon className="relative size-5" strokeWidth={active ? 2.2 : 1.8} />
+              <span className="relative text-[10px] font-medium">{label}</span>
             </Link>
           )
         })}

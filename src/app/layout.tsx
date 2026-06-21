@@ -5,6 +5,7 @@ import { Header } from "@/components/header";
 import { BottomNav } from "@/components/bottom-nav";
 import { PHProvider } from "@/components/posthog-provider";
 import { PostHogIdentify } from "@/components/posthog-identify";
+import { MotionProvider } from "@/components/motion-provider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -63,12 +64,14 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <PHProvider>
-          <PostHogIdentify userId={session?.user?.id} name={session?.user?.name} email={session?.user?.email} />
-          <Header />
-          <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 pb-24 sm:px-6 md:pb-8">
-            {children}
-          </main>
-          <BottomNav isAuthenticated={!!session} />
+          <MotionProvider>
+            <PostHogIdentify userId={session?.user?.id} name={session?.user?.name} email={session?.user?.email} />
+            <Header />
+            <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 pb-24 sm:px-6 md:pb-8">
+              {children}
+            </main>
+            <BottomNav isAuthenticated={!!session} />
+          </MotionProvider>
         </PHProvider>
       </body>
     </html>

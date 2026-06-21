@@ -3,12 +3,13 @@ import { UserMenu } from '@/components/user-menu'
 import { SearchBar } from '@/components/search-bar'
 import { NavLinks } from '@/components/nav-links'
 import { Logo } from '@/components/logo'
+import { HeaderShell } from '@/components/header-shell'
 
 export async function Header() {
   const session = await auth()
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/92 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+    <HeaderShell>
       <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6 sm:gap-8">
           <Logo />
@@ -20,6 +21,6 @@ export async function Header() {
           <UserMenu user={session?.user ?? null} />
         </div>
       </div>
-    </header>
+    </HeaderShell>
   )
 }

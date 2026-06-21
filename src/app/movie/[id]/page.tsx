@@ -124,7 +124,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
       />
     <div>
       {backdropUrl && (
-        <div className="relative -mx-4 mb-8 h-48 sm:h-64 md:h-80 lg:h-96">
+        <div className="relative -mx-4 mb-8 h-72 md:h-96">
           <Image
             src={backdropUrl}
             alt={movie.title}

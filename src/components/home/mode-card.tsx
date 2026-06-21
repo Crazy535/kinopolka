@@ -28,7 +28,7 @@ export function ModeCard({ href, icon: Icon, title, description, from, to, index
         <motion.div
           className={`relative flex h-full overflow-hidden rounded-xl ${
             wide
-              ? 'min-h-[80px] flex-row items-center gap-3 p-3 sm:min-h-[108px] sm:flex-col sm:justify-between sm:p-4'
+              ? 'min-h-[80px] flex-row items-center gap-3 p-3 sm:min-h-[108px] sm:flex-col sm:items-start sm:justify-between sm:p-4'
               : 'min-h-[100px] flex-col justify-between p-4 sm:min-h-[180px] sm:p-6'
           }`}
           style={{ background: `linear-gradient(145deg, ${from}, ${to})` }}

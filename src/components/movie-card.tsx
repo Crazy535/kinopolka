@@ -56,7 +56,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-1 hover:shadow-[0_12px_36px_var(--color-card-glow)] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-background">
+    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-1 hover:shadow-[0_16px_52px_var(--color-card-glow)] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-background">
       {/* Poster image */}
       {posterUrl ? (
         <Image
@@ -125,8 +125,8 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
               key={provider.provider_id}
               src={getProviderLogoUrl(provider.logo_path)}
               alt={provider.provider_name}
-              width={18}
-              height={18}
+              width={20}
+              height={20}
               className="rounded-[3px] opacity-90 shadow-sm"
               title={provider.provider_name}
             />
@@ -145,7 +145,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
 
       {/* Hover ring + top crimson edge glow */}
       <div
-        className="absolute inset-0 z-40 rounded-lg ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-primary/25 pointer-events-none"
+        className="absolute inset-0 z-40 rounded-lg ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-primary/45 pointer-events-none"
         aria-hidden
       />
     </article>

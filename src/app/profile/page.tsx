@@ -262,6 +262,12 @@ export default async function ProfilePage() {
           Коллекции
         </Link>
         <Link
+          href="/profile/plugins"
+          className="rounded-lg border border-border px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted"
+        >
+          Плагины
+        </Link>
+        <Link
           href="/onboarding"
           className="rounded-lg border border-border px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted"
         >

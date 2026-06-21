@@ -35,6 +35,8 @@ model User {
   watchLogs       WatchLog[]
   achievements    UserAchievement[]
   collections     Collection[]
+  plugins         UserPlugin[]
+  iptvPlaylists   IptvPlaylist[]
   referredBy      User?  @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
   referrals       User[] @relation("Referrals")
 
@@ -231,6 +233,42 @@ model CollectionItem {
   @@unique([collectionId, tmdbId, mediaType])
   @@index([collectionId])
   @@map("collection_items")
+}
+
+// IPTV Playlist — пользовательские M3U-плейлисты.
+// Каналы НЕ хранятся — парсим по запросу из sourceUrl / rawContent.
+model IptvPlaylist {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  sourceType  String   // "url" | "file"
+  sourceUrl   String?
+  rawContent  String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("iptv_playlists")
+}
+
+// User Plugin — состояние вкл/выкл first-party модулей («Плагины»)
+// pluginId ссылается на статичный registry (src/lib/plugins/registry.ts).
+// config.version версионирует формат настроек, чтобы не ломать старые записи.
+model UserPlugin {
+  id        String   @id @default(cuid())
+  userId    String
+  pluginId  String
+  enabled   Boolean  @default(false)
+  config    Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pluginId])
+  @@index([userId])
+  @@map("user_plugins")
 }
 
 // Password Reset Token — одноразовый токен сброса пароля

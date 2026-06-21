@@ -7,16 +7,11 @@ export function useFeatureFlag(flag: string): boolean | undefined {
   const [value, setValue] = useState<boolean | undefined>(undefined)
 
   useEffect(() => {
-    if (!posthog.__loaded) return
+    const check = () => setValue(posthog.isFeatureEnabled(flag) ?? false)
 
-    const check = () => {
-      const result = posthog.isFeatureEnabled(flag)
-      setValue(result ?? false)
-    }
+    if (posthog.__loaded) check()
 
-    check()
-
-    posthog.onFeatureFlags(check)
+    return posthog.onFeatureFlags(check)
   }, [flag])
 
   return value
@@ -26,16 +21,11 @@ export function useFeatureFlagVariant(flag: string): string | boolean | undefine
   const [value, setValue] = useState<string | boolean | undefined>(undefined)
 
   useEffect(() => {
-    if (!posthog.__loaded) return
+    const check = () => setValue(posthog.getFeatureFlag(flag))
 
-    const check = () => {
-      const result = posthog.getFeatureFlag(flag)
-      setValue(result)
-    }
+    if (posthog.__loaded) check()
 
-    check()
-
-    posthog.onFeatureFlags(check)
+    return posthog.onFeatureFlags(check)
   }, [flag])
 
   return value

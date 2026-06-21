@@ -151,10 +151,9 @@ export async function checkAndGrantAchievements(userId: string): Promise<BadgeId
 }
 
 export async function grantReferralAchievements(referrerId: string): Promise<BadgeId[]> {
-  const [referralCount, existingAchievements, userXp] = await Promise.all([
+  const [referralCount, existingAchievements] = await Promise.all([
     prisma.user.count({ where: { referredById: referrerId } }),
     prisma.userAchievement.findMany({ where: { userId: referrerId }, select: { badge: true } }),
-    prisma.user.findUnique({ where: { id: referrerId }, select: { xp: true } }),
   ])
 
   const alreadyUnlocked = new Set(existingAchievements.map((a) => a.badge))
@@ -167,20 +166,22 @@ export async function grantReferralAchievements(referrerId: string): Promise<Bad
   if (newBadges.length === 0) return []
 
   const earnedXp = newBadges.reduce((sum, b) => sum + (BADGE_XP[b] ?? 0), 0)
-  const currentXp = userXp?.xp ?? 0
-  const newXp = currentXp + earnedXp
-  const newLevel = getLevelFromXp(newXp)
 
-  await prisma.$transaction([
-    prisma.userAchievement.createMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.userAchievement.createMany({
       data: newBadges.map((badge) => ({ userId: referrerId, badge })),
       skipDuplicates: true,
-    }),
-    prisma.user.update({
+    })
+    const updated = await tx.user.update({
       where: { id: referrerId },
-      data: { xp: newXp, level: newLevel },
-    }),
-  ])
+      data: { xp: { increment: earnedXp } },
+      select: { xp: true },
+    })
+    await tx.user.update({
+      where: { id: referrerId },
+      data: { level: getLevelFromXp(updated.xp) },
+    })
+  })
 
   return newBadges
 }

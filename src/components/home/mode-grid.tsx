@@ -1,6 +1,6 @@
 'use client'
 
-import { Film, Tv, Shuffle, Users, Search, Gamepad2 } from 'lucide-react'
+import { Film, Tv, Shuffle, Users, Search, Gamepad2, Layers } from 'lucide-react'
 import { ModeCard } from './mode-card'
 import { useFeatureFlagVariant } from '@/hooks/use-feature-flag'
 
@@ -40,6 +40,14 @@ const BASE_MODES = [
 ]
 
 const WIDE_MODES = [
+  {
+    href: '/swipe',
+    icon: Layers,
+    title: 'Свайп',
+    description: 'Листай — нашёл — смотри',
+    from: 'oklch(0.50 0.20 330)',
+    to: 'oklch(0.36 0.17 330)',
+  },
   {
     href: '/detective',
     icon: Search,

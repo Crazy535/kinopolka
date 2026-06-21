@@ -58,3 +58,11 @@ export function trackPartnerRoomCreated() {
 export function trackSearchUsed(queryLength: number, resultCount: number) {
   posthog.capture('search_used', { query_length: queryLength, result_count: resultCount })
 }
+
+export function trackSwipeLike(mediaType: 'movie' | 'tv') {
+  posthog.capture('swipe_like', { media_type: mediaType })
+}
+
+export function trackSwipeSkip() {
+  posthog.capture('swipe_skip')
+}

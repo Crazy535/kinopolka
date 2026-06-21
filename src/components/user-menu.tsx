@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
-import { LogIn, LogOut, User, Bookmark } from 'lucide-react'
+import { LogIn, LogOut, User, Bookmark, Puzzle, Tv, Settings } from 'lucide-react'
 
 interface UserData {
   name?: string | null
@@ -66,15 +66,16 @@ export function UserMenu({ user }: Props) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background shadow-lg py-1 z-50">
+        <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-border bg-background shadow-lg py-1 z-50">
           <div className="px-3 py-2 border-b border-border">
             <p className="text-sm font-medium truncate">{user.name}</p>
             <p className="text-xs text-muted-foreground truncate">{user.email}</p>
           </div>
+
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted active:bg-muted/70 active:scale-[0.98] transition-all"
           >
             <User className="h-4 w-4" />
             Профиль
@@ -82,14 +83,44 @@ export function UserMenu({ user }: Props) {
           <Link
             href="/watchlist"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted active:bg-muted/70 active:scale-[0.98] transition-all"
           >
             <Bookmark className="h-4 w-4" />
             Вотчлист
           </Link>
+
+          <div className="my-1 h-px bg-border" />
+
+          <Link
+            href="/profile/plugins"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted active:bg-muted/70 active:scale-[0.98] transition-all"
+          >
+            <Puzzle className="h-4 w-4" />
+            Плагины
+          </Link>
+          <Link
+            href="/profile/plugins/iptv"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted active:bg-muted/70 active:scale-[0.98] transition-all"
+          >
+            <Tv className="h-4 w-4" />
+            IPTV
+          </Link>
+          <Link
+            href="/profile/settings"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted active:bg-muted/70 active:scale-[0.98] transition-all"
+          >
+            <Settings className="h-4 w-4" />
+            Настройки
+          </Link>
+
+          <div className="my-1 h-px bg-border" />
+
           <button
             onClick={() => { setOpen(false); signOut() }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted active:bg-muted/70 active:scale-[0.98] transition-all"
           >
             <LogOut className="h-4 w-4" />
             Выйти

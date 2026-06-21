@@ -205,6 +205,11 @@
   .animate-shake {
     animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   }
+
+  /* Generic press feedback for link-buttons that don't use <Button> */
+  .btn-link {
+    @apply transition-all active:scale-[0.97] active:opacity-80;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

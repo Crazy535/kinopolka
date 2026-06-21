@@ -8,6 +8,8 @@ async function proxy(req: NextRequest, path: string[]) {
   const headers: HeadersInit = {}
   const contentType = req.headers.get('content-type')
   if (contentType) headers['content-type'] = contentType
+  const userAgent = req.headers.get('user-agent')
+  if (userAgent) headers['user-agent'] = userAgent
 
   const body =
     req.method !== 'GET' && req.method !== 'HEAD'
@@ -21,10 +23,11 @@ async function proxy(req: NextRequest, path: string[]) {
   })
 
   const data = await res.arrayBuffer()
+  const responseContentType = res.headers.get('content-type') ?? 'application/json'
   return new Response(data, {
     status: res.status,
     headers: {
-      'content-type': res.headers.get('content-type') ?? 'application/json',
+      'content-type': responseContentType,
     },
   })
 }

@@ -11,7 +11,7 @@ const CSP = [
   "img-src 'self' data: blob: https://image.tmdb.org https://lh3.googleusercontent.com",
   "media-src 'self' https://www.youtube.com",
   "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
-  `connect-src 'self' https://api.themoviedb.org ${posthogHost} https://api.groq.com https://api.resend.com https://o*.ingest.sentry.io`,
+  `connect-src 'self' https://api.themoviedb.org ${posthogHost} https://api.groq.com https://api.resend.com https://*.ingest.sentry.io`,
   "worker-src blob:",
 ].join('; ')
 

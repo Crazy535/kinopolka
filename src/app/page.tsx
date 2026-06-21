@@ -9,7 +9,6 @@ import { MovieCardSkeleton } from '@/components/movie-card-skeleton'
 import { PersonalFeed } from '@/components/personal-feed'
 import { OnboardingBanner } from '@/components/onboarding-banner'
 import { CategoriesSection } from '@/components/home/categories-section'
-import { ModeGrid } from '@/components/home/mode-grid'
 
 function GridSkeleton() {
   return (
@@ -59,12 +58,6 @@ export default async function HomePage() {
     <>
       <HeroSection />
 
-      {!userId && (
-        <section className="mb-10">
-          <ModeGrid />
-        </section>
-      )}
-
       {userId && !hasTasteProfile && <OnboardingBanner />}
 
       {userId && hasTasteProfile && (
@@ -74,7 +67,7 @@ export default async function HomePage() {
       )}
 
       <section className="mb-10">
-        <h2 className="mb-5 text-lg font-bold tracking-tight">В тренде сейчас</h2>
+        <h2 className="mb-4 font-heading text-xl font-bold tracking-tight sm:text-2xl">В тренде сейчас</h2>
         <Suspense fallback={<GridSkeleton />}>
           <MovieGrid userGenreIds={userGenreIds.length > 0 ? userGenreIds : undefined} />
         </Suspense>

@@ -38,8 +38,8 @@ export function HeroSection() {
           <h1 className="font-heading text-[2.8rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-6xl lg:text-7xl">
             Что смотрим<br className="hidden sm:block" /> сегодня?
           </h1>
-          <p className="text-lg text-muted-foreground sm:text-xl" style={{ maxWidth: '38ch' }}>
-            ⏱ Квиз за 30&nbsp;секунд&nbsp;— и фильм найден
+          <p className="max-w-[38ch] text-lg text-muted-foreground sm:text-xl">
+            Квиз за 30&nbsp;секунд&nbsp;— и фильм найден
           </p>
         </motion.div>
 

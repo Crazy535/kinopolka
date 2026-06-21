@@ -83,9 +83,11 @@ export function ModeGrid() {
           <ModeCard key={mode.href} {...mode} index={i} />
         ))}
       </div>
-      {WIDE_MODES.map((mode, i) => (
-        <ModeCard key={mode.href} {...mode} index={MODES.length + i} wide />
-      ))}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        {WIDE_MODES.map((mode, i) => (
+          <ModeCard key={mode.href} {...mode} index={MODES.length + i} wide />
+        ))}
+      </div>
     </div>
   )
 }

@@ -236,37 +236,36 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
 
       {/* Action buttons */}
       <div className="flex items-center justify-center gap-10">
-        <motion.button
-          whileTap={{ scale: 0.86 }}
-          whileHover={{ scale: 1.07 }}
-          onClick={handleSkipButton}
-          disabled={isActing || isEmpty || isLoading}
-          className="flex size-[64px] items-center justify-center rounded-full bg-card text-rose-500 ring-1 ring-rose-500/30 shadow-[0_0_20px_rgba(239,68,68,0.12)] transition-shadow hover:shadow-[0_0_30px_rgba(239,68,68,0.28)] hover:ring-rose-500/55 disabled:opacity-40 disabled:pointer-events-none"
-          aria-label="Пропустить"
-        >
-          <X className="size-7" />
-        </motion.button>
+        <div className="flex flex-col items-center gap-2">
+          <motion.button
+            whileTap={{ scale: 0.86 }}
+            whileHover={{ scale: 1.07 }}
+            onClick={handleSkipButton}
+            disabled={isActing || isEmpty || isLoading}
+            className="flex size-[64px] items-center justify-center rounded-full bg-card text-rose-500 ring-1 ring-rose-500/30 shadow-[0_0_20px_rgba(239,68,68,0.12)] transition-shadow hover:shadow-[0_0_30px_rgba(239,68,68,0.28)] hover:ring-rose-500/55 disabled:opacity-40 disabled:pointer-events-none"
+            aria-label="Пропустить"
+          >
+            <X className="size-7" />
+          </motion.button>
+          <span className="text-xs font-medium text-muted-foreground/70">Пропустить</span>
+        </div>
 
-        <motion.button
-          whileTap={{ scale: 0.86 }}
-          whileHover={{ scale: 1.07 }}
-          onClick={handleLikeButton}
-          disabled={isActing || isEmpty || isLoading}
-          className="flex size-[64px] items-center justify-center rounded-full bg-card text-emerald-500 ring-1 ring-emerald-500/30 shadow-[0_0_20px_rgba(52,211,153,0.12)] transition-shadow hover:shadow-[0_0_30px_rgba(52,211,153,0.28)] hover:ring-emerald-500/55 disabled:opacity-40 disabled:pointer-events-none"
-          aria-label="В список"
-        >
-          <Heart className="size-7" />
-        </motion.button>
+        <div className="flex flex-col items-center gap-2">
+          <motion.button
+            whileTap={{ scale: 0.86 }}
+            whileHover={{ scale: 1.07 }}
+            onClick={handleLikeButton}
+            disabled={isActing || isEmpty || isLoading}
+            className="flex size-[64px] items-center justify-center rounded-full bg-card text-emerald-500 ring-1 ring-emerald-500/30 shadow-[0_0_20px_rgba(52,211,153,0.12)] transition-shadow hover:shadow-[0_0_30px_rgba(52,211,153,0.28)] hover:ring-emerald-500/55 disabled:opacity-40 disabled:pointer-events-none"
+            aria-label="В список"
+          >
+            <Heart className="size-7" />
+          </motion.button>
+          <span className="text-xs font-medium text-emerald-600/80">
+            {isAuthenticated ? 'В список' : 'Нравится'}
+          </span>
+        </div>
       </div>
-
-      {/* Hint */}
-      {!isEmpty && !isLoading && (
-        <p className="text-center text-xs text-muted-foreground">
-          {isAuthenticated
-            ? '← пропустить · лайк → добавит в Вотчлист'
-            : '← пропустить · лайк → понравился'}
-        </p>
-      )}
 
       {!isAuthenticated && likedCount > 0 && (
         <p className="text-center text-xs text-muted-foreground">

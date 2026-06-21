@@ -167,34 +167,39 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
         </motion.div>
 
         {/* Bottom info overlay */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-5 pb-5 pt-32">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/98 via-black/75 to-transparent px-5 pb-5 pt-44">
           <Link
             href={detailHref}
             className="pointer-events-auto group block"
             onClick={(e) => e.stopPropagation()}
             tabIndex={-1}
           >
-            <h2 className="line-clamp-2 text-xl font-bold leading-tight text-white group-hover:underline">
+            <h2 className="line-clamp-2 text-[1.2rem] font-bold leading-snug text-white group-hover:underline">
               {title}
             </h2>
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            {year && <span className="text-sm text-white/60">{year}</span>}
+            {year && <span className="text-xs font-medium text-white/55">{year}</span>}
             {rating && (
-              <span className="flex items-center gap-1 text-sm text-white/60">
-                <Star className="size-3.5 fill-amber-400 text-amber-400" />
+              <span className="flex items-center gap-1 text-xs font-medium text-white/55">
+                <Star className="size-3 fill-amber-400 text-amber-400" />
                 {rating}
               </span>
             )}
             {genreNames.map((g) => (
               <span
                 key={g}
-                className="rounded-full bg-white/15 px-2.5 py-0.5 text-xs text-white/90"
+                className="rounded-full bg-white/15 px-2.5 py-0.5 text-[0.7rem] font-medium text-white/85"
               >
                 {g}
               </span>
             ))}
           </div>
+          {movie.overview && (
+            <p className="mt-2.5 line-clamp-3 text-[0.8rem] leading-relaxed text-white/70">
+              {movie.overview}
+            </p>
+          )}
         </div>
       </motion.div>
     )

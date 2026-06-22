@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function GlobalError({
   error,
@@ -10,9 +11,16 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const router = useRouter()
+
   useEffect(() => {
     console.error(error)
   }, [error])
+
+  function handleReset() {
+    router.refresh()
+    reset()
+  }
 
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -23,7 +31,7 @@ export default function GlobalError({
       <div className="flex gap-3">
         <button
           type="button"
-          onClick={reset}
+          onClick={handleReset}
           className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
           Попробовать снова

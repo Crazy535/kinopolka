@@ -27,7 +27,7 @@ interface Props {
   userGenreIds?: number[]
 }
 
-export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUrl, userGenreIds = [] }: Props) {
+export function PartnerRoom({ code, userId, hasTasteProfile, initialRoom, baseUrl }: Props) {
   const [room, setRoom] = useState<RoomState>(initialRoom)
   const [joining, setJoining] = useState(false)
   const [copied, setCopied] = useState(false)

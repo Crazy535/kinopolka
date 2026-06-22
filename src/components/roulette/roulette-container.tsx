@@ -81,8 +81,6 @@ export function RouletteContainer({ isAuthenticated = false, userGenreIds = [] }
   const ttwDuration = useRouletteStore((s) => s.ttwDuration)
   const userType = isAuthenticated ? 'auth' : 'anon'
 
-  const selectedMood = moodIndex !== null ? MOODS[moodIndex] : null
-
   function handleSpin() {
     if (moodIndex === null || contentType === null) return
     const mood = MOODS[moodIndex]

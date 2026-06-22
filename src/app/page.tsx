@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 
-export const dynamic = 'force-dynamic'
 import { HeroSection } from '@/components/hero-section'
 import { MovieGrid } from '@/components/movie-grid'
 import { MovieCardSkeleton } from '@/components/movie-card-skeleton'

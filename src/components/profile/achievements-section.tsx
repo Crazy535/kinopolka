@@ -46,7 +46,7 @@ interface Props {
   level?: number
 }
 
-export function AchievementsSection({ unlockedIds, totalXp = 0, level = 1 }: Props) {
+export function AchievementsSection({ unlockedIds }: Props) {
   const unlockedSet = new Set(unlockedIds)
   const unlockedCount = unlockedIds.length
 

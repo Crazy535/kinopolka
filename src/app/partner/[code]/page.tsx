@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { auth } from '@/auth'
@@ -34,9 +35,9 @@ export default async function PartnerRoomPage({
         <div>
           <p className="text-2xl font-bold text-foreground mb-2">Комната истекла</p>
           <p className="text-muted-foreground">Создайте новую комнату</p>
-          <a href="/partner" className="mt-4 inline-block text-primary hover:text-primary/80 underline">
+          <Link href="/partner" className="mt-4 inline-block text-primary hover:text-primary/80 underline">
             Создать новую
-          </a>
+          </Link>
         </div>
       </div>
     )

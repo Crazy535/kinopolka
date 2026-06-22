@@ -50,6 +50,7 @@ export function IptvPlayer({ playlists, onDelete }: Props) {
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (activePl) loadChannels(activePl)
   }, [activePl, loadChannels])
 

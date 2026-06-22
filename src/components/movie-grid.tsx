@@ -8,7 +8,13 @@ interface MovieGridProps {
 }
 
 export async function MovieGrid({ limit = 10, userGenreIds }: MovieGridProps) {
-  const { results } = await getTrendingMovies('week')
+  let results
+  try {
+    const data = await getTrendingMovies('week')
+    results = data.results
+  } catch {
+    return null
+  }
   const movies = results.slice(0, limit)
 
   const providerResults = await Promise.all(

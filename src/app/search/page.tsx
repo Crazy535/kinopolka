@@ -11,8 +11,6 @@ import { SearchFilters } from '@/components/search/search-filters'
 import { AiRecommender } from '@/components/ai-recommender'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
-export const dynamic = 'force-dynamic'
-
 interface Props {
   searchParams: Promise<{
     q?: string

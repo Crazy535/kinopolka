@@ -2,11 +2,13 @@ import { getTopRatedMovies, getPopularMovies, getPopularTVShows } from '@/lib/tm
 import { CategoryCarousel } from './category-carousel'
 
 export async function CategoriesSection({ userGenreIds }: { userGenreIds?: number[] }) {
-  const [topRated, popularMovies, popularSeries] = await Promise.all([
-    getTopRatedMovies(),
-    getPopularMovies(),
-    getPopularTVShows(),
+  const results = await Promise.all([
+    getTopRatedMovies().catch(() => null),
+    getPopularMovies().catch(() => null),
+    getPopularTVShows().catch(() => null),
   ])
+  const [topRated, popularMovies, popularSeries] = results
+  if (!topRated || !popularMovies || !popularSeries) return null
 
   const sections = [
     {

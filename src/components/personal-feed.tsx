@@ -43,15 +43,17 @@ async function getGenreItems(profile: TasteProfile): Promise<SectionResult> {
       'vote_count.gte': 50,
       'vote_average.gte': 6.0,
       page: page1,
-    }),
+    }).catch(() => null),
     discoverMovies({
       sort_by: 'popularity.desc',
       with_genres: topGenres,
       'vote_count.gte': 50,
       'vote_average.gte': 6.0,
       page: page2,
-    }),
+    }).catch(() => null),
   ])
+  const sectionTitleDefault = usingDefaults ? 'Фильмы для вас' : `Потому что ты любишь ${topGenreName}`
+  if (!data1 || !data2) return { items: [], sectionTitle: sectionTitleDefault }
 
   const seen = new Set(profile.movieIds)
   const seenInBatch = new Set<number>()
@@ -92,7 +94,8 @@ async function getTVItems(profile: TasteProfile, seenIds: Set<number>): Promise<
     'vote_count.gte': 30,
     'vote_average.gte': 6.0,
     page,
-  })
+  }).catch(() => null)
+  if (!data) return { items: [], sectionTitle: usingDefaults ? 'Сериалы для вас' : `Сериалы: ${topGenreName}` }
 
   const candidates = data.results.filter((s) => !seenIds.has(s.id)).slice(0, 8)
 

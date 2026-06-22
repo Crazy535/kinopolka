@@ -11,8 +11,6 @@ import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import type { RecommendationItem } from '@/types/quiz'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
-export const dynamic = 'force-dynamic'
-
 interface Props {
   searchParams: Promise<{ type?: string; page?: string }>
 }

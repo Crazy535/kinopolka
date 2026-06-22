@@ -65,6 +65,7 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
 
   // Initial fetch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBatch(contentType, seenIds, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -29,7 +29,6 @@ test.describe('S7-03: Search', () => {
     const input = page.getByPlaceholder(/фильм или сериал/i)
     await input.fill('матрица')
     await page.waitForTimeout(500)
-    const dropdown = page.locator('ul, [class*="popover"]').first()
     // Either results list or "nothing found" message
     const hasResults = await page.locator('ul li').count() > 0
     const hasEmpty = await page.getByText('Ничего не найдено').isVisible().catch(() => false)

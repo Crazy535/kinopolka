@@ -1,9 +1,7 @@
 import { auth } from '@/auth'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { chatCompletion } from '@/lib/ai-provider'
 import { NextResponse } from 'next/server'
-
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'llama-3.3-70b-versatile'
 
 export async function POST(req: Request) {
   const session = await auth()
@@ -26,12 +24,14 @@ export async function POST(req: Request) {
     )
   }
 
-  const apiKey = process.env.GROQ_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 })
+  let body: {
+    title: string
+    year?: string
+    genres?: string[]
+    director?: string
+    cast?: string[]
+    overview?: string
   }
-
-  let body: { title: string; year?: string; genres?: string[]; director?: string; cast?: string[]; overview?: string }
   try {
     body = await req.json()
   } catch {
@@ -50,29 +50,12 @@ export async function POST(req: Request) {
   const prompt = `Напиши одну цепляющую фразу на русском — что делает "${title}"${yearCtx} особенным. Не используй слова "стоит посмотреть", "обязательно к просмотру", "рекомендуем". Используй конкретную деталь.${directorCtx}${castCtx}${genreCtx}${overviewCtx} Без спойлеров. Только одна фраза.`
 
   try {
-    const res = await fetch(GROQ_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.85,
-        max_tokens: 120,
-      }),
+    const explanation = await chatCompletion({
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.85,
+      max_tokens: 120,
     })
-
-    if (!res.ok) {
-      return NextResponse.json({ error: 'AI service error' }, { status: 502 })
-    }
-
-    const data = (await res.json()) as {
-      choices: Array<{ message: { content: string } }>
-    }
-    const explanation = data.choices[0]?.message?.content?.trim() ?? ''
-    return NextResponse.json({ explanation })
+    return NextResponse.json({ explanation: explanation.trim() })
   } catch {
     return NextResponse.json({ error: 'AI service error' }, { status: 502 })
   }

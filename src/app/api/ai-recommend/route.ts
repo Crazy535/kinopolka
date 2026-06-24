@@ -4,11 +4,9 @@ import { calcMatchScore } from '@/lib/match-score'
 import { searchPersons, getPersonCombinedCredits } from '@/lib/tmdb'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { chatCompletion } from '@/lib/ai-provider'
 import { NextResponse } from 'next/server'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
-
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'llama-3.3-70b-versatile'
 
 type AISuggestion = {
   title: string
@@ -160,8 +158,8 @@ export async function POST(req: Request) {
     )
   }
 
-  const groqKey = process.env.GROQ_API_KEY
-  if (!groqKey) {
+  const hasAiProvider = !!(process.env.OPENMODEL_API_KEY || process.env.GROQ_API_KEY)
+  if (!hasAiProvider) {
     return NextResponse.json({ error: 'AI service not configured' }, { status: 503 })
   }
 
@@ -220,35 +218,19 @@ Rules:
 
   let suggestions: AISuggestion[] = []
   try {
-    const groqRes = await fetch(GROQ_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${groqKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: query },
-        ],
-        temperature: 0.7,
-        max_tokens: 1024,
-        response_format: { type: 'json_object' },
-      }),
+    const content = await chatCompletion({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: query },
+      ],
+      temperature: 0.7,
+      max_tokens: 1024,
+      response_format: { type: 'json_object' },
     })
-
-    if (!groqRes.ok) {
-      console.error('Groq API error:', groqRes.status, await groqRes.text())
-      return NextResponse.json({ error: 'AI service error' }, { status: 502 })
-    }
-
-    const groqData = await groqRes.json()
-    const content: string = groqData.choices?.[0]?.message?.content ?? '{}'
-    const parsed = JSON.parse(content)
+    const parsed = JSON.parse(content || '{}')
     suggestions = Array.isArray(parsed.movies) ? parsed.movies.slice(0, 6) : []
   } catch (e) {
-    console.error('Groq error:', e)
+    console.error('[ai-recommend] error:', e)
     return NextResponse.json({ error: 'Failed to generate recommendations' }, { status: 500 })
   }
 

@@ -1,3 +1,5 @@
+import { randomBytes } from 'crypto'
+
 // Genre intersection for Partner Mode — finds common taste between two users.
 // Falls back to union when there's no overlap, so results are never empty.
 export function intersectGenres(
@@ -10,12 +12,11 @@ export function intersectGenres(
   return [...new Set([...hostIds, ...guestIds])]
 }
 
-/** Generates a random 6-character alphanumeric room code. */
+/** Generates a cryptographically random 6-character alphanumeric room code. */
 export function generateRoomCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return code
+  // chars.length === 32, 256 % 32 === 0 → no modulo bias
+  return Array.from(randomBytes(6))
+    .map((b) => chars[b % chars.length])
+    .join('')
 }

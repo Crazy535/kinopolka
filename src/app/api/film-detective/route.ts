@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { auth } from '@/auth'
+import { checkRateLimit } from '@/lib/rate-limit'
 import { searchMovies, getMovieWatchProviders } from '@/lib/tmdb'
 
 export const runtime = 'nodejs'
@@ -66,6 +68,16 @@ interface GroqResult {
 }
 
 export async function POST(req: Request) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const rl = await checkRateLimit(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json({ error: 'Слишком много запросов' }, { status: 429 })
+  }
+
   let description: string
   try {
     const body = await req.json()

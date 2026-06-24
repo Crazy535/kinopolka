@@ -24,7 +24,6 @@ export async function POST(
 
     if (!room) return NextResponse.json({ error: 'Room not found' }, { status: 404 })
     if (room.expiresAt < new Date()) return NextResponse.json({ error: 'Room expired' }, { status: 410 })
-    if (room.status !== 'waiting') return NextResponse.json({ error: 'Room already has a guest' }, { status: 409 })
     if (room.hostId === session.user.id) return NextResponse.json({ error: 'Cannot join your own room' }, { status: 400 })
 
     // Guest genre preferences: from body (inline picker) or their TasteProfile
@@ -50,8 +49,10 @@ export async function POST(
 
     const resultIds = data.results.slice(0, 8).map((m) => m.id)
 
-    await prisma.partnerRoom.update({
-      where: { code },
+    // Atomic update — only succeeds if the room is still in 'waiting' state.
+    // Prevents two guests joining simultaneously (race condition).
+    const updated = await prisma.partnerRoom.updateMany({
+      where: { code, status: 'waiting' },
       data: {
         guestId: session.user.id,
         guestGenreIds,
@@ -59,6 +60,10 @@ export async function POST(
         resultIds,
       },
     })
+
+    if (updated.count === 0) {
+      return NextResponse.json({ error: 'Room already has a guest' }, { status: 409 })
+    }
 
     return NextResponse.json({ status: 'done', resultIds })
   } catch (err) {

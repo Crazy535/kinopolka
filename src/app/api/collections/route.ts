@@ -28,6 +28,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid title' }, { status: 400 })
   }
 
+  const count = await prisma.collection.count({ where: { userId: session.user.id } })
+  if (count >= 50) {
+    return NextResponse.json({ error: 'Максимум 50 коллекций' }, { status: 422 })
+  }
+
   const collection = await prisma.collection.create({
     data: { userId: session.user.id, title, description, isPublic },
   })

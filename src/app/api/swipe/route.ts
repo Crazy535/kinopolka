@@ -3,8 +3,6 @@ import { discoverMovies, discoverTVShows } from '@/lib/tmdb'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 import type { SwipeItem } from '@/components/swipe/swipe-card'
 
-export const dynamic = 'force-dynamic'
-
 function randomPage(): number {
   return Math.floor(Math.random() * 12) + 1
 }

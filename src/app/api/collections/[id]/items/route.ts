@@ -24,6 +24,11 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Invalid params' }, { status: 400 })
   }
 
+  const itemCount = await prisma.collectionItem.count({ where: { collectionId: id } })
+  if (itemCount >= 500) {
+    return NextResponse.json({ error: 'Collection limit is 500 items' }, { status: 409 })
+  }
+
   const item = await prisma.collectionItem.upsert({
     where: { collectionId_tmdbId_mediaType: { collectionId: id, tmdbId, mediaType } },
     create: { collectionId: id, tmdbId, mediaType, title, posterPath },

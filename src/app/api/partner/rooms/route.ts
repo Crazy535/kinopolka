@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
-import { generateRoomCode, intersectGenres } from '@/lib/partner-engine'
-import { discoverMovies } from '@/lib/tmdb'
+import { generateRoomCode } from '@/lib/partner-engine'
 import { checkAndGrantAchievements } from '@/lib/achievements'
-
-export const dynamic = 'force-dynamic'
 
 // POST — host creates a room.
 export async function POST(req: Request) {
@@ -24,6 +21,18 @@ export async function POST(req: Request) {
         where: { userId: session.user.id },
       })
       genreIds = profile?.genreIds ?? []
+    }
+
+    // Limit active rooms per host
+    const activeRooms = await prisma.partnerRoom.count({
+      where: {
+        hostId: session.user.id,
+        expiresAt: { gt: new Date() },
+        status: { not: 'done' },
+      },
+    })
+    if (activeRooms >= 5) {
+      return NextResponse.json({ error: 'Max 5 active rooms allowed' }, { status: 409 })
     }
 
     // Generate unique code (retry on collision)
@@ -54,27 +63,4 @@ export async function POST(req: Request) {
     console.error('[partner/rooms POST]', err)
     return NextResponse.json({ error: 'Failed to create room' }, { status: 500 })
   }
-}
-
-// Internal helper — runs intersection + TMDB discover, stores results.
-export async function runPartnerRecommendation(roomId: string, hostGenreIds: number[], guestGenreIds: number[]) {
-  const genres = intersectGenres(hostGenreIds, guestGenreIds)
-  const topGenres = genres.slice(0, 3).join(',')
-
-  const data = await discoverMovies({
-    sort_by: 'popularity.desc',
-    with_genres: topGenres,
-    'vote_count.gte': 100,
-    'vote_average.gte': 6.5,
-    page: 1,
-  })
-
-  const resultIds = data.results.slice(0, 8).map((m) => m.id)
-
-  await prisma.partnerRoom.update({
-    where: { id: roomId },
-    data: { status: 'done', resultIds },
-  })
-
-  return resultIds
 }

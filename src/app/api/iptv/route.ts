@@ -33,6 +33,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Max ${MAX_PLAYLISTS_PER_USER} playlists allowed` }, { status: 409 })
   }
 
+  const contentLength = Number(req.headers.get('content-length') ?? '0')
+  if (contentLength > MAX_RAW_BYTES + 2048) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 })
+  }
+
   const body = await req.json().catch(() => ({}))
   const name = String(body.name ?? '').trim()
   const sourceType = String(body.sourceType ?? '')

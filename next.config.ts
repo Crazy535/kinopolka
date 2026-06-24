@@ -5,7 +5,7 @@ const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.
 
 const CSP = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://www.youtube-nocookie.com ${posthogHost}`,
+  `script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.youtube-nocookie.com ${posthogHost}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://image.tmdb.org https://lh3.googleusercontent.com",

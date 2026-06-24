@@ -8,8 +8,6 @@ import {
 import type { TMDBDiscoverMovieParams, TMDBDiscoverTVParams, TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 import type { ContentType, RuntimeOption, RecommendationItem } from '@/types/quiz'
 
-export const dynamic = 'force-dynamic'
-
 function randomPage(): number {
   return Math.floor(Math.random() * 8) + 1
 }

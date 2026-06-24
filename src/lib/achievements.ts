@@ -1,5 +1,6 @@
 import 'server-only'
 import { prisma } from '@/lib/db'
+import { redis } from './redis'
 
 export type BadgeId =
   | 'first_watch'
@@ -88,6 +89,11 @@ export function getXpForCurrentLevel(level: number): number {
 }
 
 export async function checkAndGrantAchievements(userId: string): Promise<BadgeId[]> {
+  if (redis) {
+    const acquired = await redis.set(`ach:lock:${userId}`, '1', { nx: true, ex: 60 })
+    if (!acquired) return []
+  }
+
   const [watchedCount, watchlistCount, tasteProfile, directorCount, partnerCount, ratingsCount, score5Count, score1Count, diaryWithNoteCount, existingAchievements] = await Promise.all([
     prisma.watchlistItem.count({ where: { userId, watchedAt: { not: null } } }),
     prisma.watchlistItem.count({ where: { userId } }),

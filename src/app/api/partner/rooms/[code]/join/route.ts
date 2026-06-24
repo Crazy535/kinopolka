@@ -4,8 +4,6 @@ import { prisma } from '@/lib/db'
 import { intersectGenres } from '@/lib/partner-engine'
 import { discoverMovies } from '@/lib/tmdb'
 
-export const dynamic = 'force-dynamic'
-
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ code: string }> }
@@ -44,7 +42,7 @@ export async function POST(
       with_genres: topGenres,
       'vote_count.gte': 100,
       'vote_average.gte': 6.5,
-      page: 1,
+      page: Math.floor(Math.random() * 5) + 1,
     })
 
     const resultIds = data.results.slice(0, 8).map((m) => m.id)

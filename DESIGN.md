@@ -44,8 +44,8 @@ Defined as OKLCH CSS variables in `src/app/globals.css` (`.dark` block is the re
 ## 6. Responsive Rules
 
 - **Touch targets: minimum 44×44px.** Known offenders to fix opportunistically when touched: header search/avatar buttons (36px, `search-bar.tsx` / `user-menu.tsx`), quiz-results "⋯" menu (30px). When bumping to 44px, grow the clickable padding, not necessarily the visual icon size.
-- **Safe-area insets are not yet handled anywhere** (`viewport-fit=cover` is not set, no `env(safe-area-inset-*)` usage exists in the codebase as of this writing). Any new fixed/sticky full-width element (bottom nav, sticky header, bottom sheets) should add safe-area padding once this is wired up — do not assume it's already handled.
-- Bottom nav (`bottom-nav.tsx`) is mobile-only (`md:hidden`, fixed, `h-16`); `<main>` reserves `pb-24` on mobile / `md:pb-8` on desktop specifically to clear it — any new full-bleed mobile screen must respect this existing reserved space rather than fighting it with its own height math.
+- **Safe-area insets are wired up** (`app/layout.tsx` sets `viewport: { viewportFit: 'cover' }`). `bottom-nav.tsx` adds `pb-[env(safe-area-inset-bottom)]`, `header-shell.tsx` adds `pt-[env(safe-area-inset-top)]`. Any new fixed/sticky full-width element (bottom sheets, toasts, modals anchored to an edge) must add the matching `env(safe-area-inset-*)` padding itself — it is not inherited automatically.
+- Bottom nav (`bottom-nav.tsx`) is mobile-only (`md:hidden`, fixed, `h-16` + safe-area padding); `<main>` reserves `pb-[calc(6rem+env(safe-area-inset-bottom))]` on mobile / `md:pb-8` on desktop specifically to clear it — any new full-bleed mobile screen must respect this existing reserved space (including the safe-area term, see `swipe/page.tsx`'s height calc) rather than fighting it with its own height math.
 
 ## 7. Anti-Patterns (Banned)
 

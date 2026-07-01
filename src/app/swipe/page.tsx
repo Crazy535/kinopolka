@@ -24,8 +24,9 @@ export default async function SwipePage() {
 
   return (
     // Height = 100dvh minus header (4.25rem) minus main's own py-8/pb-24 padding (2rem + 6rem)
-    // plus a small safety margin, so the deck below always clears the fixed bottom nav.
-    <div className="flex h-[calc(100dvh-13rem)] flex-col pb-8 md:h-auto">
+    // plus a small safety margin and the iOS home-indicator safe-area inset, so the deck
+    // below always clears the fixed bottom nav.
+    <div className="flex h-[calc(100dvh-13rem-env(safe-area-inset-bottom))] flex-col pb-8 md:h-auto">
       <div className="mb-6 shrink-0">
         <h1 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
           Свайп

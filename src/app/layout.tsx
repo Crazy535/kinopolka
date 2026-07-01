@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Playfair_Display, Geist_Mono } from "next/font/google";
 import { auth } from "@/auth";
 import { Header } from "@/components/header";
@@ -51,6 +51,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -67,7 +71,7 @@ export default async function RootLayout({
           <MotionProvider>
             <PostHogIdentify userId={session?.user?.id} name={session?.user?.name} email={session?.user?.email} />
             <Header />
-            <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 pb-24 sm:px-6 md:pb-8">
+            <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 md:pb-8">
               {children}
             </main>
             <BottomNav isAuthenticated={!!session} />

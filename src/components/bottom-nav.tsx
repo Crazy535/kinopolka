@@ -33,7 +33,7 @@ export function BottomNav({ isAuthenticated = false }: BottomNavProps) {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur-md md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] md:hidden">
       <div className="flex h-16 items-stretch">
         {items.map(({ href, icon: Icon, label, exact }) => {
           const active = isActive(href, exact)

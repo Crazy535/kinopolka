@@ -13,7 +13,7 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b border-border/60 bg-background/92 backdrop-blur-md supports-[backdrop-filter]:bg-background/75 transition-shadow duration-200 ${
+      className={`sticky top-0 z-50 w-full border-b border-border/60 bg-background/92 pt-[env(safe-area-inset-top)] backdrop-blur-md supports-[backdrop-filter]:bg-background/75 transition-shadow duration-200 ${
         scrolled ? 'shadow-[0_2px_20px_0_rgba(0,0,0,0.35)]' : 'shadow-none'
       }`}
     >

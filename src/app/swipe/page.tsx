@@ -23,8 +23,10 @@ export default async function SwipePage() {
   }
 
   return (
-    <div className="pb-8">
-      <div className="mb-6">
+    // Height = 100dvh minus header (4.25rem) minus main's own py-8/pb-24 padding (2rem + 6rem)
+    // plus a small safety margin, so the deck below always clears the fixed bottom nav.
+    <div className="flex h-[calc(100dvh-13rem)] flex-col pb-8 md:h-auto">
+      <div className="mb-6 shrink-0">
         <h1 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
           Свайп
         </h1>
@@ -32,7 +34,9 @@ export default async function SwipePage() {
           Листай — нашёл — смотри
         </p>
       </div>
-      <SwipeDeck isAuthenticated={!!userId} userGenreIds={userGenreIds} />
+      <div className="min-h-0 flex-1">
+        <SwipeDeck isAuthenticated={!!userId} userGenreIds={userGenreIds} />
+      </div>
     </div>
   )
 }

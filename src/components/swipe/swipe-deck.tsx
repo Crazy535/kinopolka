@@ -133,9 +133,9 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
   const isEmpty = items.length === 0 && !isLoading
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex h-full flex-col gap-5 md:h-auto">
       {/* Content type selector */}
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {(['movie', 'tv'] as const).map((type) => (
           <button
             key={type}
@@ -167,8 +167,9 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
         )}
       </div>
 
-      {/* Card deck */}
-      <div className="relative mx-auto w-full max-w-sm" style={{ height: 'clamp(400px, calc(100dvh - 270px), 520px)' }}>
+      {/* Card deck — flex-1 fills whatever space remains above the selector/buttons
+          so the action buttons below are never pushed behind the bottom nav */}
+      <div className="relative mx-auto w-full max-w-sm min-h-[160px] flex-1 md:h-[520px] md:flex-none">
         {isLoading && items.length === 0 ? (
           <>
             <div
@@ -236,7 +237,7 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-center gap-10">
+      <div className="flex shrink-0 items-center justify-center gap-10">
         <div className="flex flex-col items-center gap-2">
           <motion.button
             whileTap={{ scale: 0.86 }}
@@ -269,7 +270,7 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
       </div>
 
       {!isAuthenticated && likedCount > 0 && (
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="shrink-0 text-center text-xs text-muted-foreground">
           <a href="/login" className="text-primary underline">
             Войдите
           </a>

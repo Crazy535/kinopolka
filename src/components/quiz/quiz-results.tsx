@@ -172,7 +172,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
               title="Ещё действия"
-              className="flex items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground"
             >
               <MoreHorizontal className="h-4 w-4" />
             </button>
@@ -222,7 +222,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
             <button
               type="button"
               onClick={onRefresh}
-              className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              className="flex min-h-11 items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Другие варианты

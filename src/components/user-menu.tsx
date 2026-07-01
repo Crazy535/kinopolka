@@ -34,7 +34,7 @@ export function UserMenu({ user }: Props) {
     return (
       <Link
         href="/login"
-        className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+        className="flex min-h-11 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
       >
         <LogIn className="h-3.5 w-3.5" />
         Войти
@@ -46,7 +46,7 @@ export function UserMenu({ user }: Props) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-full p-0.5 hover:ring-2 ring-primary/50 transition-all"
+        className="flex items-center gap-2 rounded-full p-1.5 hover:ring-2 ring-primary/50 transition-all"
         aria-expanded={open}
         aria-label="Меню пользователя"
       >

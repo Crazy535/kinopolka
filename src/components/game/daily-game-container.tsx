@@ -177,12 +177,12 @@ export function DailyGameContainer() {
             onChange={(e) => setGuess(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleGuess() }}
             placeholder="Название фильма..."
-            className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+            className="min-h-11 flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
           />
           <button
             onClick={handleGuess}
             disabled={!guess.trim()}
-            className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+            className="flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
           >
             Угадать
           </button>

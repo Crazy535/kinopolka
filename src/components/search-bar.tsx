@@ -173,7 +173,7 @@ export function SearchBar() {
             type="button"
             onClick={openMobile}
             aria-label="Поиск"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <Search className="size-4" />
           </button>
@@ -184,14 +184,14 @@ export function SearchBar() {
               <input
                 ref={mobileInputRef}
                 {...sharedInputProps}
-                className="h-10 w-52 rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none sm:w-72"
+                className="h-11 w-52 rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none sm:w-72"
               />
             </div>
             <button
               type="button"
               onClick={close}
               aria-label="Закрыть поиск"
-              className="flex h-10 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <X className="size-4" />
             </button>

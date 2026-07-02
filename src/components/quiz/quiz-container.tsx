@@ -153,7 +153,7 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
   const current = questions[step]
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-2xl flex-col pt-6 sm:pt-12">
+    <div className="mx-auto flex min-h-[calc(100dvh-5rem)] w-full max-w-2xl flex-col pt-6 sm:pt-12">
       {/* Segmented progress bar */}
       <div className="mb-10 flex flex-col gap-1">
         <div className="flex items-center justify-between">

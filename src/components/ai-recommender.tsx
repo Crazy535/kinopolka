@@ -181,12 +181,12 @@ export function AiRecommender() {
           >
             {/* Last query label + reset */}
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
+              <p className="min-w-0 truncate text-xs text-muted-foreground">
                 По запросу: <span className="text-foreground">&laquo;{lastQuery}&raquo;</span>
               </p>
               <button
                 onClick={handleReset}
-                className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                className="shrink-0 text-xs text-muted-foreground underline-offset-2 hover:underline"
               >
                 Новый запрос
               </button>

@@ -264,7 +264,7 @@ export async function PersonalFeed({ userId }: Props) {
       {peopleItems.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold tracking-tight">
+            <h2 className="min-w-0 text-base font-semibold tracking-tight">
               С {personNames.join(', ')}
             </h2>
             <Link
@@ -282,7 +282,7 @@ export async function PersonalFeed({ userId }: Props) {
       {genreItems.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold tracking-tight">{genreTitle}</h2>
+            <h2 className="min-w-0 text-base font-semibold tracking-tight">{genreTitle}</h2>
             <Link
               href="/feed?type=genre"
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
@@ -298,7 +298,7 @@ export async function PersonalFeed({ userId }: Props) {
       {tvItems.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold tracking-tight">{tvTitle}</h2>
+            <h2 className="min-w-0 text-base font-semibold tracking-tight">{tvTitle}</h2>
             <Link
               href="/feed?type=tv"
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"

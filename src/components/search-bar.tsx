@@ -136,7 +136,7 @@ export function SearchBar() {
               <input
                 ref={mobileInputRef}
                 {...sharedInputProps}
-                className="h-10 w-52 rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none sm:w-72"
+                className="h-11 w-52 rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none sm:w-72"
               />
             </div>
             <button

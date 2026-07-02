@@ -51,7 +51,7 @@ export function CategoryCarousel({ title, items, browseHref, userGenreIds }: Cat
   return (
     <section>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="font-heading text-xl font-bold tracking-tight sm:text-2xl">{title}</h2>
+        <h2 className="min-w-0 font-heading text-xl font-bold tracking-tight sm:text-2xl">{title}</h2>
         <div className="flex items-center gap-1.5 shrink-0">
           <motion.button
             onClick={() => scroll('left')}

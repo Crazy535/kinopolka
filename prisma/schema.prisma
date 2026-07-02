@@ -137,6 +137,7 @@ model PartnerRoom {
   guest User? @relation("GuestRooms", fields: [guestId], references: [id], onDelete: SetNull)
 
   @@index([hostId])
+  @@index([expiresAt])
   @@map("partner_rooms")
 }
 

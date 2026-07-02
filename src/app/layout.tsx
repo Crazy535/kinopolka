@@ -69,7 +69,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <PHProvider>
           <MotionProvider>
-            <PostHogIdentify userId={session?.user?.id} name={session?.user?.name} email={session?.user?.email} />
+            <PostHogIdentify userId={session?.user?.id} name={session?.user?.name} />
             <Header />
             <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 md:pb-8">
               {children}

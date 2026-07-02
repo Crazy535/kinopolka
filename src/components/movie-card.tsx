@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Star } from 'lucide-react'
 import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
 import { CardSpotlight } from '@/components/movie-card-spotlight'
 import type { TMDBMovie, TMDBTVShow, WatchProvider, WatchProvidersByType } from '@/types/tmdb'
@@ -105,8 +106,9 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
         <div className="mt-1 flex items-center gap-2">
           <span className="text-[12px] text-white/70">{year}</span>
           {movie.vote_count > 0 && (
-            <span className={`text-[12px] font-bold ${ratingClass}`}>
-              ★&nbsp;{movie.vote_average.toFixed(1)}
+            <span className={`inline-flex items-center gap-0.5 text-[12px] font-bold ${ratingClass}`}>
+              <Star className="size-3 fill-current" aria-hidden />
+              {movie.vote_average.toFixed(1)}
             </span>
           )}
         </div>

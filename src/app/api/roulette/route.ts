@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { discoverMovies, discoverTVShows, getMovieWatchProviders, getTVWatchProviders } from '@/lib/tmdb'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 import type { TMDBDiscoverMovieParams, TMDBDiscoverTVParams, TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 import type { RecommendationItem } from '@/types/quiz'
 
@@ -8,6 +9,9 @@ function randomPage(): number {
 }
 
 export async function GET(req: NextRequest) {
+  const rl = await checkRateLimit(`roulette:${getClientIp(req)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   try {
     const { searchParams } = req.nextUrl
     const genreId = searchParams.get('genre_id')

@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
 import { searchPersons } from '@/lib/tmdb'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
+  const rl = await checkRateLimit(`people:${getClientIp(request)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q') ?? ''
 

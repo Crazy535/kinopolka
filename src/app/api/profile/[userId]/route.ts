@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 
 interface Params { params: Promise<{ userId: string }> }
 
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
+  const rl = await checkRateLimit(`profile:${getClientIp(req)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   const { userId } = await params
 
   const user = await prisma.user.findUnique({

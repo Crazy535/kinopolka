@@ -111,8 +111,23 @@ export function DailyGameContainer() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[320px] items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="mx-auto max-w-lg">
+        {/* Progress placeholder */}
+        <div className="mb-6 flex items-center gap-3">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+            <div className="h-full w-1/6 animate-shimmer rounded-full" />
+          </div>
+          <div className="h-3 w-24 animate-shimmer rounded-sm" />
+        </div>
+        {/* Clue-card placeholders mirroring the real layout */}
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-border bg-muted/30 p-3">
+              <div className="mb-1.5 h-2.5 w-20 animate-shimmer rounded-sm" />
+              <div className="h-3.5 w-2/3 animate-shimmer rounded-sm" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }

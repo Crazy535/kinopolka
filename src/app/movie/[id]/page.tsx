@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import type { Metadata } from 'next'
 import { auth } from '@/auth'
 import { getMovieDetailsEnriched, getMovieRecommendations, getMovieVideos, localizePeopleNames } from '@/lib/tmdb'
@@ -177,7 +177,10 @@ export default async function MoviePage({ params }: MoviePageProps) {
               <span className="text-muted-foreground">{year}</span>
               {runtime && <span className="text-muted-foreground">{runtime}</span>}
               {movie.vote_count > 0 && (
-                <span className="font-semibold">★ {movie.vote_average.toFixed(1)}</span>
+                <span className="inline-flex items-center gap-1 font-semibold">
+                  <Star className="size-4 fill-current text-gold" aria-hidden />
+                  {movie.vote_average.toFixed(1)}
+                </span>
               )}
             </div>
 

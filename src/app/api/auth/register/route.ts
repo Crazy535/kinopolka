@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 import { randomUUID, randomBytes } from 'crypto'
 import { sendVerificationEmail } from '@/lib/email'
 import { grantReferralAchievements } from '@/lib/achievements'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 
 function generateReferralCode(): string {
   return randomBytes(4).toString('hex') // 8-char hex code
 }
 
+// Простая проверка формата email (защита от явно битых значений).
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export async function POST(request: NextRequest) {
+  const rl = await checkRateLimit(`register:${getClientIp(request)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   try {
     const { email, password, name, referralCode } = await request.json()
 
@@ -17,7 +25,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email и пароль обязательны' }, { status: 400 })
     }
 
-    if (password.length < 8) {
+    if (typeof email !== 'string' || !EMAIL_RE.test(email)) {
+      return NextResponse.json({ error: 'Некорректный email' }, { status: 400 })
+    }
+
+    if (typeof password !== 'string' || password.length < 8) {
       return NextResponse.json({ error: 'Пароль должен быть не менее 8 символов' }, { status: 400 })
     }
 
@@ -38,15 +50,26 @@ export async function POST(request: NextRequest) {
     const passwordHash = await bcrypt.hash(password, 12)
     const newReferralCode = generateReferralCode()
 
-    await prisma.user.create({
-      data: {
-        email,
-        name: name || null,
-        passwordHash,
-        referralCode: newReferralCode,
-        referredById: referrer?.id ?? null,
-      },
-    })
+    try {
+      await prisma.user.create({
+        data: {
+          email,
+          name: name || null,
+          passwordHash,
+          referralCode: newReferralCode,
+          referredById: referrer?.id ?? null,
+        },
+      })
+    } catch (createErr) {
+      // Гонка findUnique→create: параллельный запрос уже занял email.
+      if (
+        createErr instanceof Prisma.PrismaClientKnownRequestError &&
+        createErr.code === 'P2002'
+      ) {
+        return NextResponse.json({ error: 'Email уже занят' }, { status: 409 })
+      }
+      throw createErr
+    }
 
     // Grant XP/badges to referrer asynchronously (don't block registration)
     if (referrer) {

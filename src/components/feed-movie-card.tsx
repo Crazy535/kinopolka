@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Star } from 'lucide-react'
 import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
 import { getGenreNames } from '@/lib/tmdb-genres'
 import type { TMDBMovie, TMDBTVShow, WatchProvidersByType } from '@/types/tmdb'
@@ -88,8 +89,9 @@ export function FeedMovieCard({ movie, providers, reason, matchScore }: FeedMovi
             </h3>
           </Link>
           {movie.vote_count > 0 && (
-            <span className={`text-xs font-bold tabular-nums shrink-0 ${ratingColor}`}>
-              ★&nbsp;{movie.vote_average.toFixed(1)}
+            <span className={`inline-flex items-center gap-0.5 text-xs font-bold tabular-nums shrink-0 ${ratingColor}`}>
+              <Star className="size-3 fill-current" aria-hidden />
+              {movie.vote_average.toFixed(1)}
             </span>
           )}
         </div>

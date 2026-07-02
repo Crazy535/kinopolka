@@ -70,20 +70,36 @@ export async function markAsWatched(id: string) {
     data: { watchedAt },
   })
 
-  // Mirror to diary — ignore duplicate (same movie marked twice within same second)
-  try {
-    await prisma.watchLog.create({
-      data: {
-        userId: session.user.id,
-        tmdbId: item.tmdbId,
-        mediaType: item.mediaType,
-        title: item.title,
-        posterPath: item.posterPath,
-        watchedAt,
-      },
-    })
-  } catch {
-    // unique constraint violation = already logged, safe to ignore
+  // Mirror to diary. Уникальный ключ WatchLog включает watchedAt (timestamp),
+  // поэтому snap-mark → unmark → re-mark создал бы дубль записи с другим временем.
+  // Дедуп по (userId, tmdbId, mediaType) среди обычных (не-rewatch) записей:
+  // одна отметка «просмотрено» = одна запись дневника. Повторные просмотры
+  // добавляются отдельным потоком (logWatch с isRewatch), не через этот путь.
+  const existingLog = await prisma.watchLog.findFirst({
+    where: {
+      userId: session.user.id,
+      tmdbId: item.tmdbId,
+      mediaType: item.mediaType,
+      isRewatch: false,
+    },
+    select: { id: true },
+  })
+
+  if (!existingLog) {
+    try {
+      await prisma.watchLog.create({
+        data: {
+          userId: session.user.id,
+          tmdbId: item.tmdbId,
+          mediaType: item.mediaType,
+          title: item.title,
+          posterPath: item.posterPath,
+          watchedAt,
+        },
+      })
+    } catch {
+      // гонка: параллельный запрос успел вставить — нарушение unique, безопасно игнорируем
+    }
   }
 
   revalidatePath('/watchlist')

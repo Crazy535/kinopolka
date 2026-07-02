@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getPersonCombinedCredits, getMovieDetails, getMovieWatchProviders } from '@/lib/tmdb'
 import { withTmdbCache } from '@/lib/tmdb-cache'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
@@ -33,9 +34,12 @@ function runtimeGroup(minutes: number | null): RuntimeGroup | null {
 }
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const rl = await checkRateLimit(`evening:${getClientIp(req)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   const { id } = await params
   const personId = Number(id)
   if (!personId || isNaN(personId)) {

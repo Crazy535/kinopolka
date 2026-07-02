@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 
 const TMDB_BASE = 'https://api.themoviedb.org/3'
 
@@ -203,6 +204,9 @@ async function searchBothTypes(
 // Full page search: GET /api/search?q=...&type=movie&genre=28&year=2023&page=2&full=1
 // Discover (no query): GET /api/search?type=movie&genre=28&year=2023&page=1&full=1
 export async function GET(req: NextRequest) {
+  const rl = await checkRateLimit(`search:${getClientIp(req)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   const sp = req.nextUrl.searchParams
   const q = sp.get('q')?.trim() ?? ''
   const type = sp.get('type') ?? ''

@@ -31,7 +31,9 @@ export async function GET(req: NextRequest) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Отписка — Кинополка</title>
   <style>
-    body { font-family: sans-serif; background: #0A0B14; color: #F5F3EF; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    /* Standalone HTML вне React — токены дизайн-системы недоступны, цвета
+       вручную повторяют globals.css (background/foreground/primary). */
+    body { font-family: sans-serif; background: #0A0B14; color: #F5F3EF; display: flex; align-items: center; justify-content: center; min-height: 100dvh; margin: 0; }
     .card { background: #12131F; border-radius: 16px; padding: 48px 40px; max-width: 420px; text-align: center; }
     h1 { font-size: 24px; margin: 0 0 12px; }
     p { color: #9B9BAD; font-size: 15px; line-height: 1.6; margin: 0 0 28px; }

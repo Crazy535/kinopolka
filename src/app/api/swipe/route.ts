@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { discoverMovies, discoverTVShows } from '@/lib/tmdb'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 import type { SwipeItem } from '@/components/swipe/swipe-card'
 
@@ -17,6 +18,9 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export async function GET(req: NextRequest) {
+  const rl = await checkRateLimit(`swipe:${getClientIp(req)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   const { searchParams } = req.nextUrl
   const type = searchParams.get('type') === 'tv' ? 'tv' : 'movie'
   const genreIdsParam = searchParams.get('genre_ids')

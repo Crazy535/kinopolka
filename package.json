@@ -11,7 +11,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:mobile": "agent-browser open http://localhost:3000 && agent-browser set device \"iPhone 14\" && agent-browser screenshot mobile-test.png && agent-browser close",
-    "test:mobile:prod": "agent-browser open https://kinopolka.app && agent-browser set device \"iPhone 14\" && agent-browser screenshot mobile-prod.png && agent-browser close"
+    "test:mobile:prod": "agent-browser open https://kinopolka.vercel.app && agent-browser set device \"iPhone 14\" && agent-browser screenshot mobile-prod.png && agent-browser close"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

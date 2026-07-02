@@ -51,9 +51,16 @@ export default function IptvPage() {
           <ArrowLeft className="size-4" />
           Плагины
         </Link>
-        <div className="mt-16 flex justify-center">
-          <div className="size-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+        {/* Header + content placeholders mirroring the loaded layout */}
+        <div className="mb-8 flex items-start gap-3">
+          <div className="size-11 shrink-0 animate-shimmer rounded-xl" />
+          <div className="flex-1">
+            <div className="h-7 w-40 animate-shimmer rounded-md" />
+            <div className="mt-2 h-3.5 w-2/3 animate-shimmer rounded-sm" />
+          </div>
         </div>
+        <div className="h-12 w-full animate-shimmer rounded-xl" />
+        <div className="mt-6 h-40 w-full animate-shimmer rounded-xl" />
       </div>
     )
   }

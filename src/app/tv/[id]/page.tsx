@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import type { Metadata } from 'next'
 import { auth } from '@/auth'
 import { getTVShowDetailsEnriched, getTVRecommendations, getTVVideos, localizePeopleNames } from '@/lib/tmdb'
@@ -188,7 +188,10 @@ export default async function TVPage({ params }: TVPageProps) {
                 </span>
               )}
               {show.vote_count > 0 && (
-                <span className="font-semibold">★ {show.vote_average.toFixed(1)}</span>
+                <span className="inline-flex items-center gap-1 font-semibold">
+                  <Star className="size-4 fill-current text-gold" aria-hidden />
+                  {show.vote_average.toFixed(1)}
+                </span>
               )}
             </div>
 

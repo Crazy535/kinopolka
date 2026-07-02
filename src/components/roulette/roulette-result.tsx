@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Star } from 'lucide-react'
 import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
 import { calcMatchScore } from '@/lib/match-score'
 import { MOVIE_GENRES, TV_GENRES } from '@/lib/tmdb-genres'
@@ -98,8 +98,9 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           {movie.vote_count > 0 && (
-            <div className={`absolute right-3 top-3 rounded-md bg-black/50 px-2 py-1 text-xs font-bold backdrop-blur-sm ${ratingClass}`}>
-              ★&nbsp;{movie.vote_average.toFixed(1)}
+            <div className={`absolute right-3 top-3 inline-flex items-center gap-0.5 rounded-md bg-black/50 px-2 py-1 text-xs font-bold backdrop-blur-sm ${ratingClass}`}>
+              <Star className="size-3 fill-current" aria-hidden />
+              {movie.vote_average.toFixed(1)}
             </div>
           )}
           {typeof matchScore === 'number' && matchScore >= 60 && (
@@ -191,8 +192,9 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
               {movie.vote_count > 0 && (
-                <span className={`text-sm font-bold ${ratingClass}`}>
-                  ★&nbsp;{movie.vote_average.toFixed(1)}
+                <span className={`inline-flex items-center gap-0.5 text-sm font-bold ${ratingClass}`}>
+                  <Star className="size-3.5 fill-current" aria-hidden />
+                  {movie.vote_average.toFixed(1)}
                 </span>
               )}
               {typeof matchScore === 'number' && matchScore >= 60 && (

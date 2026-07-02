@@ -6,10 +6,10 @@ import posthog from 'posthog-js'
 interface Props {
   userId?: string | null
   name?: string | null
-  email?: string | null
 }
 
-export function PostHogIdentify({ userId, name, email }: Props) {
+// Не передаём email в PostHog — это PII (152-ФЗ/GDPR). Идентификатор — userId.
+export function PostHogIdentify({ userId, name }: Props) {
   useEffect(() => {
     if (!userId) {
       posthog.reset()
@@ -17,9 +17,8 @@ export function PostHogIdentify({ userId, name, email }: Props) {
     }
     posthog.identify(userId, {
       ...(name ? { name } : {}),
-      ...(email ? { email } : {}),
     })
-  }, [userId, name, email])
+  }, [userId, name])
 
   return null
 }

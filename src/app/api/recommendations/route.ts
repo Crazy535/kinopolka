@@ -5,6 +5,7 @@ import {
   getMovieWatchProviders,
   getTVWatchProviders,
 } from '@/lib/tmdb'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
 import type { TMDBDiscoverMovieParams, TMDBDiscoverTVParams, TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 import type { ContentType, RuntimeOption, RecommendationItem } from '@/types/quiz'
 
@@ -48,6 +49,9 @@ function rankByGenres<T extends { id: number; genre_ids?: number[] }>(
 }
 
 export async function GET(req: NextRequest) {
+  const rl = await checkRateLimit(`recs:${getClientIp(req)}`)
+  if (!rl.success) return rateLimitResponse(rl)
+
   try {
     const { searchParams } = req.nextUrl
     const type = searchParams.get('type') as ContentType | null

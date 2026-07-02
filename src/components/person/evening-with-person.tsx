@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Clock, Moon, Star } from 'lucide-react'
+import { Clock, Moon, Star, Film } from 'lucide-react'
 import { getPosterUrl } from '@/lib/tmdb-image'
 import type { EveningWithResponse, EveningFilm } from '@/app/api/evening-with/[id]/route'
 
@@ -47,7 +47,9 @@ function EveningFilmCard({ film }: { film: EveningFilm }) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-muted-foreground text-3xl">🎬</div>
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <Film className="size-7" strokeWidth={1.5} />
+          </div>
         )}
         <div className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-black/70 px-1.5 py-0.5 text-xs font-semibold backdrop-blur-sm">
           <Star className="size-3 fill-gold text-gold" />

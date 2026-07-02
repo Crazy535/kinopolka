@@ -46,7 +46,7 @@ export function UserMenu({ user }: Props) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-full p-0.5 hover:ring-2 ring-primary/50 transition-all"
+        className="flex items-center gap-2 rounded-full p-1.5 hover:ring-2 ring-primary/50 transition-all"
         aria-expanded={open}
         aria-label="Меню пользователя"
       >

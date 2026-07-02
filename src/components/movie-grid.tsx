@@ -29,13 +29,14 @@ export async function MovieGrid({ limit = 10, userGenreIds }: MovieGridProps) {
           ? (calcMatchScore(movie.genre_ids, userGenreIds) ?? undefined)
           : undefined
         return (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            providers={providers}
-            priority={i === 0}
-            matchScore={matchScore}
-          />
+          <div key={movie.id} className="animate-reveal" style={{ animationDelay: `${Math.min(i, 6) * 0.05}s` }}>
+            <MovieCard
+              movie={movie}
+              providers={providers}
+              priority={i === 0}
+              matchScore={matchScore}
+            />
+          </div>
         )
       })}
     </div>

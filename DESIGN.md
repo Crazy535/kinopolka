@@ -29,14 +29,17 @@ Defined as OKLCH CSS variables in `src/app/globals.css` (`.dark` block is the re
 ## 4. Component Stylings
 
 - **Buttons:** flat fills using `--primary`, `active:scale-[0.96]` tactile feedback (see `button.tsx`, `.btn-link` utility), no neon outer glow. Ghost/outline for secondary actions.
-- **Cards:** `rounded-xl`/`rounded-2xl`, tinted crimson glow shadow (`--card-glow`) on hover/focus, not a generic drop shadow. Poster cards always `aspect-[2/3]` with `object-cover`.
+- **Cards:** two radii by role, not one blanket value — poster/content cards (`movie-card.tsx`) use `rounded-lg`; bento/mode tiles and popovers use `rounded-xl`+. All cards get a tinted crimson glow shadow (`--card-glow`) on hover/focus, not a generic drop shadow. Poster cards always `aspect-[2/3]` with `object-cover`.
 - **Loading states:** skeleton shapes matching real layout (`.animate-shimmer`), never a generic spinner.
+- **Empty states:** minimum icon + text — never bare text alone (e.g. don't ship a plain "Ничего не найдено" with no visual anchor).
 - **Motion:** Framer Motion spring transitions (`stiffness: 400, damping: 30` for nav pill; `ease: [0.19,1,0.22,1]` "expo out" for cards/reveals). Staggered `delayChildren`/`staggerChildren` for list/grid entrances. Always respects `prefers-reduced-motion` (global CSS override + `<MotionConfig reducedMotion="user">`).
 
 ## 5. Layout Principles
 
 - Tailwind v4 CSS-based theme (`@theme inline` in `globals.css`), standard breakpoints (`sm` 640px, `md` 768px used as the mobile/desktop split for nav — bottom nav is `md:hidden`, desktop nav appears at `md:`).
 - Main content container: `max-w-7xl` centered, `px-4 sm:px-6`.
+- **Bento/asymmetric grids are the standard for any feature grid.** Reference implementation: `home/mode-card.tsx` + `home/mode-grid.tsx` — 2×2 base row + a row of 3 wide cards, each tile with its own distinct OKLCH-hue gradient (6 total), `whileHover={{ scale: 1.02, y: -4 }}`. This is Kinopolka's answer to the generic "3 equal cards" anti-pattern — reuse this pattern for new grids, don't invent a symmetric one.
+- **Hero exception:** the homepage Hero (`hero-section.tsx`) is intentionally centered, not asymmetric. It's a utility quiz-CTA optimized for sub-30-second time-to-watch, not a marketing/conversion hero — this is the one sanctioned exception to asymmetric-first layout. Don't "fix" it back to split-screen/asymmetric.
 - **No horizontal overflow on mobile — zero tolerance.** If a flex row has a heading next to fixed-width controls (e.g. carousel header + "Показать все" pill), the heading **must** get `min-w-0` so it can wrap/shrink instead of forcing the row wider than the viewport. Cause of a real shipped bug: `category-carousel.tsx` header row overflowed at 360px because the `<h2>` had no `min-w-0`.
 - **Full-viewport-fit sections must use `dvh`, never `vh` or `min-h-screen`/`h-screen`.** iOS Safari's collapsing address bar makes `100vh` taller than the real visible viewport, causing a jump/whitespace flash. `swipe-deck.tsx` learned this the hard way — see Anti-Patterns.
 - **Never hand-tune a `calc(100dvh - <magic number>)` height budget for content sandwiched between a fixed header and fixed bottom nav.** It silently drifts wrong the moment any sibling element's height changes (this exact bug hid the swipe screen's action buttons behind the bottom nav on iPhone SE/12/13/14 — the reserved constant didn't account for the page heading block). Instead: give the *outer* container a computed height (header + main padding, that part is a real fixed constant), then make the one flexible element `flex-1 min-h-0` inside a `flex flex-col` — every sibling that must stay visible gets `shrink-0`, and the flexible element absorbs all the slack automatically. Add a small `min-h-[Npx]` floor only as an absolute safety net for extreme cases (e.g. landscape), never as the primary sizing mechanism.
@@ -57,4 +60,5 @@ Defined as OKLCH CSS variables in `src/app/globals.css` (`.dark` block is the re
 - No pure black (`#000000`) — background is `oklch(0.09 0.025 265)`.
 - No Inter font, no generic serif for headings (Playfair Display only).
 - No plain circular spinners for loading states — skeleton shapes matching the real layout.
+- No emoji anywhere in UI — use Lucide icons (e.g. `Film`) for any illustrative fallback.
 - No motion that ignores `prefers-reduced-motion`.

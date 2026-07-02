@@ -99,7 +99,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
   async function handleTelegram() {
     const url = await createShare()
     const shareTarget = url ?? `${window.location.origin}/quiz`
-    const text = encodeURIComponent('Кинополка подобрала мне фильмы за 30 сек 🎬')
+    const text = encodeURIComponent('Кинополка подобрала мне фильмы за 30 сек')
     window.open(
       `https://t.me/share/url?url=${encodeURIComponent(shareTarget)}&text=${text}`,
       '_blank',
@@ -172,7 +172,7 @@ export function QuizResults({ results, isLoading, error, onReset, onRefresh, use
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
               title="Ещё действия"
-              className="flex items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              className="flex items-center justify-center rounded-md border border-border p-3.5 text-muted-foreground transition-colors hover:text-foreground"
             >
               <MoreHorizontal className="h-4 w-4" />
             </button>

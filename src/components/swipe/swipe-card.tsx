@@ -18,6 +18,7 @@ import {
 import { Star, Film } from 'lucide-react'
 import { getPosterUrl } from '@/lib/tmdb-image'
 import { getGenreNames } from '@/lib/tmdb-genres'
+import { EXPO_OUT } from '@/lib/motion'
 import type { TMDBMovie, TMDBTVShow } from '@/types/tmdb'
 
 export interface SwipeItem {
@@ -103,19 +104,17 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(
       const scale = 1 - stackIndex * 0.045
       const yShift = -(stackIndex * 14)
       return (
-        <div
+        <motion.div
           className="absolute inset-0 overflow-hidden rounded-2xl border border-border/20 bg-surface"
-          style={{
-            transform: `scale(${scale}) translateY(${yShift}px)`,
-            zIndex: 10 - stackIndex,
-            willChange: 'transform',
-          }}
+          style={{ zIndex: 10 - stackIndex }}
+          animate={{ scale, y: yShift }}
+          transition={{ duration: 0.35, ease: EXPO_OUT }}
         >
           {posterUrl && (
             <Image src={posterUrl} alt="" fill className="object-cover" sizes="360px" />
           )}
           <div className="absolute inset-0 bg-black/30" />
-        </div>
+        </motion.div>
       )
     }
 

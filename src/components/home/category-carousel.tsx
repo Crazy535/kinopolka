@@ -98,7 +98,11 @@ export function CategoryCarousel({ title, items, browseHref, userGenreIds }: Cat
               ? (calcMatchScore(item.genre_ids, userGenreIds) ?? undefined)
               : undefined
             return (
-              <div key={item.id} className="w-40 shrink-0 sm:w-44 lg:w-48">
+              <div
+                key={item.id}
+                className="animate-reveal w-40 shrink-0 sm:w-44 lg:w-48"
+                style={{ animationDelay: `${Math.min(i, 6) * 0.05}s` }}
+              >
                 <MovieCard movie={item} providers={null} priority={i === 0} matchScore={matchScore} />
               </div>
             )

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Search } from 'lucide-react'
 import { DetectiveContainer } from '@/components/detective/detective-container'
 
 export const metadata: Metadata = {
@@ -20,8 +20,8 @@ export default function DetectivePage() {
       </Link>
 
       <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold tracking-[-0.02em] sm:text-4xl">
-          🔍 Кино-детектив
+        <h1 className="flex items-center gap-2.5 font-heading text-3xl font-bold tracking-[-0.02em] sm:text-4xl">
+          <Search className="size-7 text-primary sm:size-8" strokeWidth={2} /> Кино-детектив
         </h1>
         <p className="mt-2 text-muted-foreground">
           Опиши фильм который не можешь вспомнить — мы его найдём

@@ -186,7 +186,7 @@ export function RouletteContainer({ isAuthenticated = false, userGenreIds = [] }
                             : 'border-border bg-card text-foreground hover:border-gold/40 hover:bg-surface-hover'
                         }`}
                       >
-                        <span className="text-2xl">{mood.emoji}</span>
+                        <mood.icon className="size-6" />
                         <span className="text-xs font-medium">{mood.label}</span>
                       </button>
                     ))}

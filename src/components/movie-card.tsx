@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getPosterUrl, getProviderLogoUrl } from '@/lib/tmdb-image'
+import { CardSpotlight } from '@/components/movie-card-spotlight'
 import type { TMDBMovie, TMDBTVShow, WatchProvider, WatchProvidersByType } from '@/types/tmdb'
 
 type MovieLike = TMDBMovie | TMDBTVShow
@@ -56,7 +57,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
   const detailHref = isMovie ? `/movie/${movie.id}` : `/tv/${movie.id}`
 
   return (
-    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-1 hover:shadow-[0_16px_52px_var(--color-card-glow)] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-background">
+    <CardSpotlight className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-1 hover:shadow-[0_16px_52px_var(--color-card-glow)] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-background">
       {/* Poster image */}
       {posterUrl ? (
         <Image
@@ -148,6 +149,6 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
         className="absolute inset-0 z-40 rounded-lg ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-primary/45 pointer-events-none"
         aria-hidden
       />
-    </article>
+    </CardSpotlight>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Search, Loader2, AlertCircle, RotateCcw } from 'lucide-react'
+import { Search, Loader2, AlertCircle, RotateCcw, Film, Target, HelpCircle, SearchX } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getPosterUrl } from '@/lib/tmdb-image'
@@ -51,7 +51,9 @@ function CandidateCard({ candidate, rank }: { candidate: DetectiveCandidate; ran
         {posterUrl ? (
           <Image src={posterUrl} alt={displayTitle} fill sizes="80px" className="object-cover" />
         ) : (
-          <div className="flex h-full items-center justify-center text-2xl text-muted-foreground">🎬</div>
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <Film className="size-6" strokeWidth={1.5} />
+          </div>
         )}
       </div>
 
@@ -231,12 +233,20 @@ export function DetectiveContainer() {
             {/* Header */}
             {state.candidates.length > 0 ? (
               <div>
-                <h2 className="font-heading text-xl font-bold sm:text-2xl">
-                  {state.candidates[0].confidence >= 0.8
-                    ? '🎯 Нашли!'
-                    : state.candidates[0].confidence >= 0.5
-                      ? '🤔 Возможно, это...'
-                      : '🔍 Мы неуверены, но...'}
+                <h2 className="flex items-center gap-2 font-heading text-xl font-bold sm:text-2xl">
+                  {state.candidates[0].confidence >= 0.8 ? (
+                    <>
+                      <Target className="size-5 text-primary" strokeWidth={2} /> Нашли!
+                    </>
+                  ) : state.candidates[0].confidence >= 0.5 ? (
+                    <>
+                      <HelpCircle className="size-5 text-primary" strokeWidth={2} /> Возможно, это...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="size-5 text-primary" strokeWidth={2} /> Мы неуверены, но...
+                    </>
+                  )}
                 </h2>
                 {state.uncertain && (
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -246,7 +256,9 @@ export function DetectiveContainer() {
               </div>
             ) : (
               <div>
-                <h2 className="font-heading text-xl font-bold">🕵️ Детектив зашёл в тупик</h2>
+                <h2 className="flex items-center gap-2 font-heading text-xl font-bold">
+                  <SearchX className="size-5 text-primary" strokeWidth={2} /> Детектив зашёл в тупик
+                </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Попробуй добавить: год выхода, страну, имя актёра, запоминающуюся сцену или жанр.
                 </p>

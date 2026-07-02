@@ -5,8 +5,7 @@ import type { ReactNode } from 'react'
 export interface QuizOption {
   value: string
   label: string
-  emoji?: string
-  icon?: ReactNode
+  icon: ReactNode
   sublabel?: string
 }
 
@@ -33,13 +32,9 @@ export function QuizStep({ question, options, onSelect, columns = 2 }: QuizStepP
               columns === 1 ? 'flex-row items-center gap-4' : 'flex-col items-start gap-3'
             }`}
           >
-            {option.icon ? (
-              <span className="flex h-7 w-7 items-center justify-center text-foreground/80">
-                {option.icon}
-              </span>
-            ) : (
-              <span className="text-2xl leading-none">{option.emoji}</span>
-            )}
+            <span className="flex h-7 w-7 items-center justify-center text-foreground/80">
+              {option.icon}
+            </span>
             <div>
               <span className="block text-sm font-semibold leading-tight">{option.label}</span>
               {option.sublabel && (

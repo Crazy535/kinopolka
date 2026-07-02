@@ -118,14 +118,14 @@ export function QuizContainer({ initialType, isAuthenticated = false, userGenreI
   const moodOptions = MOODS.map((m, i) => ({
     value: String(i),
     label: m.label,
-    emoji: m.emoji,
+    icon: <m.icon className="h-6 w-6" />,
   }))
 
   const runtimeOptions = RUNTIMES.map((r) => ({
     value: r.value,
     label: r.label,
     sublabel: r.sublabel,
-    emoji: r.emoji,
+    icon: <r.icon className="h-6 w-6" />,
   }))
 
   const questions = [

@@ -165,7 +165,7 @@ export function OnboardingContainer({ items }: Props) {
 
   if (step === 1) {
     return (
-      <div className="min-h-screen bg-background pb-32">
+      <div className="min-h-dvh bg-background pb-32">
         {/* Sticky header */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-4">
           <div className="max-w-6xl mx-auto">
@@ -330,7 +330,7 @@ export function OnboardingContainer({ items }: Props) {
   const selectedPeopleList = [...selectedPeople.values()]
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-dvh bg-background pb-32">
       {/* Sticky header */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">

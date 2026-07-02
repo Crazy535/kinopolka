@@ -2,70 +2,21 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, X, TrendingUp } from 'lucide-react'
+import { Search, X, TrendingUp, SearchX } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getPosterUrl } from '@/lib/tmdb-image'
-import { trackSearchUsed } from '@/lib/analytics'
-
-interface SearchResult {
-  id: number
-  media_type: 'movie' | 'tv'
-  title: string
-  poster_path: string | null
-  year: string
-}
-
-const POPULAR_QUERIES = [
-  'Паразиты',
-  'Интерстеллар',
-  'Игра в кальмара',
-  'Побег из Шоушенка',
-  'Зелёная книга',
-  'Довод',
-]
+import { useSearch, POPULAR_QUERIES } from '@/hooks/use-search'
 
 export function SearchBar() {
   const router = useRouter()
   const [mobileExpanded, setMobileExpanded] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const { query, results, isLoading, handleQueryChange, selectQuery, reset } = useSearch()
   const desktopInputRef = useRef<HTMLInputElement>(null)
   const mobileInputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const search = useCallback(async (q: string) => {
-    if (q.length < 2) {
-      setResults([])
-      return
-    }
-    setIsLoading(true)
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
-      const data = (await res.json()) as { results: SearchResult[] }
-      setResults(data.results)
-      trackSearchUsed(q.length, data.results.length)
-    } catch {
-      setResults([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  function handleQueryChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value
-    setQuery(val)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (/^#\d+$/.test(val.trim())) {
-      setResults([])
-      return
-    }
-    debounceRef.current = setTimeout(() => void search(val), 300)
-  }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key !== 'Enter') return
@@ -92,12 +43,11 @@ export function SearchBar() {
     blurTimerRef.current = setTimeout(() => setDropdownOpen(false), 160)
   }
 
-  function close() {
+  const close = useCallback(() => {
     setMobileExpanded(false)
     setDropdownOpen(false)
-    setQuery('')
-    setResults([])
-  }
+    reset()
+  }, [reset])
 
   function openMobile() {
     setMobileExpanded(true)
@@ -105,8 +55,7 @@ export function SearchBar() {
   }
 
   function handlePopularClick(q: string) {
-    setQuery(q)
-    void search(q)
+    selectQuery(q)
     desktopInputRef.current?.focus()
     mobileInputRef.current?.focus()
   }
@@ -117,11 +66,10 @@ export function SearchBar() {
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [close])
 
   useEffect(() => {
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
       if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
     }
   }, [])
@@ -133,7 +81,7 @@ export function SearchBar() {
   const sharedInputProps = {
     type: 'text' as const,
     value: query,
-    onChange: handleQueryChange,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleQueryChange(e.target.value),
     onKeyDown: handleKeyDown,
     onFocus: handleFocus,
     onBlur: handleBlur,
@@ -153,15 +101,19 @@ export function SearchBar() {
             placeholder="Поиск фильма или сериала..."
             className="h-9 w-52 rounded-lg border border-input bg-muted/40 pl-8 pr-7 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all focus:w-64 focus:border-ring focus:bg-background focus:outline-none focus:ring-1 focus:ring-ring/25 lg:w-56 lg:focus:w-72"
           />
-          {query && (
+          {query ? (
             <button
               type="button"
-              onClick={() => { setQuery(''); setResults([]); desktopInputRef.current?.focus() }}
+              onClick={() => { reset(); desktopInputRef.current?.focus() }}
               aria-label="Очистить поиск"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
             >
               <X className="size-3.5" />
             </button>
+          ) : (
+            <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-border/60 bg-background/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60">
+              ⌘K
+            </kbd>
           )}
         </div>
       </div>
@@ -173,7 +125,7 @@ export function SearchBar() {
             type="button"
             onClick={openMobile}
             aria-label="Поиск"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <Search className="size-4" />
           </button>
@@ -191,7 +143,7 @@ export function SearchBar() {
               type="button"
               onClick={close}
               aria-label="Закрыть поиск"
-              className="flex h-10 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <X className="size-4" />
             </button>
@@ -233,7 +185,10 @@ export function SearchBar() {
           ) : isLoading ? (
             <div className="px-4 py-3 text-sm text-muted-foreground">Поиск...</div>
           ) : results.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-muted-foreground">Ничего не найдено</div>
+            <div className="flex flex-col items-center gap-2 px-4 py-6 text-center">
+              <SearchX className="size-5 text-muted-foreground/50" strokeWidth={1.5} />
+              <p className="text-sm text-muted-foreground">Ничего не найдено</p>
+            </div>
           ) : (
             <>
               <ul>

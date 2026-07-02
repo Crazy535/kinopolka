@@ -167,6 +167,13 @@
   p {
     text-wrap: pretty;
   }
+  /* Editorial poster tightening (borrowed from Runway/Framer display type) —
+     Playfair Display at bold/black weight reads more premium with a slight
+     negative track instead of default letter-spacing. Restrained on purpose:
+     this is a serif, not a geometric sans built for -5% tracking. */
+  .font-heading {
+    letter-spacing: -0.015em;
+  }
 }
 
 /* ─── Accessibility: reduced motion ─── */

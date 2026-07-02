@@ -60,9 +60,9 @@ export function RelatedSection({ items, mediaType }: RelatedSectionProps) {
           type="button"
           onClick={() => scrollByAmount(-1)}
           aria-label="Прокрутить влево"
-          className="absolute left-0 top-1/2 z-10 hidden size-8 -translate-x-3 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 shadow-md backdrop-blur-sm transition-colors hover:bg-muted sm:flex"
+          className="absolute left-1 top-[108px] z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition-transform hover:scale-110 hover:bg-black/70 active:scale-95 sm:flex"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-5" />
         </button>
       )}
 
@@ -101,9 +101,9 @@ export function RelatedSection({ items, mediaType }: RelatedSectionProps) {
           type="button"
           onClick={() => scrollByAmount(1)}
           aria-label="Прокрутить вправо"
-          className="absolute right-0 top-1/2 z-10 hidden size-8 -translate-y-1/2 translate-x-3 items-center justify-center rounded-full border border-border bg-background/90 shadow-md backdrop-blur-sm transition-colors hover:bg-muted sm:flex"
+          className="absolute right-1 top-[108px] z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition-transform hover:scale-110 hover:bg-black/70 active:scale-95 sm:flex"
         >
-          <ChevronRight className="size-4" />
+          <ChevronRight className="size-5" />
         </button>
       )}
     </div>

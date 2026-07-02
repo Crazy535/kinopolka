@@ -50,7 +50,16 @@ Defined as OKLCH CSS variables in `src/app/globals.css` (`.dark` block is the re
 - **Safe-area insets are wired up** (`app/layout.tsx` sets `viewport: { viewportFit: 'cover' }`). `bottom-nav.tsx` adds `pb-[env(safe-area-inset-bottom)]`, `header-shell.tsx` adds `pt-[env(safe-area-inset-top)]`. Any new fixed/sticky full-width element (bottom sheets, toasts, modals anchored to an edge) must add the matching `env(safe-area-inset-*)` padding itself — it is not inherited automatically.
 - Bottom nav (`bottom-nav.tsx`) is mobile-only (`md:hidden`, fixed, `h-16` + safe-area padding); `<main>` reserves `pb-[calc(6rem+env(safe-area-inset-bottom))]` on mobile / `md:pb-8` on desktop specifically to clear it — any new full-bleed mobile screen must respect this existing reserved space (including the safe-area term, see `swipe/page.tsx`'s height calc) rather than fighting it with its own height math.
 
-## 7. Anti-Patterns (Banned)
+## 7. Cross-Pollinated Reference Points
+
+Sourced from `getdesign.md` analyses of PlayStation, Runway, and Framer (2026-07-02) — evaluated for fit against this system's own crimson/gold + Playfair/Manrope identity, **not** adopted wholesale. Only the structural/motion patterns below were pulled in; none of their colors or fonts replace ours.
+
+- **Carousel paddles float on the imagery, not beside it** (PlayStation `carousel-paddle`: 48px translucent circle anchored to the tile edge). Applied to `related-section.tsx`'s scroll arrows — they're `bg-black/55 backdrop-blur-sm` circles positioned over the poster's vertical center, not bordered chrome-colored buttons sitting outside the row. Reuse this treatment for any future poster/media carousel control (e.g. if `cast-row.tsx`'s "В ролях" row ever gets explicit arrows).
+- **Editorial display tracking** (Runway: -0.9px to -1.2px on 24-48px display type; Framer: up to -5.5px). Applied conservatively as `.font-heading { letter-spacing: -0.015em }` in `globals.css` — Playfair Display is a serif at bold/black weight, not a geometric sans built for aggressive negative tracking, so the value stays restrained versus either source. Do not push this further without checking legibility at the smallest heading size in use (`text-lg`/`text-xl` card titles).
+- **Imagery does the storytelling — copy stays compressed** (PlayStation: key art occupies 60-90% of a section; Runway: photography is "content, not decoration," full-bleed in heroes). Reinforces the existing backdrop-hero treatment on `movie/[id]` and `tv/[id]` pages — don't shrink the backdrop or add competing decorative chrome on top of it.
+- **Not adopted, and why:** PlayStation's flat-no-shadow-cards-lift-only-on-press rule was skipped — Kinopolka's tinted crimson `--card-glow` hover treatment is already a more distinctive signature than flat cards would be. Framer's gradient-spotlight-cards pattern was skipped as a new addition because `home/mode-grid.tsx`'s per-tile OKLCH-hue gradients already do the same job. Runway's monochrome-only palette and Framer's dark-canvas-with-one-blue-accent were both skipped outright — they'd erase the crimson/gold split this system is built around.
+
+## 8. Anti-Patterns (Banned)
 
 - No `100vh`/`h-screen`/`min-h-screen` for anything meant to exactly fill the visible viewport on mobile — use `dvh`.
 - No magic-number `calc(100dvh - N)` height budgets for multi-sibling layouts — use `flex-1 min-h-0` distribution instead.

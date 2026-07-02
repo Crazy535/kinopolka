@@ -188,7 +188,7 @@ export function IptvPlayer({ playlists, onDelete }: Props) {
               groups.length > 0 ? (
                 groups.map((group) => (
                   <div key={group}>
-                    <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                       {group}
                     </p>
                     {filtered.filter((c) => (c.group ?? '') === group).map((ch) => (

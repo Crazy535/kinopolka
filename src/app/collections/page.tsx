@@ -87,7 +87,7 @@ export default async function CollectionsPage() {
                 ) : (
                   <p className="text-xs text-muted-foreground">Пустая коллекция</p>
                 )}
-                <p className="mt-2 text-[11px] text-muted-foreground">
+                <p className="mt-2 text-[12px] text-muted-foreground">
                   {col._count.items} фильмов
                 </p>
               </Link>

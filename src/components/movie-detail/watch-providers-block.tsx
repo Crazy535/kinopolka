@@ -58,7 +58,7 @@ export function WatchProvidersBlock({ providers, title, userType = 'anon' }: Wat
                 className="rounded-lg"
                 title={p.provider_name}
               />
-              <span className="max-w-[48px] truncate text-center text-[10px] text-muted-foreground">
+              <span className="max-w-[48px] truncate text-center text-[11px] text-muted-foreground">
                 {p.provider_name}
               </span>
             </div>
@@ -81,7 +81,7 @@ export function WatchProvidersBlock({ providers, title, userType = 'anon' }: Wat
           href={justWatchUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-md border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          className="rounded-md border border-border px-2.5 py-1 text-[12px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
         >
           JustWatch →
         </a>
@@ -89,7 +89,7 @@ export function WatchProvidersBlock({ providers, title, userType = 'anon' }: Wat
           href={kinopoiskUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-md border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          className="rounded-md border border-border px-2.5 py-1 text-[12px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
         >
           Кинопоиск →
         </a>

@@ -77,10 +77,10 @@ export function CastRow({ cast, crew = [] }: CastRowProps) {
                   </div>
                 )}
               </div>
-              <p className="text-center text-[10px] font-medium leading-tight line-clamp-2 transition-colors group-hover:text-primary">
+              <p className="text-center text-[11px] font-medium leading-tight line-clamp-2 transition-colors group-hover:text-primary">
                 {actor.name}
               </p>
-              <p className="text-center text-[10px] leading-tight text-muted-foreground line-clamp-2">
+              <p className="text-center text-[11px] leading-tight text-muted-foreground line-clamp-2">
                 {actor.character}
               </p>
             </Link>

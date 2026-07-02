@@ -278,7 +278,7 @@ export function OnboardingContainer({ items }: Props) {
                     {item.media_type === 'tv' && (
                       <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-sky-500/90 text-white" title="Сериал">
                         <Tv className="w-2.5 h-2.5" />
-                        <span className="text-[10px] font-bold leading-none">СЕР</span>
+                        <span className="text-[11px] font-bold leading-none">СЕР</span>
                       </div>
                     )}
 

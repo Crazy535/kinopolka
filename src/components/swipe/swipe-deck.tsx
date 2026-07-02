@@ -168,8 +168,12 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
       </div>
 
       {/* Card deck — flex-1 fills whatever space remains above the selector/buttons
-          so the action buttons below are never pushed behind the bottom nav */}
-      <div className="relative mx-auto w-full max-w-sm min-h-[160px] flex-1 md:h-[520px] md:flex-none">
+          so the action buttons below are never pushed behind the bottom nav.
+          The inner box is locked to the 2:3 poster ratio (height-driven, width via
+          aspect-ratio) so posters never get cropped into an unrecognizable sliver
+          on tall/narrow viewports (e.g. iPhone with reduced dvh behind the toolbar). */}
+      <div className="flex min-h-[160px] flex-1 items-center justify-center md:h-[520px] md:flex-none">
+        <div className="relative aspect-[2/3] h-full max-w-sm">
         {isLoading && items.length === 0 ? (
           <>
             <div
@@ -234,6 +238,7 @@ export function SwipeDeck({ isAuthenticated, userGenreIds = [] }: SwipeDeckProps
               })}
           </>
         )}
+        </div>
       </div>
 
       {/* Action buttons */}

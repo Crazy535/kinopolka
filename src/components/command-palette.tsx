@@ -84,7 +84,7 @@ export function CommandPalette() {
         <div className="max-h-[60vh] overflow-y-auto p-2">
           {showPopular ? (
             <div className="p-2">
-              <div className="mb-2.5 flex items-center gap-1.5 px-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="mb-2.5 flex items-center gap-1.5 px-1 text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
                 <TrendingUp className="size-3" />
                 Популярное
               </div>
@@ -140,7 +140,7 @@ export function CommandPalette() {
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-border px-4 py-2 text-[11px] text-muted-foreground/60">
+        <div className="flex items-center justify-between border-t border-border px-4 py-2 text-[12px] text-muted-foreground/60">
           <span>↵ выбрать</span>
           <span>esc закрыть</span>
         </div>

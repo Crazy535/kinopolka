@@ -59,7 +59,7 @@ export function DiaryNoteButton({
             }}
             placeholder="Заметка..."
             rows={2}
-            className="w-full resize-none rounded-md border border-border/60 bg-muted/50 px-2 py-1.5 text-[11px] leading-tight text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
+            className="w-full resize-none rounded-md border border-border/60 bg-muted/50 px-2 py-1.5 text-[12px] leading-tight text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
           />
           <div className="flex justify-end gap-1">
             <button
@@ -89,7 +89,7 @@ export function DiaryNoteButton({
           className="mt-1.5 w-full text-left"
           title="Изменить заметку"
         >
-          <p className="line-clamp-2 text-[11px] leading-tight text-muted-foreground">{saved}</p>
+          <p className="line-clamp-2 text-[12px] leading-tight text-muted-foreground">{saved}</p>
         </button>
       ) : null}
     </>

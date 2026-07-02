@@ -91,7 +91,7 @@ export default async function CollectionPage({ params }: Props) {
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center p-2">
-                      <span className="text-center text-[10px] text-muted-foreground">{item.title}</span>
+                      <span className="text-center text-[11px] text-muted-foreground">{item.title}</span>
                     </div>
                   )}
                 </div>

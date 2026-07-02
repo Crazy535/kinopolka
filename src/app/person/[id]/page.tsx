@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { getPersonDetails, getPersonCombinedCredits } from '@/lib/tmdb'
+import { getPersonDetails, getPersonCombinedCredits, pickCyrillicName } from '@/lib/tmdb'
 import { PersonHero } from '@/components/person/person-hero'
 import { PersonBio } from '@/components/person/person-bio'
 import { PersonFilmography } from '@/components/person/person-filmography'
@@ -27,6 +27,8 @@ export default async function PersonPage({ params }: PersonPageProps) {
   } catch {
     notFound()
   }
+
+  person = { ...person, name: pickCyrillicName(person.name, person.also_known_as) }
 
   const topCredits = [...credits.cast]
     .filter((c) => c.vote_count >= 50 && c.poster_path)

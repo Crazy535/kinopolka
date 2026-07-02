@@ -76,7 +76,7 @@ export default async function DiaryPage() {
             <section key={key}>
               <div className="mb-4 flex items-center gap-3">
                 <h2 className="font-heading text-xl font-semibold capitalize">{label}</h2>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[12px] font-semibold text-muted-foreground">
                   {entries.length}
                 </span>
               </div>
@@ -109,15 +109,15 @@ export default async function DiaryPage() {
                             className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                           />
                         ) : (
-                          <div className="absolute inset-0 flex items-center justify-center bg-muted p-2 text-center text-[11px] leading-tight text-muted-foreground">
+                          <div className="absolute inset-0 flex items-center justify-center bg-muted p-2 text-center text-[12px] leading-tight text-muted-foreground">
                             {log.title}
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-2">
-                          <p className="text-[10px] text-white/75">{dayLabel}</p>
+                          <p className="text-[11px] text-white/75">{dayLabel}</p>
                           {log.isRewatch && (
-                            <span className="mt-0.5 inline-block rounded bg-primary/80 px-1 py-px text-[9px] font-semibold uppercase leading-none text-white">
+                            <span className="mt-0.5 inline-block rounded bg-primary/80 px-1 py-px text-[10px] font-semibold uppercase leading-none text-white">
                               Повтор
                             </span>
                           )}

@@ -94,12 +94,12 @@ export function AchievementsSection({ unlockedIds }: Props) {
                       <p className={`text-[12px] font-semibold leading-tight ${unlocked ? '' : 'text-muted-foreground'}`}>
                         {badge.title}
                       </p>
-                      <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight">
+                      <p className="mt-0.5 text-[11px] text-muted-foreground leading-tight">
                         {unlocked ? badge.description : badge.condition}
                       </p>
                     </div>
                     {unlocked && (
-                      <span className="absolute right-2 top-2 rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold text-primary">
+                      <span className="absolute right-2 top-2 rounded-full bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold text-primary">
                         +{badge.xp} XP
                       </span>
                     )}

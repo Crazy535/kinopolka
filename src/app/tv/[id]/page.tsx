@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import type { Metadata } from 'next'
 import { auth } from '@/auth'
-import { getTVShowDetailsEnriched, getTVRecommendations, getTVVideos } from '@/lib/tmdb'
+import { getTVShowDetailsEnriched, getTVRecommendations, getTVVideos, localizePeopleNames } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
 import { CastRow } from '@/components/movie-detail/cast-row'
@@ -82,11 +82,19 @@ export default async function TVPage({ params }: TVPageProps) {
   const backdropUrl = getBackdropUrl(show.backdrop_path, 'w1280')
   const posterUrl = getPosterUrl(show.poster_path, 'w500')
   const providers = show['watch/providers']?.results?.['RU'] ?? null
-  const cast = show.credits?.cast ?? []
-  const crew = show.credits?.crew ?? []
-  const year = show.first_air_date ? show.first_air_date.slice(0, 4) : '—'
+  const rawCast = show.credits?.cast ?? []
+  const rawCrew = show.credits?.crew ?? []
   const creator = show.created_by?.[0] ?? null
-  const directorName = creator?.name ?? crew.find((c) => c.job === 'Director')?.name
+  const directorRaw = creator
+    ? { id: creator.id, name: creator.name, job: 'Director', department: 'Directing', profile_path: creator.profile_path }
+    : rawCrew.find((c) => c.job === 'Director')
+  const castTop8 = rawCast.slice(0, 8)
+  const [cast, localizedDirector] = await Promise.all([
+    localizePeopleNames(castTop8),
+    directorRaw ? localizePeopleNames([directorRaw]).then((r) => r[0]) : Promise.resolve(undefined),
+  ])
+  const year = show.first_air_date ? show.first_air_date.slice(0, 4) : '—'
+  const directorName = localizedDirector?.name
   const topCast = cast.slice(0, 3).map((c) => c.name)
 
   const jsonLd = {
@@ -242,15 +250,8 @@ export default async function TVPage({ params }: TVPageProps) {
 
           <WatchProvidersBlock providers={providers} title={show.name} userType={userType} />
 
-          {(cast.length > 0 || creator) && (
-            <CastRow
-              cast={cast}
-              crew={
-                creator
-                  ? [{ id: creator.id, name: creator.name, job: 'Director', department: 'Directing', profile_path: creator.profile_path }]
-                  : crew
-              }
-            />
+          {(cast.length > 0 || localizedDirector) && (
+            <CastRow cast={cast} crew={localizedDirector ? [localizedDirector] : []} />
           )}
 
           <RelatedSection items={recommendations.results} mediaType="tv" />

@@ -73,7 +73,7 @@ function EveningFilmCard({ film }: { film: EveningFilm }) {
           )}
         </div>
         {film.providers_ru.length > 0 && (
-          <p className="text-[11px] text-muted-foreground truncate">{film.providers_ru.join(' · ')}</p>
+          <p className="text-[12px] text-muted-foreground truncate">{film.providers_ru.join(' · ')}</p>
         )}
       </div>
     </Link>
@@ -148,7 +148,7 @@ export function EveningWithPerson({ personId, personName }: Props) {
               >
                 {label}
                 {key !== 'all' && data.grouped[key] && (
-                  <span className="ml-1.5 text-[11px] opacity-70">{data.grouped[key]!.length}</span>
+                  <span className="ml-1.5 text-[12px] opacity-70">{data.grouped[key]!.length}</span>
                 )}
               </button>
             )

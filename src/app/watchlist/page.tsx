@@ -126,7 +126,7 @@ export default async function WatchlistPage({ searchParams }: Props) {
             {t.label}
             {t.count > 0 && (
               <span
-                className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none ${
+                className={`rounded-full px-1.5 py-0.5 text-[12px] font-semibold leading-none ${
                   activeTab === t.key
                     ? 'bg-primary/15 text-primary'
                     : 'bg-muted text-muted-foreground'
@@ -239,7 +239,7 @@ export default async function WatchlistPage({ searchParams }: Props) {
                     <p className="text-[13px] font-semibold leading-tight text-white line-clamp-2">
                       {item.title}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-white/70 capitalize">
+                    <p className="mt-0.5 text-[12px] text-white/70 capitalize">
                       {item.mediaType === 'tv' ? 'Сериал' : 'Фильм'}
                       {showWatched && item.watchedAt && (
                         <> &bull; {formatDate(item.watchedAt)}</>

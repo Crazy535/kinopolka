@@ -76,7 +76,7 @@ export function PublicProfileCard({
               )}
             </div>
             {/* Level pip */}
-            <div className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-primary font-mono text-[10px] font-bold leading-none text-primary-foreground">
+            <div className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-primary font-mono text-[11px] font-bold leading-none text-primary-foreground">
               {level}
             </div>
           </div>
@@ -116,7 +116,7 @@ export function PublicProfileCard({
                 transition={{ duration: 1.1, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
               />
             </div>
-            <p className="mt-1.5 text-right font-mono text-[10px] text-muted-foreground">
+            <p className="mt-1.5 text-right font-mono text-[11px] text-muted-foreground">
               до Ур. {level + 1} — {xpNext.toLocaleString('ru-RU')} XP
             </p>
           </motion.div>
@@ -130,7 +130,7 @@ export function PublicProfileCard({
               {topGenres.map((genre) => (
                 <span
                   key={genre}
-                  className="rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary/90"
+                  className="rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[12px] font-medium text-primary/90"
                 >
                   {genre}
                 </span>

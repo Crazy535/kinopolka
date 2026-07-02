@@ -125,7 +125,7 @@ export default async function ProfilePage() {
                 style={{ width: `${xpProgress}%` }}
               />
             </div>
-            <span className="shrink-0 text-[11px] text-muted-foreground">
+            <span className="shrink-0 text-[12px] text-muted-foreground">
               {xp} / {xpForNext} XP
             </span>
           </div>
@@ -230,13 +230,13 @@ export default async function ProfilePage() {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center p-1">
-                        <span className="text-center text-[10px] text-muted-foreground">{item.title}</span>
+                        <span className="text-center text-[11px] text-muted-foreground">{item.title}</span>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   </div>
                   {item.watchedAt && (
-                    <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                    <p className="mt-1 truncate text-[12px] text-muted-foreground">
                       {formatDate(item.watchedAt)}
                     </p>
                   )}

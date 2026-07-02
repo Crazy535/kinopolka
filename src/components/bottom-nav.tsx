@@ -55,7 +55,7 @@ export function BottomNav({ isAuthenticated = false }: BottomNavProps) {
                 />
               )}
               <Icon className="relative size-5" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="relative text-[10px] font-medium">{label}</span>
+              <span className="relative text-[11px] font-medium">{label}</span>
             </Link>
           )
         })}

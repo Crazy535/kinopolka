@@ -203,7 +203,7 @@ export function AiRecommender() {
                     <div className="flex flex-col gap-1.5">
                       <MovieCard movie={movie} providers={null} matchScore={matchScore ?? undefined} />
                       {reason && (
-                        <p className="line-clamp-2 px-0.5 text-[11px] leading-snug text-muted-foreground">
+                        <p className="line-clamp-2 px-0.5 text-[12px] leading-snug text-muted-foreground">
                           {reason}
                         </p>
                       )}

@@ -32,12 +32,12 @@ export function PersonFilmography({ credits }: PersonFilmographyProps) {
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center px-2">
-                    <span className="text-center text-[10px] text-muted-foreground">{title}</span>
+                    <span className="text-center text-[11px] text-muted-foreground">{title}</span>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-2">
-                  <p className="line-clamp-2 text-[11px] font-medium leading-tight text-white">
+                  <p className="line-clamp-2 text-[12px] font-medium leading-tight text-white">
                     {title}
                   </p>
                 </div>

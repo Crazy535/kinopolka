@@ -72,7 +72,7 @@ export function FeedMovieCard({ movie, providers, reason, matchScore }: FeedMovi
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-[10px] text-muted-foreground text-center px-1">Нет постера</span>
+              <span className="text-[11px] text-muted-foreground text-center px-1">Нет постера</span>
             </div>
           )}
         </div>
@@ -100,14 +100,14 @@ export function FeedMovieCard({ movie, providers, reason, matchScore }: FeedMovi
           {genreNames.map((name) => (
             <span
               key={name}
-              className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground"
+              className="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-muted text-muted-foreground"
             >
               {name}
             </span>
           ))}
           {typeof matchScore === 'number' && matchScore >= 40 && (
             <span
-              className={`inline-flex items-center rounded px-1.5 py-[2px] text-[10px] font-bold leading-none ${
+              className={`inline-flex items-center rounded px-1.5 py-[2px] text-[11px] font-bold leading-none ${
                 matchScore >= 80
                   ? 'bg-emerald-500/15 text-emerald-400'
                   : matchScore >= 60
@@ -130,7 +130,7 @@ export function FeedMovieCard({ movie, providers, reason, matchScore }: FeedMovi
         {/* Footer: providers + reason */}
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           {reason && (
-            <span className="text-[10px] text-muted-foreground/70 italic truncate">{reason}</span>
+            <span className="text-[11px] text-muted-foreground/70 italic truncate">{reason}</span>
           )}
           {topProviders.length > 0 ? (
             <a
@@ -157,7 +157,7 @@ export function FeedMovieCard({ movie, providers, reason, matchScore }: FeedMovi
               href={`https://www.google.com/search?q=${encodeURIComponent(`${title} смотреть онлайн`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground ml-auto transition-colors"
+              className="text-[11px] text-muted-foreground/60 hover:text-muted-foreground ml-auto transition-colors"
             >
               Найти&nbsp;→
             </a>

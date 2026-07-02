@@ -104,7 +104,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
           )}
           {typeof matchScore === 'number' && matchScore >= 60 && (
             <div className="pointer-events-none absolute left-3 top-3">
-              <span className={`inline-flex items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none backdrop-blur-sm shadow-sm ${
+              <span className={`inline-flex items-center rounded px-1.5 py-[3px] text-[12px] font-bold leading-none backdrop-blur-sm shadow-sm ${
                 matchScore >= 80 ? 'bg-emerald-500/85 text-white' : 'bg-amber-500/85 text-white'
               }`}>
                 {matchScore}%
@@ -196,7 +196,7 @@ export function RouletteResult({ result, ttwDuration, onRespin, onChangeMood, us
                 </span>
               )}
               {typeof matchScore === 'number' && matchScore >= 60 && (
-                <span className={`inline-flex items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${
+                <span className={`inline-flex items-center rounded px-1.5 py-[3px] text-[12px] font-bold leading-none ${
                   matchScore >= 80 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
                 }`}>
                   {matchScore}% совпадение

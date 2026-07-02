@@ -158,7 +158,7 @@ export function AddPlaylistForm({ onAdded }: Props) {
 
         {error && <p className="text-xs text-destructive">{error}</p>}
 
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[12px] text-muted-foreground">
           Используйте только свои плейлисты. Вы несёте ответственность за законность контента.
         </p>
 

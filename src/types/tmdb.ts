@@ -210,6 +210,7 @@ export interface TMDBPersonDetails {
   known_for_department: string
   gender: number
   popularity: number
+  also_known_as?: string[]
 }
 
 export interface TMDBPersonCastCredit {

@@ -81,7 +81,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
       {typeof matchScore === 'number' && matchScore >= 60 && (
         <div className="absolute top-2 left-2 z-30 pointer-events-none">
           <span
-            className={`inline-flex items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none backdrop-blur-sm shadow-sm ${
+            className={`inline-flex items-center rounded px-1.5 py-[3px] text-[12px] font-bold leading-none backdrop-blur-sm shadow-sm ${
               matchScore >= 80
                 ? 'bg-emerald-500/85 text-white'
                 : 'bg-amber-500/85 text-white'
@@ -103,9 +103,9 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
           {title}
         </h3>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-[11px] text-white/70">{year}</span>
+          <span className="text-[12px] text-white/70">{year}</span>
           {movie.vote_count > 0 && (
-            <span className={`text-[11px] font-bold ${ratingClass}`}>
+            <span className={`text-[12px] font-bold ${ratingClass}`}>
               ★&nbsp;{movie.vote_average.toFixed(1)}
             </span>
           )}
@@ -138,7 +138,7 @@ export function MovieCard({ movie, providers, priority = false, matchScore }: Mo
           href={fallbackLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-2.5 right-2.5 z-30 text-[10px] text-white/75 transition-colors hover:text-white"
+          className="absolute bottom-2.5 right-2.5 z-30 text-[11px] text-white/75 transition-colors hover:text-white"
         >
           Найти&nbsp;→
         </a>

@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import type { Metadata } from 'next'
 import { auth } from '@/auth'
-import { getMovieDetailsEnriched, getMovieRecommendations, getMovieVideos } from '@/lib/tmdb'
+import { getMovieDetailsEnriched, getMovieRecommendations, getMovieVideos, localizePeopleNames } from '@/lib/tmdb'
 import { getPosterUrl, getBackdropUrl } from '@/lib/tmdb-image'
 import { WatchProvidersBlock } from '@/components/movie-detail/watch-providers-block'
 import { CastRow } from '@/components/movie-detail/cast-row'
@@ -82,10 +82,16 @@ export default async function MoviePage({ params }: MoviePageProps) {
   const backdropUrl = getBackdropUrl(movie.backdrop_path, 'w1280')
   const posterUrl = getPosterUrl(movie.poster_path, 'w500')
   const providers = movie['watch/providers']?.results?.['RU'] ?? null
-  const cast = movie.credits?.cast ?? []
-  const crew = movie.credits?.crew ?? []
+  const rawCast = movie.credits?.cast ?? []
+  const rawCrew = movie.credits?.crew ?? []
+  const rawDirector = rawCrew.find((c) => c.job === 'Director')
+  const castTop8 = rawCast.slice(0, 8)
+  const [cast, localizedDirector] = await Promise.all([
+    localizePeopleNames(castTop8),
+    rawDirector ? localizePeopleNames([rawDirector]).then((r) => r[0]) : Promise.resolve(undefined),
+  ])
   const year = movie.release_date ? movie.release_date.slice(0, 4) : '—'
-  const director = crew.find((c) => c.job === 'Director')?.name
+  const director = localizedDirector?.name
   const topCast = cast.slice(0, 3).map((c) => c.name)
   const runtime = movie.runtime
     ? `${Math.floor(movie.runtime / 60)} ч ${movie.runtime % 60} мин`
@@ -228,7 +234,9 @@ export default async function MoviePage({ params }: MoviePageProps) {
 
           <WatchProvidersBlock providers={providers} title={movie.title} userType={userType} />
 
-          {cast.length > 0 && <CastRow cast={cast} crew={crew} />}
+          {cast.length > 0 && (
+            <CastRow cast={cast} crew={localizedDirector ? [localizedDirector] : []} />
+          )}
 
           <RelatedSection items={recommendations.results} mediaType="movie" />
         </div>

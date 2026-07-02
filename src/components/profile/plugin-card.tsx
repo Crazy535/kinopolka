@@ -52,12 +52,12 @@ export function PluginCard({
           <div className="flex items-center gap-2">
             <h3 className="font-semibold tracking-tight">{plugin.name}</h3>
             {plugin.status === 'beta' && (
-              <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
+              <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[11px] font-bold uppercase text-gold">
                 Beta
               </span>
             )}
             {isSoon && (
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold uppercase text-muted-foreground">
                 Скоро
               </span>
             )}

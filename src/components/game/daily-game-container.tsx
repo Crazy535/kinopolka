@@ -156,7 +156,7 @@ export function DailyGameContainer() {
                   : 'border-border bg-muted/30 opacity-40'
               }`}
             >
-              <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+              <p className="mb-0.5 text-[12px] font-semibold uppercase tracking-widest text-muted-foreground">
                 {clue.label}
               </p>
               <p className={`text-sm font-medium ${revealed ? '' : 'select-none blur-sm'}`}>

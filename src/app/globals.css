@@ -52,6 +52,20 @@
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
   --color-card-glow: var(--card-glow);
+
+  /* Bumped type scale — default Tailwind sizes read too small on the dense,
+     text-heavy movie/cast/quiz screens. Ratios (line-height / font-size) match
+     the Tailwind defaults so existing spacing rhythm doesn't shift. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: calc(1.125 / 0.8125);
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: calc(1.375 / 0.9375);
+  --text-base: 1.0625rem;
+  --text-base--line-height: calc(1.625 / 1.0625);
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: calc(1.875 / 1.1875);
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: calc(1.875 / 1.3125);
 }
 
 /* Light (fallback — dark class always applied in practice) */

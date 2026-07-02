@@ -81,7 +81,7 @@ function CandidateCard({ candidate, rank }: { candidate: DetectiveCandidate; ran
         <p className="text-sm text-muted-foreground leading-snug line-clamp-3">{candidate.reasoning}</p>
 
         {candidate.providers_ru.length > 0 && (
-          <p className="text-[11px] text-muted-foreground">{candidate.providers_ru.join(' · ')}</p>
+          <p className="text-[12px] text-muted-foreground">{candidate.providers_ru.join(' · ')}</p>
         )}
 
         {candidate.tmdb_id && (
@@ -159,7 +159,7 @@ export function DetectiveContainer() {
                 rows={4}
                 className="w-full resize-none rounded-xl border border-border bg-card px-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
               />
-              <p className="absolute bottom-3 right-3 text-[11px] text-muted-foreground/60">
+              <p className="absolute bottom-3 right-3 text-[12px] text-muted-foreground/60">
                 ⌘+Enter
               </p>
             </div>

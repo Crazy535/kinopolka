@@ -101,7 +101,7 @@ export function SearchBar() {
             placeholder="Поиск фильма или сериала..."
             className="h-9 w-52 rounded-lg border border-input bg-muted/40 pl-8 pr-7 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all focus:w-64 focus:border-ring focus:bg-background focus:outline-none focus:ring-1 focus:ring-ring/25 lg:w-56 lg:focus:w-72"
           />
-          {query ? (
+          {query && (
             <button
               type="button"
               onClick={() => { reset(); desktopInputRef.current?.focus() }}
@@ -110,10 +110,6 @@ export function SearchBar() {
             >
               <X className="size-3.5" />
             </button>
-          ) : (
-            <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-border/60 bg-background/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60">
-              ⌘K
-            </kbd>
           )}
         </div>
       </div>
@@ -156,7 +152,7 @@ export function SearchBar() {
         <div className="absolute right-0 top-full z-50 mt-1.5 w-72 overflow-hidden rounded-xl border border-border bg-popover shadow-lg sm:w-80 md:w-80">
           {showPopular ? (
             <div className="p-3">
-              <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="mb-2.5 flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
                 <TrendingUp className="size-3" />
                 Популярное
               </div>
